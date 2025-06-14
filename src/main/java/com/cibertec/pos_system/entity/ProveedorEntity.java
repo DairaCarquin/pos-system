@@ -10,7 +10,7 @@ import lombok.Data;
 @Entity
 @Table(name = "proveedores")
 @Data
-public class Proveedor {
+public class ProveedorEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
