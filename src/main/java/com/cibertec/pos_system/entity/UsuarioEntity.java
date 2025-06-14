@@ -1,35 +1,31 @@
 package com.cibertec.pos_system.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
+
+import jakarta.persistence.*;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
-@Table(name = "usuarios")
+@Table(name = "users")
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 public class UsuarioEntity {
+
     @Id
+    @Column(name = "user_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String nombre;
-    private String apellido;
-    private String email;
+    private String username;
     private String password;
-    private String telefono;
-    private boolean activo;
+    private boolean enabled;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "rol_id")
-    private RolEntity rol;
+    @ManyToMany(cascade = CascadeType.ALL,fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "users_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    private Set<RolEntity> roles = new HashSet<>();
 }

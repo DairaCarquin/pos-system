@@ -2,42 +2,58 @@ package com.cibertec.pos_system.controller;
 
 import com.cibertec.pos_system.entity.UsuarioEntity;
 import com.cibertec.pos_system.service.UsuarioService;
+
+import org.springframework.ui.Model;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RestController
-@RequestMapping("/api/usuarios")
+@Controller
+@RequestMapping("/user")
 public class UsuarioController {
 
-    private final UsuarioService usuarioService;
-
-    public UsuarioController(UsuarioService usuarioService) {
-        this.usuarioService = usuarioService;
-    }
+    @Autowired
+    private UsuarioService userService;
 
     @GetMapping
-    public List<UsuarioEntity> listar() {
-        return usuarioService.listar();
+    public String listarUsuarios(Model model) {
+        List<UsuarioEntity> users = userService.obtenerTodas();
+        model.addAttribute("listaUsers",users);
+        return "user/listar";
     }
 
-    @PostMapping
-    public UsuarioEntity crear(@RequestBody UsuarioEntity usuario) {
-        return usuarioService.guardar(usuario);
+    @GetMapping("/nuevo")
+    public String mostrarFormularioNuevoUsuario(Model model) {
+        model.addAttribute("user", new UsuarioEntity());
+        model.addAttribute("accion","/user/nuevo");
+        return "user/formulario";
     }
 
-    @PutMapping("/{id}")
-    public UsuarioEntity actualizar(@PathVariable Long id, @RequestBody UsuarioEntity usuario) {
-        return usuarioService.actualizar(id, usuario);
+    @PostMapping("/nuevo")
+    public String guardarNuevoUsuario(@ModelAttribute UsuarioEntity user) {
+        userService.crearUser(user);
+        return "redirect:/user";
     }
 
-    @DeleteMapping("/{id}")
-    public void eliminar(@PathVariable Long id) {
-        usuarioService.eliminar(id);
+    @GetMapping("/editar/{id}")
+    public String mostrarFormularioEditar(@PathVariable Long id, @ModelAttribute UsuarioEntity user, Model model) {
+        model.addAttribute("user",user);
+        model.addAttribute("accion","/user/editar/"+id);
+        return "user/formulario";
     }
 
-    @GetMapping("/{id}")
-    public UsuarioEntity obtener(@PathVariable Long id) {
-        return usuarioService.obtener(id).orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+    @PostMapping("/editar/{id}")
+    public String actualizarUsuario(@PathVariable Long id,@ModelAttribute UsuarioEntity user){
+        userService.actualizarUser(id,user);
+        return "redirect:/user";
+    }
+
+    @GetMapping("/eliminar/{id}")
+    public String eliminarUsuario(@PathVariable Long id){
+        userService.eliminarUser(id);
+        return "redirect:/user";
     }
 }

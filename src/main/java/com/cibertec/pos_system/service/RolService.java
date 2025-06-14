@@ -24,7 +24,7 @@ public class RolService {
     }
 
     public RolEntity actualizar(Long id, RolEntity rol) {
-        rol.setId(id);
+        rol.setId(id != null ? id.intValue() : null);
         return rolRepository.save(rol);
     }
 
