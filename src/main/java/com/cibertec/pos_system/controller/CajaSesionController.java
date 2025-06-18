@@ -2,23 +2,27 @@ package com.cibertec.pos_system.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.cibertec.pos_system.entity.CajaEntity;
 import com.cibertec.pos_system.entity.CajaSesionEntity;
+import com.cibertec.pos_system.entity.UsuarioEntity;
+import com.cibertec.pos_system.repository.UsuarioRepository;
 import com.cibertec.pos_system.service.CajaService;
 import com.cibertec.pos_system.service.CajaSesionService;
-import com.cibertec.pos_system.service.UsuarioService;
 
-import jakarta.servlet.http.HttpSession;
-
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 @Controller
 @RequestMapping("/caja-sesion")
@@ -31,12 +35,16 @@ public class CajaSesionController {
     private CajaService cajaService;
 
     @Autowired
-    private  UsuarioService usuarioService;
-
+    private UsuarioRepository usuarioRepository;
 
     @GetMapping
-    public String listarSesiones(Model model, HttpSession session) {
-        List<CajaSesionEntity> sesiones = sesionService.listar();
+    public String listarSesiones(@RequestParam(value = "q", required = false) String q, Model model) {
+        List<CajaSesionEntity> sesiones;
+        if (q != null && !q.isEmpty()) {
+            sesiones = sesionService.buscarPorCualquierCampo(q);
+        } else {
+            sesiones = sesionService.listar();
+        }
         List<CajaEntity> cajas = cajaService.listar();
 
         Map<Long, CajaSesionEntity> sesionesActivas = new HashMap<>();
@@ -49,37 +57,53 @@ public class CajaSesionController {
         model.addAttribute("sesiones", sesiones);
         model.addAttribute("cajas", cajas);
         model.addAttribute("sesionesActivas", sesionesActivas);
-        model.addAttribute("usuarioLogueado", session.getAttribute("usuarioLogueado"));
         model.addAttribute("fechaActual", LocalDateTime.now());
-        model.addAttribute("contentPage", "Mantenimiento/CajaSesionEntity.jsp");
 
-        return "layout";
+        return "caja/caja-sesion";
     }
 
     @PostMapping("/abrir")
-    public String abrirCaja(@RequestParam Long cajaId, @RequestParam Long usuarioId,
-                            @RequestParam double montoInicial) {
+    public String abrirCaja(
+            @RequestParam Long cajaId,
+            @RequestParam double montoInicial,
+            RedirectAttributes redirectAttributes) {
 
         CajaSesionEntity sesion = new CajaSesionEntity();
         sesion.setCaja(cajaService.obtener(cajaId).orElseThrow());
-        sesion.setUsuario(usuarioService.obtener(usuarioId).orElseThrow());
         sesion.setFechaApertura(LocalDateTime.now());
         sesion.setMontoInicial(montoInicial);
         sesion.setEstado("ABIERTA");
 
+        // Asignar usuario autenticado directamente usando el repository
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String usuarioActual = authentication.getName();
+        UsuarioEntity usuarioSesion = usuarioRepository.getUserByUsername(usuarioActual);
+        sesion.setUsuario(usuarioSesion);
+
         sesionService.guardar(sesion);
-        return "redirect:/caja-sesion";
+        redirectAttributes.addAttribute("aperturaExitosa", true);
+        return "redirect:/caja";
     }
 
     @PostMapping("/cerrar")
-    public String cerrarCaja(@RequestParam Long sesionId, @RequestParam double montoCierre) {
-        CajaSesionEntity sesion = sesionService.obtener(sesionId).orElseThrow();
-        sesion.setMontoCierre(montoCierre);
-        sesion.setFechaCierre(LocalDateTime.now());
-        sesion.setEstado("CERRADA");
+    public String cerrarCaja(
+            @RequestParam Long cajaId,
+            @RequestParam double montoCierre,
+            RedirectAttributes redirectAttributes) {
 
-        sesionService.guardar(sesion);
-        return "redirect:/caja-sesion";
+        CajaSesionEntity sesion = sesionService.obtenerSesionActivaPorCajaId(cajaId);
+        if (sesion != null) {
+            if (montoCierre < sesion.getMontoInicial()) {
+                redirectAttributes.addFlashAttribute("errorCerrar", "Monto de cierre menor a monto inicial, no se puede cerrar la caja");
+                return "redirect:/caja";
+            }
+            sesion.setMontoCierre(montoCierre);
+            sesion.setFechaCierre(LocalDateTime.now());
+            sesion.setEstado("CERRADA");
+            sesionService.guardar(sesion);
+            redirectAttributes.addFlashAttribute("cierreExitosa", true);
+        }
+        return "redirect:/caja";
     }
 
     @PostMapping("/delete")
