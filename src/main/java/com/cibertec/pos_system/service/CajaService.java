@@ -29,7 +29,18 @@ public class CajaService implements CajaServiceInterface {
 
     @Override
     public CajaEntity actualizar(Long id, CajaEntity caja) {
+        CajaEntity existente = cajaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Caja no encontrada"));
+
+        // Mantener datos de creación originales
+        caja.setFechaCreacion(existente.getFechaCreacion());
+        caja.setUsuario(existente.getUsuario());
+
+        // Mantener el mismo ID
         caja.setId(id);
+
+        // Mantener otros campos si es necesario
+
         return cajaRepository.save(caja);
     }
 

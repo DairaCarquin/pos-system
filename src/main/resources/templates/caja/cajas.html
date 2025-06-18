@@ -70,6 +70,8 @@
                     <th>Local</th>
                     <th>Fecha de Creación</th>
                     <th>Usuario Creador</th>
+                    <th>Fecha Actualización</th>
+                    <th>Usuario Actualización</th>
                     <th class="text-center">Acciones</th>
                 </tr>
                 </thead>
@@ -81,8 +83,9 @@
                     <td th:text="${caja.local != null ? caja.local.nombre : ''}"></td>
                     <td th:text="${#temporals.format(caja.fechaCreacion, 'yyyy-MM-dd HH:mm')}"></td>
                     <td th:text="${caja.usuario != null ? caja.usuario.username : ''}"></td>
+                    <td th:text="${caja.fechaActualizacion != null ? #temporals.format(caja.fechaActualizacion, 'yyyy-MM-dd HH:mm') : ''}"></td>
+                    <td th:text="${caja.usuarioActualizacion != null ? caja.usuarioActualizacion.username : ''}"></td>
                     <td class="text-center">
-                        <!-- Todos los botones visibles para todos -->
                         <a th:href="@{/caja/editar/{id}(id=${caja.id})}" class="btn btn-warning btn-sm me-2">
                             <i class="bi bi-pencil"></i> Editar
                         </a>

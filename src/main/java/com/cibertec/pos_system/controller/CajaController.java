@@ -105,6 +105,20 @@ public class CajaController {
         return "caja/formulario";
     }
 
+    @PostMapping("/editar/{id}")
+    public String editarCaja(@PathVariable Long id, @ModelAttribute CajaEntity caja, RedirectAttributes redirectAttributes) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String usuarioActual = authentication.getName();
+        UsuarioEntity usuarioSesion = usuarioRepository.getUserByUsername(usuarioActual);
+
+        caja.setUsuarioActualizacion(usuarioSesion);
+        caja.setFechaActualizacion(LocalDateTime.now());
+
+        cajaService.actualizar(id, caja);
+        redirectAttributes.addFlashAttribute("mensaje", "Caja actualizada correctamente.");
+        return "redirect:/caja";
+    }
+
     @GetMapping("/eliminar/{id}")
     public String eliminarCaja(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         List<CajaSesionEntity> sesiones = cajaSesionService.listar();
@@ -114,9 +128,10 @@ public class CajaController {
             redirectAttributes.addFlashAttribute("errorEliminar", "No se puede eliminar una caja abierta.");
             return "redirect:/caja";
         }
-        if (!cajaSesionService.listarPorCaja(id).isEmpty()) {
-            redirectAttributes.addFlashAttribute("errorEliminar", "No se puede eliminar la caja porque tiene sesiones asociadas.");
-            return "redirect:/caja";
+        // Eliminar todas las sesiones asociadas a la caja antes de eliminar la caja
+        List<CajaSesionEntity> sesionesDeCaja = cajaSesionService.listarPorCaja(id);
+        for (CajaSesionEntity sesion : sesionesDeCaja) {
+            cajaSesionService.eliminar(sesion.getId());
         }
         cajaService.eliminar(id);
         return "redirect:/caja";
