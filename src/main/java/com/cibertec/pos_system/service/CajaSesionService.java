@@ -39,14 +39,4 @@ public class CajaSesionService {
     public List<CajaSesionEntity> listarAbiertas() {
         return repository.findByEstado("ABIERTA");
     }
-
-    // Método para obtener la sesión activa de una caja
-    public CajaSesionEntity obtenerSesionActivaPorCajaId(Long cajaId) {
-        return repository.findSesionActivaByCajaId(cajaId);
-    }
-
-    // Método para búsqueda por cualquier campo
-    public List<CajaSesionEntity> buscarPorCualquierCampo(String q) {
-        return repository.buscarPorCualquierCampo(q.toLowerCase());
-    }
 }
