@@ -31,7 +31,8 @@
                     <th>ID Sesión</th>
                     <th>Caja</th>
                     <th>Local</th>
-                    <th>Usuario</th>
+                    <th>Usuario Apertura</th>
+                    <th>Usuario Cierre</th>
                     <th>Fecha Apertura</th>
                     <th>Monto Inicial</th>
                     <th>Fecha Cierre</th>
@@ -44,7 +45,8 @@
                     <td th:text="${sesion.id}"></td>
                     <td th:text="${sesion.caja != null ? sesion.caja.nombre : ''}"></td>
                     <td th:text="${sesion.caja != null && sesion.caja.local != null ? sesion.caja.local.nombre : ''}"></td>
-                    <td th:text="${sesion.usuario != null ? sesion.usuario.username : ''}"></td>
+                    <td th:text="${sesion.usuarioApertura != null ? sesion.usuarioApertura.username : ''}"></td>
+                    <td th:text="${sesion.usuarioCierre != null ? sesion.usuarioCierre.username : ''}"></td>
                     <td th:text="${sesion.fechaApertura != null ? #temporals.format(sesion.fechaApertura, 'yyyy-MM-dd HH:mm') : ''}"></td>
                     <td th:text="${sesion.montoInicial}"></td>
                     <td th:text="${sesion.fechaCierre != null ? #temporals.format(sesion.fechaCierre, 'yyyy-MM-dd HH:mm') : ''}"></td>

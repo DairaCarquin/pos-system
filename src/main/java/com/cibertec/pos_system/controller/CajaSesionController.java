@@ -74,11 +74,11 @@ public class CajaSesionController {
         sesion.setMontoInicial(montoInicial);
         sesion.setEstado("ABIERTA");
 
-        // Asignar usuario autenticado directamente usando el repository
+        // Asignar usuario de apertura
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String usuarioActual = authentication.getName();
         UsuarioEntity usuarioSesion = usuarioRepository.getUserByUsername(usuarioActual);
-        sesion.setUsuario(usuarioSesion);
+        sesion.setUsuarioApertura(usuarioSesion);
 
         sesionService.guardar(sesion);
         redirectAttributes.addAttribute("aperturaExitosa", true);
@@ -100,6 +100,13 @@ public class CajaSesionController {
             sesion.setMontoCierre(montoCierre);
             sesion.setFechaCierre(LocalDateTime.now());
             sesion.setEstado("CERRADA");
+
+            // Asignar usuario de cierre
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String usuarioActual = authentication.getName();
+            UsuarioEntity usuarioSesion = usuarioRepository.getUserByUsername(usuarioActual);
+            sesion.setUsuarioCierre(usuarioSesion);
+
             sesionService.guardar(sesion);
             redirectAttributes.addFlashAttribute("cierreExitosa", true);
         }

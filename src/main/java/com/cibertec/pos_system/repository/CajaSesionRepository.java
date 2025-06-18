@@ -15,14 +15,16 @@ public interface CajaSesionRepository extends JpaRepository<CajaSesionEntity, Lo
     @Query("SELECT s FROM CajaSesionEntity s WHERE s.caja.id = :cajaId AND s.estado = 'ABIERTA'")
     CajaSesionEntity findSesionActivaByCajaId(@Param("cajaId") Long cajaId);
 
-    // Búsqueda por cualquier campo (caja, local, usuario, estado, fecha apertura/cierre)
+    // Búsqueda por cualquier campo (caja, local, usuario apertura/cierre, estado, fecha apertura/cierre)
     @Query("SELECT s FROM CajaSesionEntity s " +
            "LEFT JOIN s.caja c " +
            "LEFT JOIN c.local l " +
-           "LEFT JOIN s.usuario u " +
+           "LEFT JOIN s.usuarioApertura ua " +
+           "LEFT JOIN s.usuarioCierre uc " +
            "WHERE LOWER(c.nombre) LIKE %:q% " +
            "OR LOWER(l.nombre) LIKE %:q% " +
-           "OR LOWER(u.username) LIKE %:q% " +
+           "OR LOWER(ua.username) LIKE %:q% " +
+           "OR LOWER(uc.username) LIKE %:q% " +
            "OR LOWER(s.estado) LIKE %:q% " +
            "OR CAST(s.fechaApertura AS string) LIKE %:q% " +
            "OR CAST(s.fechaCierre AS string) LIKE %:q%")
