@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <meta charset="UTF-8">
+    <title>Órdenes de Compra</title>
+    <style>
+        body {
+            font-family: "Segoe UI", sans-serif;
+            background-color: #f8f9fa;
+            color: #343a40;
+        }
+
+        .titulo-seccion {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            border-left: 5px solid #5b605e;
+            padding-left: 10px;
+            color: #343a40;
+        }
+
+        .btn-success {
+            background-color: #5b605e;
+            border: none;
+            display: inline-flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .btn-success:hover {
+            background-color: #202120;
+        }
+
+        .style-button {
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 0px;
+        }
+
+        .bi bi-plus-circle {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .table-order {
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .table-order thead {
+            background-color: #343a40;
+            color: white;
+        }
+
+        .table-order tbody tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .table-order td, .table-order th {
+            vertical-align: middle;
+            text-align: center;
+            font-size: 12px;
+        }
+
+        .btn-sm.btn-primary {
+            background-color: #0d6efd;
+            border: none;
+        }
+
+        .btn-sm.btn-primary:hover {
+            background-color: #0b5ed7;
+        }
+    </style>
+</head>
+<body>
+<div layout:fragment="contenido">
+    <h1 class="titulo-seccion">Órdenes de Compra</h1>
+
+    <a class="btn btn-success mb-3" th:href="@{/compras/orden/nueva}">
+        <i class="bi bi-plus-circle"></i> 
+        <h1 class="style-button">Nueva Orden</h1>
+    </a>
+
+    <div class="table-responsive table-order">
+        <table class="table table-bordered table-striped mb-0">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Proveedor</th>
+                <th>Fecha</th>
+                <th>Estado</th>
+                <th>Total</th>
+                <th>Acciones</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="orden : ${ordenes}">
+                <td th:text="${orden.id}"></td>
+                <td th:text="${orden.proveedor.razonSocial}"></td>
+                <td th:text="${orden.fechaCreacion}"></td>
+                <td th:text="${orden.estado}"></td>
+                <td th:text="${orden.total}"></td>
+                <td>
+                    <a class="btn btn-sm btn-primary" th:href="@{'/compras/orden/' + ${orden.id}}">
+                        <i class="bi bi-eye-fill"></i> Ver
+                    </a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

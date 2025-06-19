@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <meta charset="UTF-8">
+    <title>Detalle Orden</title>
+</head>
+<body>
+<div layout:fragment="contenido">
+    <h1>Detalle de Orden de Compra</h1>
+    <p><strong>ID:</strong> <span th:text="${orden.id}"></span></p>
+    <p><strong>Proveedor:</strong> <span th:text="${orden.proveedor.razonSocial}"></span></p>
+    <p><strong>Fecha:</strong> <span th:text="${orden.fechaCreacion}"></span></p>
+    <p><strong>Estado:</strong> <span th:text="${orden.estado}"></span></p>
+    <p><strong>Total:</strong> <span th:text="${orden.total}"></span></p>
+
+    <h3>Productos</h3>
+    <table class="table table-bordered">
+        <thead>
+        <tr>
+            <th>Producto</th>
+            <th>Cantidad</th>
+            <th>Precio Unitario</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="detalle : ${orden.detalles}">
+            <td th:text="${detalle.producto.nombre}"></td>
+            <td th:text="${detalle.cantidad}"></td>
+            <td th:text="${detalle.precioUnitario}"></td>
+        </tr>
+        </tbody>
+    </table>
+
+    <form th:action="@{'/compras/orden/' + ${orden.id} + '/recibir'}" method="post" th:if="${orden.estado} == 'pendiente'">
+        <button type="submit" class="btn btn-success">Marcar como Recibida</button>
+    </form>
+    <form th:action="@{'/compras/orden/' + ${orden.id} + '/cancelar'}" method="post" th:if="${orden.estado} == 'cancelado'">
+        <button type="submit" class="btn btn-danger">Cancelar Orden</button>
+    </form>
+        <form th:action="@{'/compras/orden/' + ${orden.id} + '/cancelar'}" method="post" th:if="${orden.estado} == 'anulado'">
+        <button type="submit" class="btn btn-danger">Anular Orden</button>
+    </form>
+    
+
+    <a class="btn btn-secondary mt-2" th:href="@{/compras/ordenes}">Volver</a>
+</div>
+</body>
+</html>
