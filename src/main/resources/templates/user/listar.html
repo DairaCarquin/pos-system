@@ -11,7 +11,7 @@
     <div class="card">
         <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
             <h5 class="mb-0">Listado de Usuarios</h5>
-            <div sec:authorize="hasAnyAuthority('CREATOR','ADMIN')">
+            <div sec:authorize="hasAnyAuthority('USUARIOS')">
                 <a href="/user/nuevo" class="btn btn-light">
                     <i class="bi bi-person-plus"></i> Nuevo Usuario
                 </a>
@@ -23,18 +23,25 @@
                 <tr>
                     <th>ID</th>
                     <th>Nombre</th>
-                    <th sec:authorize="hasAnyAuthority('ADMIN','EDITOR')" class="text-center">Acciones</th>
+                    <th>Roles</th>
+                    <th sec:authorize="hasAnyAuthority('USUARIOS')" class="text-center">Acciones</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr th:each="user : ${listaUsers}">
                     <td th:text="${user.id}"></td>
                     <td th:text="${user.username}"></td>
-                    <td sec:authorize="hasAnyAuthority('ADMIN','EDITOR')" class="text-center">
+                    <td>
+                        <span th:each="rol, iterStat : ${user.roles}">
+                            <span th:text="${rol.nombre}"></span>
+                            <span th:unless="${iterStat.last}">, </span>
+                        </span>
+                    </td>
+                    <td sec:authorize="hasAnyAuthority('USUARIOS')" class="text-center">
                         <a th:href="@{/user/editar/{id}(id=${user.id})}" class="btn btn-warning btn-sm me-2">
                             <i class="bi bi-pencil"></i> Editar
                         </a>
-                        <a sec:authorize="hasAuthority('ADMIN')" th:href="@{/user/eliminar/{id}(id=${user.id})}"
+                        <a sec:authorize="hasAuthority('USUARIOS')" th:href="@{/user/eliminar/{id}(id=${user.id})}"
                            class="btn btn-danger btn-sm" onclick="return confirm('¿Eliminar este usuario?')">
                             <i class="bi bi-trash"></i> Eliminar
                         </a>
