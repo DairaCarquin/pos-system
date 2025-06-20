@@ -1,26 +1,160 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org"
-      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{layout}">
-<head>
-    <meta charset="UTF-8">
+<html
+  lang="es"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layout}"
+>
+  <head>
+    <meta charset="UTF-8" />
     <title>Nueva Orden de Compra</title>
-</head>
-<body>
-<div layout:fragment="contenido">
-    <h1>Crear Orden de Compra</h1>
-    <form th:action="@{/compras/orden}" method="post">
-        <label>Proveedor ID: <input type="number" name="proveedorId" required></label><br>
-        <label>Usuario ID: <input type="number" name="usuarioId" required></label><br>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f4f4f4;
+        color: #000;
+        font-size: 12px;
+      }
 
-        <h3>Detalle:</h3>
-        <div th:each="i : ${#numbers.sequence(0,2)}">
-            <label>Producto ID: <input type="number" name="detalles[__${i}__].producto.id" required></label>
-            <label>Cantidad: <input type="number" name="detalles[__${i}__].cantidad" required></label><br>
-        </div>
+      .form-container {
+        max-width: 800px;
+        margin: 30px auto;
+        background: #fff;
+        padding: 25px 30px;
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+      }
 
-        <button type="submit" class="btn btn-primary">Guardar</button>
-    </form>
-</div>
-</body>
+      h1 {
+        font-size: 16px;
+        text-align: center;
+        margin-bottom: 25px;
+        font-weight: 600;
+        color: #333;
+      }
+
+      label {
+        font-weight: 600;
+        display: block;
+        margin-bottom: 6px;
+        margin-top: 12px;
+      }
+
+      input[type="text"],
+      input[type="number"] {
+        width: 100%;
+        padding: 6px 10px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        font-size: 12px;
+        box-sizing: border-box;
+      }
+
+      .productos-wrapper {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-top: 20px;
+      }
+
+      .producto-card {
+        background: #fafafa;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        padding: 15px;
+        width: calc(50% - 8px);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      }
+
+      .producto-card label {
+        font-weight: 500;
+        margin-bottom: 8px;
+        display: block;
+      }
+
+      .btn-primary {
+        background-color: #004080;
+        color: #fff;
+        padding: 8px 18px;
+        font-size: 12px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        margin-top: 20px;
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .btn-primary:hover {
+        background-color: #002e60;
+      }
+
+      .btn-volver {
+        display: inline-block;
+        background-color: #6c757d;
+        color: #fff;
+        padding: 8px 16px;
+        font-size: 12px;
+        border-radius: 6px;
+        text-decoration: none;
+        transition: background-color 0.3s;
+      }
+
+      .btn-volver:hover {
+        background-color: #5a6268;
+      }
+    </style>
+  </head>
+  <body>
+    <div layout:fragment="contenido">
+      <div style="max-width: 800px; margin: 15px auto;">
+        <a href="/compras/ordenes" class="btn-volver">← Volver</a>
+      </div>
+      <div class="form-container">
+        <h1>Crear Orden de Compra</h1>
+        <form th:action="@{/compras/orden}" method="post">
+          <label for="ruc">Proveedor RUC:</label>
+          <input type="text" name="ruc" id="ruc" required />
+
+          <h3 style="font-size: 14px; margin-top: 20px; color: #222">
+            Detalle de Productos:
+          </h3>
+          <div id="productos-container" class="productos-wrapper"></div>
+
+          <button type="submit" class="btn btn-primary">Guardar</button>
+        </form>
+      </div>
+
+      <script>
+        $("#ruc").on("input", function () {
+          const ruc = $(this).val();
+          if (ruc.length >= 11) {
+            $.get("/compras/productos?ruc=" + ruc, function (data) {
+              let productosHtml = "";
+              data.forEach(function (producto, index) {
+                productosHtml += `
+                  <div class="producto-card">
+                    <input type="hidden" name="detalles[${index}].producto.id" value="${producto.id}">
+                    <label>Producto: ${producto.nombre}</label>
+                    <label>Cantidad:
+                      <input type="number" name="detalles[${index}].cantidad" min="1" required />
+                    </label>
+                  </div>
+                `;
+              });
+              $("#productos-container").html(productosHtml);
+            }).fail(function () {
+              $("#productos-container").html(
+                "<p style='color:red;'>Error al obtener productos.</p>"
+              );
+            });
+          } else {
+            $("#productos-container").empty();
+          }
+        });
+      </script>
+    </div>
+  </body>
 </html>

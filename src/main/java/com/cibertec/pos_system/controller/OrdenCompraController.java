@@ -1,13 +1,26 @@
 package com.cibertec.pos_system.controller;
 
+import com.cibertec.pos_system.dto.ProductoDTO;
 import com.cibertec.pos_system.entity.OrdenCompraDetalleEntity;
 import com.cibertec.pos_system.entity.OrdenCompraEntity;
+import com.cibertec.pos_system.entity.ProductoEntity;
+import com.cibertec.pos_system.entity.ProveedorEntity;
+import com.cibertec.pos_system.entity.UsuarioEntity;
+import com.cibertec.pos_system.repository.UsuarioRepository;
 import com.cibertec.pos_system.service.OrdenCompraService;
+import com.cibertec.pos_system.service.ProductoService;
+import com.cibertec.pos_system.service.ProveedorService;
+
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -16,6 +29,9 @@ import java.util.List;
 public class OrdenCompraController {
 
     private final OrdenCompraService ordenCompraService;
+    private final ProductoService productoService;
+    private final ProveedorService proveedorService;
+    private final UsuarioRepository usuarioRepository;
 
     @GetMapping("/ordenes")
     public String listar(Model model) {
@@ -30,9 +46,68 @@ public class OrdenCompraController {
     }
 
     @PostMapping("/orden")
-    public String guardarOrden(@ModelAttribute OrdenCompraEntity orden, @RequestParam Long proveedorId, @RequestParam Long usuarioId, @ModelAttribute List<OrdenCompraDetalleEntity> detalles) {
-        ordenCompraService.crearOrden(proveedorId, usuarioId, detalles);
+    public String guardarOrden(
+        @ModelAttribute OrdenCompraEntity orden,
+        @RequestParam String ruc,
+        HttpServletRequest request) {
+
+        Long usuarioId = obtenerUsuarioId();
+        ProveedorEntity proveedor = proveedorService.obtenerProveedorPorRuc(ruc);
+        if (proveedor == null) {
+            throw new IllegalArgumentException("Proveedor no encontrado para el RUC: " + ruc);
+        }
+
+        List<OrdenCompraDetalleEntity> detalles = new ArrayList<>();
+        int i = 0;
+        while (true) {
+            String productoIdStr = request.getParameter("detalles[" + i + "].producto.id");
+            String cantidadStr = request.getParameter("detalles[" + i + "].cantidad");
+            if (productoIdStr == null || cantidadStr == null) break;
+
+            OrdenCompraDetalleEntity detalle = new OrdenCompraDetalleEntity();
+            ProductoEntity producto = new ProductoEntity();
+            producto.setId(Long.parseLong(productoIdStr));
+            detalle.setProducto(producto);
+            detalle.setCantidad(Integer.parseInt(cantidadStr));
+            detalles.add(detalle);
+            i++;
+        }
+
+        ordenCompraService.crearOrden(proveedor.getId(), usuarioId, detalles);
         return "redirect:/compras/ordenes";
+    }
+
+    public Long obtenerUsuarioId() {
+        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String username = userDetails.getUsername();
+        
+        UsuarioEntity usuario = usuarioRepository.findByUsername(username);
+    
+        if (usuario != null) {
+            return usuario.getId();
+        } else {
+            throw new IllegalStateException("Usuario no encontrado para el nombre de usuario: " + username);
+        }
+    }
+    
+    @GetMapping("/productos")
+    @ResponseBody
+    public List<ProductoDTO> obtenerProductosPorProveedor(@RequestParam String ruc) {
+        ProveedorEntity proveedor = proveedorService.obtenerProveedorPorRuc(ruc);
+        if (proveedor == null) {
+            throw new IllegalArgumentException("Proveedor no encontrado para el RUC: " + ruc);
+        }
+
+        List<ProductoEntity> productos = productoService.obtenerProductosPorProveedor(proveedor.getId());
+
+        return productos.stream().map(p -> {
+            ProductoDTO dto = new ProductoDTO();
+            dto.setId(p.getId());
+            dto.setNombre(p.getNombre());
+            dto.setPrecio(p.getPrecio());
+            dto.setStockActual(p.getStockActual());
+            return dto;
+        }).toList();
     }
 
     @GetMapping("/orden/{id}")

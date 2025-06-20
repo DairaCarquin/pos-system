@@ -25,4 +25,8 @@ public class ProductoEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "categoria_id", nullable = false)
     private CategoriaEntity categoria;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "proveedor_id", nullable = false)
+    private ProveedorEntity proveedor;
 }
