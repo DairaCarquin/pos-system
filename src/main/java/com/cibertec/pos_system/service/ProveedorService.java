@@ -36,4 +36,8 @@ public class ProveedorService {
     public Optional<ProveedorEntity> obtener(Long id) {
         return proveedorRepository.findById(id);
     }
+
+     public ProveedorEntity obtenerProveedorPorRuc(String ruc) {
+        return proveedorRepository.findByRuc(ruc).orElseThrow(() -> new RuntimeException("Proveedor no encontrado con RUC: " + ruc));
+    }
 }

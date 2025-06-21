@@ -31,16 +31,9 @@ public class CajaService implements CajaServiceInterface {
     public CajaEntity actualizar(Long id, CajaEntity caja) {
         CajaEntity existente = cajaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Caja no encontrada"));
-
-        // Mantener datos de creación originales
         caja.setFechaCreacion(existente.getFechaCreacion());
         caja.setUsuario(existente.getUsuario());
-
-        // Mantener el mismo ID
         caja.setId(id);
-
-        // Mantener otros campos si es necesario
-
         return cajaRepository.save(caja);
     }
 
@@ -55,17 +48,18 @@ public class CajaService implements CajaServiceInterface {
     }
 
     @Override
-    public CajaEntity obtenerPorId(Long id) {
-        return cajaRepository.findById(id).orElse(null);
-    }
-
-    @Override
     public long contar() {
         return cajaRepository.count();
     }
 
     @Override
+    public CajaEntity obtenerPorId(Long id) {
+        return cajaRepository.findById(id).orElse(null);
+    }
+
+    @Override
     public List<CajaEntity> buscarPorCualquierCampo(String q) {
-        return cajaRepository.buscarPorCualquierCampo(q.toLowerCase());
+        // Debes tener este método en tu repository, aquí es solo un ejemplo:
+        return cajaRepository.buscarPorCualquierCampo(q);
     }
 }
