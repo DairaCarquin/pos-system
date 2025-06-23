@@ -22,4 +22,10 @@ public class ClienteEntity {
     private String email;
     private boolean activo;
 
+    /*Nuevo: entidad para que funcione sistema de puntos */
+    private String tipo; /*Ejemplo: "regular", "vip", etc */
+
+    /*Nuevo: Puntos acumulados */
+    private Integer puntosAcumulados = 0;
+
 }
