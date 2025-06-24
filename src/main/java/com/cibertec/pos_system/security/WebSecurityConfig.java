@@ -55,6 +55,11 @@ public class WebSecurityConfig {
                         .requestMatchers("/users/nueva").hasAnyAuthority("ADMIN","CREATOR")
                         .requestMatchers("/users/editar/*").hasAnyAuthority("ADMIN","EDITOR")
                         .requestMatchers("/users/eliminar/*").hasAnyAuthority("ADMIN")
+
+                        .requestMatchers("/clientes").hasAnyAuthority("USER", "CREATOR", "EDITOR", "ADMIN")
+                        .requestMatchers("/clientes/nuevo").hasAnyAuthority("ADMIN", "CREATOR")
+                        .requestMatchers("/clientes/editar/*").hasAnyAuthority("ADMIN", "EDITOR")
+                        .requestMatchers("/clientes/eliminar/*").hasAnyAuthority("ADMIN")
                         .anyRequest().authenticated())
                 .formLogin(form -> form
                         .loginPage("/login")

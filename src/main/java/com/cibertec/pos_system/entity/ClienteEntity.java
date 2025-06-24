@@ -5,6 +5,10 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Entity
@@ -12,14 +16,29 @@ import lombok.Data;
 @Data
 public class ClienteEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String dni;
-    private String nombre;
-    private String apellido;
-    private String direccion;
-    private String telefono;
-    private String email;
-    private boolean activo;
 
+    @NotBlank(message = "El DNI es obligatorio")
+    @Size(min = 8, max = 8, message = "El DNI debe tener 8 dígitos")
+    @Pattern(regexp = "\\d{8}", message = "El DNI solo debe contener números")
+    private String dni;
+
+    @NotBlank(message = "El nombre es obligatorio")
+    private String nombre;
+
+    @NotBlank(message = "El apellido es obligatorio")
+    private String apellido;
+
+    @NotBlank(message = "La dirección es obligatoria")
+    private String direccion;
+
+    @NotBlank(message = "El teléfono es obligatorio")
+    private String telefono;
+
+    @Email(message = "El correo debe tener un formato válido")
+    @NotBlank(message = "El email es obligatorio")
+    private String email;
+
+    private boolean activo;
 }
