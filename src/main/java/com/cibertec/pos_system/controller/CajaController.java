@@ -3,8 +3,14 @@ package com.cibertec.pos_system.controller;
 import com.cibertec.pos_system.entity.CajaEntity;
 import com.cibertec.pos_system.entity.CajaSesionEntity;
 import com.cibertec.pos_system.entity.UsuarioEntity;
+import com.cibertec.pos_system.entity.ClienteEntity;
+import com.cibertec.pos_system.entity.MedioPagoEntity;
 import com.cibertec.pos_system.repository.UsuarioRepository;
 import com.cibertec.pos_system.service.CajaSesionService;
+import com.cibertec.pos_system.service.CategoriaService;
+import com.cibertec.pos_system.service.ProductoService;
+import com.cibertec.pos_system.service.ClienteService;
+import com.cibertec.pos_system.service.MedioPagoService;
 import com.cibertec.pos_system.service.impl.CajaServiceInterface;
 import com.cibertec.pos_system.service.impl.LocalServiceInterface;
 
@@ -20,6 +26,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/caja")
@@ -31,6 +38,19 @@ public class CajaController {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
+
+    @Autowired
+    private CategoriaService categoriaService;
+
+    @Autowired
+    private ProductoService productoService;
+
+    @Autowired
+    private ClienteService clienteService;
+
+    @Autowired
+    private MedioPagoService medioPagoService;
+
 
     public CajaController(
             CajaServiceInterface cajaService,
@@ -163,4 +183,59 @@ public class CajaController {
         return cajaService.obtener(id)
                 .orElseThrow(() -> new RuntimeException("Caja no encontrada"));
     }
+
+    // Endpoint para la vista del carrito, asociando caja y cliente
+    @GetMapping("/carrito")
+    public String mostrarCarrito(
+            @RequestParam(required = false) Long cajaId,
+            @RequestParam(required = false) Long clienteId,
+            Model model,
+            RedirectAttributes redirectAttributes
+    ) {
+        System.out.println(">>> ENTRÓ AL MÉTODO mostrarCarrito");
+        if (cajaId == null) {
+            redirectAttributes.addFlashAttribute("errorCarrito", "Debe seleccionar una caja para iniciar la venta.");
+            return "redirect:/caja";
+        }
+        CajaEntity caja = cajaService.obtener(cajaId).orElse(null);
+        ClienteEntity cliente = null;
+        if (clienteId != null) {
+            cliente = clienteService.obtener(clienteId).orElse(null);
+            if (cliente == null) {
+                redirectAttributes.addFlashAttribute("errorCarrito", "No se encontró el cliente.");
+                return "redirect:/caja";
+            }
+        }
+        if (caja == null) {
+            redirectAttributes.addFlashAttribute("errorCarrito", "No se encontró la caja.");
+            return "redirect:/caja";
+        }
+
+        // Obtener la sesión activa de la caja
+        CajaSesionEntity cajaSesion = cajaSesionService.listar().stream()
+            .filter(s -> s.getCaja().getId().equals(cajaId) && "ABIERTA".equals(s.getEstado()))
+            .findFirst()
+            .orElse(null);
+
+        if (cajaSesion == null) {
+            redirectAttributes.addFlashAttribute("errorCarrito", "No hay sesión activa para esta caja.");
+            return "redirect:/caja";
+        }
+
+        // Filtrar solo los medios de pago activos usando el método listar()
+        List<MedioPagoEntity> mediosPagoActivos = medioPagoService.listar()
+            .stream()
+            .filter(MedioPagoEntity::isActivo)
+            .collect(Collectors.toList());
+
+        model.addAttribute("caja", caja);
+        model.addAttribute("cajaSesion", cajaSesion); // <--- CORRECTO: ahora se pasa la sesión activa
+        model.addAttribute("cliente", cliente);
+        model.addAttribute("categorias", categoriaService.listar());
+        model.addAttribute("productos", productoService.listar());
+        model.addAttribute("mediosPago", mediosPagoActivos); // Solo los activos
+        return "caja/caja-carrito";
+    }
+
+ 
 }

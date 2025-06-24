@@ -12,7 +12,7 @@ import lombok.Data;
 @Data
 public class ClienteEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String dni;
     private String nombre;
@@ -21,5 +21,4 @@ public class ClienteEntity {
     private String telefono;
     private String email;
     private boolean activo;
-
 }

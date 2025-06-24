@@ -36,4 +36,8 @@ public class ClienteService {
     public Optional<ClienteEntity> obtener(Long id) {
         return clienteRepository.findById(id);
     }
+
+    public Optional<ClienteEntity> buscarPorDni(String dni) {
+        return clienteRepository.findByDni(dni);
+    }
 }

@@ -38,6 +38,7 @@
                     <th>Fecha Cierre</th>
                     <th>Monto Cierre</th>
                     <th>Estado</th>
+                    <th>Transacciones</th> <!-- Columna agregada -->
                 </tr>
                 </thead>
                 <tbody>
@@ -54,6 +55,12 @@
                     <td>
                         <span th:text="${sesion.estado}" th:classappend="${sesion.estado == 'ABIERTA'} ? 'badge bg-success' : 'badge bg-secondary'"></span>
                     </td>
+                    <td>
+    <a th:href="@{'/caja-sesion/reporte/' + ${sesion.id}}" target="_blank"
+       class="btn btn-outline-primary btn-sm border-2" title="Ver transacciones" style="border-width:2px;">
+        <i class="bi bi-eye" style="font-size:1.2rem; color:#0d6efd;"></i>
+    </a>
+</td>
                 </tr>
                 </tbody>
             </table>
