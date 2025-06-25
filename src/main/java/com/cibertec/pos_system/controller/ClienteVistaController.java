@@ -54,6 +54,11 @@ public class ClienteVistaController {
         clienteService.eliminar(id);
         redirectAttributes.addFlashAttribute("mensaje", "Cliente eliminado correctamente");
         return "redirect:/clientes/listado";
+
+    }
+    @GetMapping
+    public String redireccionarListado() {
+        return "redirect:/clientes/listado";
     }
 
 

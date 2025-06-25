@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <meta charset="UTF-8">
+    <title>Historial de Compras</title>
+</head>
+<body>
+<div layout:fragment="contenido">
+    <div class="container mt-5">
+        <div class="card shadow border-0">
+            <div class="card-header bg-dark text-white">
+                <h5 class="mb-0"><i class="bi bi-clock-history me-2"></i>Historial de Compras Realizadas: <span th:text="${dni}"></span></h5>
+            </div>
+            <div class="card-body">
+
+                <!-- ✅ Mensaje de descuento -->
+                <div th:if="${descuentoMensaje}" class="alert alert-success" role="alert">
+                    <strong th:text="${descuentoMensaje}"></strong>
+                </div>
+
+                <!-- Tabla de compras -->
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped align-middle text-center">
+                        <thead class="table-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Fecha</th>
+                            <th>Total</th>
+                            <th>Método de Pago</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="compra : ${compras}">
+                            <td th:text="${compra.id}"></td>
+                            <td th:text="${#temporals.format(compra.fecha, 'dd/MM/yyyy')}"></td>
+                            <td th:text="${compra.total} + ' S/'"></td>
+                            <td th:text="${compra.metodoPago}"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Botón volver -->
+                <div class="mt-4 text-end">
+                    <a th:href="@{/clientes}" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left-circle"></i> Volver
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
