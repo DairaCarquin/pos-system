@@ -7,7 +7,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
 import com.cibertec.pos_system.entity.ProductoEntity;
+import com.cibertec.pos_system.entity.ventas.VentaEntity;
 import com.cibertec.pos_system.model.ventas.ItemCarrito;
+import com.cibertec.pos_system.repository.ventas.VentaRepository;
 import com.cibertec.pos_system.service.ProductoService;
 
 import jakarta.servlet.http.HttpSession;
@@ -22,7 +24,8 @@ public class HomeController {
 
     @Autowired
     private ProductoService productService;
-    
+    @Autowired
+    private VentaRepository ventaRepository;
     @GetMapping(path = "/")
     public String Page(HttpSession sesion,Model view){
 
@@ -67,6 +70,16 @@ public class HomeController {
         return "web/ProductosID";
     }
 
+    @GetMapping( path = "about")
+    public String AboutScreen(){
+        return "web/about";
+    }
+    @GetMapping("/ventas")
+public String listarVentas(Model model) {
+    List<VentaEntity> ventas = ventaRepository.findAll();
+    model.addAttribute("ventas", ventas);
+    return "web/ventas";
+}
 
 
 }

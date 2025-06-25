@@ -35,6 +35,11 @@ public class VentaEntity {
 
     private double total;
 
+    private String metodoPago; // metodo pago 
+    private String estado;
+    private String tipoComprobante; // "BOLETA"
+    private String numeroComprobante; //"B001-000001"
+    private String motivoAnulacion;
 
     @OneToMany(mappedBy = "venta", cascade = CascadeType.ALL)
     private List<DetalleVentaEntity> detalles = new ArrayList<>();

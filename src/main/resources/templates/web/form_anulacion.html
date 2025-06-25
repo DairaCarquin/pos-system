@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+   <head>
+      <title>Anular Venta</title>
+   </head>
+   <body>
+      <h2>Anular Venta</h2>
+      <form th:action="@{'/ventas/' + ${venta.id} + '/anular'}" method="post">
+         <p>¿Estás seguro de que deseas anular esta venta?</p>
+         <p>Total: <span th:text="${venta.total}"></span></p>
+
+         <label>Motivo de anulación:</label><br />
+         <textarea name="motivoAnulacion" required></textarea><br /><br />
+
+         <button type="submit">Anular Venta</button>
+         <a href="/ventas">Cancelar</a>
+      </form>
+   </body>
+</html>

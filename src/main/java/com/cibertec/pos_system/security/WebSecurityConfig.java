@@ -53,7 +53,7 @@ public class WebSecurityConfig {
         .csrf( csrf -> csrf.disable())
         .authorizeHttpRequests(
                 auth -> auth
-                        .requestMatchers("/", "/web/index", "/css/**", "/js/**","/img/**", "/images/**","**").permitAll() //  PERMITIR ACCESO
+                        .requestMatchers("/","/web/*", "/web/index", "/css/**", "/js/**","/img/**", "/images/**","**").permitAll() //  PERMITIR ACCESO
                         .requestMatchers("/users").hasAnyAuthority("USER","CREATOR","EDITOR","ADMIN")
                         .requestMatchers("/users/nueva").hasAnyAuthority("ADMIN","CREATOR")
                         .requestMatchers("/users/editar/*").hasAnyAuthority("ADMIN","EDITOR")

@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -37,10 +38,18 @@ public class CarritoController {
 
     if (isExit.isPresent()) {
 
+        ProductoEntity producto = isExit.get();
+
+        if(producto.getStock() <= 0){
+            return "redirect:/productos";
+        }
+
         List<ItemCarrito> carrito = (List<ItemCarrito>) session.getAttribute("carrito");
         if (carrito == null) {
             carrito = new ArrayList<>();
         }
+
+        
 
         // Ver si ya existe
         Optional<ItemCarrito> itemExistente = carrito.stream()
@@ -100,7 +109,7 @@ public class CarritoController {
 
 
 @PostMapping( "/carrito/finalizar")
-public String finalizarCompra(@RequestParam String metodoPago, HttpSession session) {
+public String finalizarCompra(@RequestParam String metodoPago, HttpSession session,Model model) {
     List<ItemCarrito> carrito = (List<ItemCarrito>) session.getAttribute("carrito");
 
     if (carrito == null || carrito.isEmpty()) {
@@ -122,6 +131,13 @@ public String finalizarCompra(@RequestParam String metodoPago, HttpSession sessi
     venta.setSubtotal(subtotal);
     venta.setImpuesto(impuesto);
     venta.setTotal(total);
+    venta.setMetodoPago(metodoPago);
+    venta.setEstado("ACTIVA");
+    String tipo = "BOLETA";
+    String numero = "B001" + String.format("%06d", ventaRepository.count()+1);
+    venta.setTipoComprobante(tipo);
+    venta.setNumeroComprobante(numero);
+
 
     // 4. Crear lista de detalles
     List<DetalleVentaEntity> detalles = new ArrayList<>();
@@ -131,7 +147,8 @@ public String finalizarCompra(@RequestParam String metodoPago, HttpSession sessi
         detalle.setPrecioUnitario(item.getPrecio());
         detalle.setCantidad(item.getQuantity());
         detalle.setSubtotal(item.getSubtotal());
-        detalle.setVenta(venta); // relación bidireccional
+        detalle.setVenta(venta);
+        detalle.setProductoId( item.getProductoId());
         detalles.add(detalle);
     }
 
@@ -151,8 +168,43 @@ public String finalizarCompra(@RequestParam String metodoPago, HttpSession sessi
 
     // 8. Limpiar carrito
     session.removeAttribute("carrito");
+    model.addAttribute("venta", venta);
 
     return "web/confirmacion";
 }
+
+
+@GetMapping("/ventas/{id}/anular")
+public String mostrarFormularioAnulacion(@PathVariable int id, Model model) {
+    Optional<VentaEntity> ventaOpt = ventaRepository.findById(id);
+    if (ventaOpt.isPresent()) {
+        model.addAttribute("venta", ventaOpt.get());
+        return "web/form_anulacion";
+    }
+    return "redirect:/ventas"; // Si no existe
+}
+@PostMapping("/ventas/{id}/anular")
+public String procesarAnulacion(@PathVariable int id, @RequestParam String motivoAnulacion) {
+    Optional<VentaEntity> ventaOpt = ventaRepository.findById(id);
+    if (ventaOpt.isPresent()) {
+        VentaEntity venta = ventaOpt.get();
+        if ("ACTIVA".equals(venta.getEstado())) {
+            venta.setEstado("ANULADA");
+            venta.setMotivoAnulacion(motivoAnulacion);
+
+            for (DetalleVentaEntity detalle : venta.getDetalles()) {
+                productoService.obtener(detalle.getProductoId())
+                    .ifPresent(producto -> {
+                        producto.setStock(producto.getStock() + detalle.getCantidad());
+                        productoService.crear(producto);
+                    });
+            }
+
+            ventaRepository.save(venta);
+        }
+    }
+    return "redirect:/ventas";
+}
+
 
 }

@@ -22,7 +22,7 @@ public class DetalleVentaEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
+    private Long productoId;
     private String nombreProducto;
 
     private double precioUnitario;
