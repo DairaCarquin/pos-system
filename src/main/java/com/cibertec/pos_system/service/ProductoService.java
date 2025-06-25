@@ -16,6 +16,7 @@ public class ProductoService {
         this.productoRepository = productoRepository;
     }
 
+    // List of products
     public List<ProductoEntity> listar() {
         return productoRepository.findAll();
     }

@@ -3,7 +3,6 @@ package com.cibertec.pos_system.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.math.BigDecimal;
 
 @Entity
 @Table(name = "productos")
@@ -17,9 +16,10 @@ public class ProductoEntity {
     private String codigo;
     private String nombre;
     private String descripcion;
-    private BigDecimal precio;
+    private double precio;
     private String imagen;
     private boolean activo;
+    private int stock; //  cantidad disponible
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "categoria_id", nullable = false)

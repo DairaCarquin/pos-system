@@ -49,8 +49,11 @@ public class WebSecurityConfig {
     //Define las reglas de autorizacion para las solicitudes HTTP
     @Bean
     protected SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
-        httpSecurity.authorizeHttpRequests(
+        httpSecurity
+        .csrf( csrf -> csrf.disable())
+        .authorizeHttpRequests(
                 auth -> auth
+                        .requestMatchers("/", "/web/index", "/css/**", "/js/**","/img/**", "/images/**","**").permitAll() //  PERMITIR ACCESO
                         .requestMatchers("/users").hasAnyAuthority("USER","CREATOR","EDITOR","ADMIN")
                         .requestMatchers("/users/nueva").hasAnyAuthority("ADMIN","CREATOR")
                         .requestMatchers("/users/editar/*").hasAnyAuthority("ADMIN","EDITOR")

@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Document</title>
+   </head>
+   <body>
+      <section>
+         <article>
+            <img th:src="@{'/images/' + ${productoid.imagen}}" style="width: 200px" alt="" />
+            <h5 th:text="${productoid.id}"></h5>
+            <h5 th:text="${productoid.nombre}"></h5>
+            <h5 th:text="${productoid.descripcion}"></h5>
+            <h5 th:text="${productoid.codigo}"></h5>
+         </article>
+      </section>
+   </body>
+</html>

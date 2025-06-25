@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+   <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Document</title>
+      <link rel="stylesheet" href="/css/Carrito.css" />
+      <link rel="preconnect" href="https://fonts.googleapis.com" />
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+      <link
+         href="https://fonts.googleapis.com/css2?family=Cascadia+Code:ital,wght@0,200..700;1,200..700&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
+         rel="stylesheet"
+      />
+   </head>
+   <body>
+      <nav>
+         <a href="/productos"> 🢘 Seguir comprando</a>
+      </nav>
+      <h1>CARRITO DE COMPRAS</h1>
+      <div class="container">
+         <table border="0">
+            <thead>
+               <tr>
+                  <th></th>
+                  <th>Producto</th>
+                  <th>Precio</th>
+                  <th>Cantidad</th>
+                  <th>Subtotal</th>
+               </tr>
+            </thead>
+
+            <tbody th:if="${carrito != null && subtotal != null && igv != null && total != null}">
+               <tr th:each="item : ${carrito}">
+                  <td>
+                     <form action="" method="post">
+                        <input type="hidden" name="id" />
+                        <button type="submit">Delete</button>
+                     </form>
+                  </td>
+                  <td th:text="${item.nombre}"></td>
+                  <td th:text="${item.precio}"></td>
+                  <td th:text="${item.quantity}"></td>
+                  <td th:text="@{ ${item.subtotal} + ' $'}"></td>
+               </tr>
+            </tbody>
+         </table>
+         <article th:if="${carrito != null && subtotal != null && igv != null && total != null}">
+            <h3>
+               Total:
+               <p th:text="${total}"></p>
+            </h3>
+            <h3>
+               IGV:
+               <p th:text="${igv}"></p>
+            </h3>
+            <h3>
+               Subtotal:
+               <p th:text="${subtotal}"></p>
+            </h3>
+
+            <!-- Formulario con selector de método de pago -->
+            <form action="/carrito/finalizar" method="post">
+               <label for="metodoPago">Método de pago:</label>
+               <select name="metodoPago" id="metodoPago" required>
+                  <option value="EFECTIVO">Efectivo</option>
+                  <option value="TARJETA">Tarjeta</option>
+                  <option value="MIXTO">Mixto</option>
+               </select>
+
+               <button type="submit">Finalizar Compra</button>
+            </form>
+         </article>
+      </div>
+   </body>
+</html>
