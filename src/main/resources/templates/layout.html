@@ -18,6 +18,7 @@
         .sidebar {
             width: 230px;
             height: 100vh;
+            overflow-y: auto;
             position: fixed;
             top: 0;
             left: 0;
@@ -108,8 +109,10 @@
     <a th:href="@{/local}"><i class="bi bi-geo-alt-fill"></i> Locales</a>
     <a th:href="@{/compras/ordenes}"><i class="bi bi-cart-fill"></i> Compras</a>
     <a th:href="@{/medioPago}"><i class="bi bi-credit-card-2-front-fill"></i> Medios de Pago</a>
+    <a th:href="@{/ventas/preciosDescuentos}"><i class="bi bi-calendar-check"></i> Precios y Descuentos</a>
+    <a th:href="@{/}"><i class="bi bi-cart-plus"></i> Registrar Venta</a>
     <a th:href="@{/proveedor}"><i class="bi bi-truck"></i> Proveedores</a>
-    <a th:href="@{/cliente}"><i class="bi bi-person-lines-fill"></i> Clientes</a>
+    <a th:href="@{/}"><i class="bi bi-person-lines-fill"></i> Clientes</a>
     <a th:href="@{/caja}"><i class="bi bi-cash-stack"></i> Caja</a>
     <a th:href="@{/caja-venta}"><i class="bi bi-receipt"></i> Registro de ventas físicas</a>
     <form th:action="@{/logout}" method="post">
