@@ -24,9 +24,15 @@ public class CajaSesionEntity {
     @JoinColumn(name = "caja_id", nullable = false)
     private CajaEntity caja;
 
+    // Usuario que abre la sesión
     @ManyToOne
-    @JoinColumn(name = "usuario_id", nullable = false)
-    private UsuarioEntity usuario;
+    @JoinColumn(name = "usuario_apertura_id", nullable = false)
+    private UsuarioEntity usuarioApertura;
+
+    // Usuario que cierra la sesión
+    @ManyToOne
+    @JoinColumn(name = "usuario_cierre_id")
+    private UsuarioEntity usuarioCierre;
 
     @Column(name = "fecha_apertura")
     private LocalDateTime fechaApertura;
@@ -42,5 +48,4 @@ public class CajaSesionEntity {
 
     @Column(name = "estado")
     private String estado;
-
 }

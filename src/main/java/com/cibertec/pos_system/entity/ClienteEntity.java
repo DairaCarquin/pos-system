@@ -12,7 +12,7 @@ import lombok.Data;
 @Data
 public class ClienteEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String dni;
     private String nombre;
@@ -21,10 +21,10 @@ public class ClienteEntity {
     private String telefono;
     private String email;
     private boolean activo;
+  
 
     /*Nuevo: entidad para que funcione sistema de puntos */
     private String tipo; /*Ejemplo: "regular", "vip", etc */
-
     /*Nuevo: Puntos acumulados */
     private Integer puntosAcumulados = 0;
 
