@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -81,27 +82,81 @@ public class CajaSesionController {
     }
 
     @PostMapping("/abrir")
-    public String abrirCaja(
-            @RequestParam Long cajaId,
-            @RequestParam double montoInicial,
-            RedirectAttributes redirectAttributes) {
+public String abrirCaja(
+        @RequestParam Long cajaId,
+        @RequestParam double montoInicial,
+        RedirectAttributes redirectAttributes) {
 
-        CajaSesionEntity sesion = new CajaSesionEntity();
-        sesion.setCaja(cajaService.obtener(cajaId).orElseThrow());
-        sesion.setFechaApertura(LocalDateTime.now());
-        sesion.setMontoInicial(montoInicial);
-        sesion.setEstado("ABIERTA");
+    // Obtener usuario autenticado
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    String usuarioActual = authentication.getName();
+    UsuarioEntity usuarioSesion = usuarioRepository.getUserByUsername(usuarioActual);
 
-        // Asignar usuario de apertura
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String usuarioActual = authentication.getName();
-        UsuarioEntity usuarioSesion = usuarioRepository.getUserByUsername(usuarioActual);
-        sesion.setUsuarioApertura(usuarioSesion);
+    // Validar si el usuario ya tiene una caja abierta
+    boolean tieneCajaAbierta = sesionService.listar().stream()
+        .anyMatch(s -> s.getUsuarioApertura() != null
+            && s.getUsuarioApertura().getId().equals(usuarioSesion.getId())
+            && "ABIERTA".equals(s.getEstado()));
 
-        sesionService.guardar(sesion);
-        redirectAttributes.addAttribute("aperturaExitosa", true);
+    if (tieneCajaAbierta) {
+        redirectAttributes.addFlashAttribute("errorApertura", "Ya tienes una caja abierta. Debes cerrarla antes de abrir otra.");
         return "redirect:/caja";
     }
+
+    // Si no tiene caja abierta, abrir nueva sesión
+    CajaSesionEntity sesion = new CajaSesionEntity();
+    sesion.setCaja(cajaService.obtener(cajaId).orElseThrow());
+    sesion.setFechaApertura(LocalDateTime.now());
+    sesion.setMontoInicial(montoInicial);
+    sesion.setEstado("ABIERTA");
+    sesion.setUsuarioApertura(usuarioSesion);
+
+    sesionService.guardar(sesion);
+    redirectAttributes.addAttribute("aperturaExitosa", true);
+    return "redirect:/caja";
+}
+
+@GetMapping("/detalle/{id}")
+public String detalleSesion(@PathVariable Long id, Model model) {
+    // Trae la sesión con ventas
+    CajaSesionEntity sesion = sesionService.obtenerConVentas(id).orElse(null);
+    if (sesion == null) {
+        model.addAttribute("error", "Sesión no encontrada");
+        return "caja/caja-sesion";
+    }
+
+    // Buscar el último arqueo de caja para esta sesión (si existe)
+    ArqueoCajaEntity arqueo = arqueoCajaService.obtenerUltimoPorSesion(sesion.getId()).orElse(null);
+
+    // Ventas con tarjeta
+    List<Object[]> ventasTarjeta = cajaVentaRepository.findVentasTarjetaPorSesion(id);
+    BigDecimal totalTarjeta = BigDecimal.ZERO;
+    for (Object[] v : ventasTarjeta) {
+        if (v[1] != null) totalTarjeta = totalTarjeta.add((BigDecimal) v[1]);
+    }
+
+    // Ventas en efectivo
+    List<Object[]> ventasEfectivo = cajaVentaRepository.findVentasEfectivoPorSesion(id);
+    BigDecimal totalEfectivo = BigDecimal.ZERO;
+    for (Object[] v : ventasEfectivo) {
+        if (v[1] != null) totalEfectivo = totalEfectivo.add((BigDecimal) v[1]);
+    }
+
+    BigDecimal totalGeneral = totalTarjeta.add(totalEfectivo);
+
+    // Pasar los datos al modelo
+    model.addAttribute("sesion", sesion);
+    model.addAttribute("ventasTarjeta", ventasTarjeta);
+    model.addAttribute("totalTarjeta", totalTarjeta);
+    model.addAttribute("ventasEfectivo", ventasEfectivo);
+    model.addAttribute("totalEfectivo", totalEfectivo);
+    model.addAttribute("totalGeneral", totalGeneral);
+    model.addAttribute("montoSistema", arqueo != null ? arqueo.getMontoSistema() : null);
+    model.addAttribute("diferencia", arqueo != null ? arqueo.getDiferencia() : null);
+    model.addAttribute("observaciones", arqueo != null ? arqueo.getObservaciones() : null);
+
+    return "caja/caja-detalle-sesion";
+}
 
     @PostMapping("/cerrar")
     public String cerrarCaja(

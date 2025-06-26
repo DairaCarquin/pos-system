@@ -80,13 +80,13 @@
        th:attr="onclick=${sesionesActivas.containsKey(caja.id)} ? 'window.mostrarMensajeCajaAbierta(event)' : 'return confirm(\'¿Eliminar esta caja?\')'">
         <i class="bi bi-trash"></i>
     </a>
-    <button type="button" class="btn btn-success btn-sm mx-1"
-            data-bs-toggle="modal"
-            th:attr="data-bs-target='#abrirCajaModal__' + ${caja.id}"
-            th:disabled="${sesionesActivas.containsKey(caja.id)}"
-            title="Abrir Caja">
-        <i class="bi bi-box-arrow-in-right"></i>
-    </button>
+   <button type="button" class="btn btn-success btn-sm mx-1"
+        th:if="${!sesionesActivas.containsKey(caja.id)}"
+        th:onclick="${usuarioTieneCajaAbierta} ? 'alert(\'Error: ya tiene una caja abierta\');' : ''"
+        th:attr="data-bs-toggle=${!usuarioTieneCajaAbierta} ? 'modal' : null, data-bs-target=${!usuarioTieneCajaAbierta} ? '#abrirCajaModal__' + ${caja.id} : null"
+        title="Abrir Caja">
+    <i class="bi bi-box-arrow-in-right"></i>
+</button>
     <button type="button" class="btn btn-secondary btn-sm mx-1"
             data-bs-toggle="modal"
             th:attr="data-bs-target='#cerrarCajaModal__' + ${caja.id}"
@@ -151,7 +151,8 @@
                 </div>
                 <!-- Modal Cerrar Caja -->
                 <div th:id="'cerrarCajaModal__' + ${caja.id}" class="modal fade" tabindex="-1"
-                     th:attr="aria-labelledby='cerrarCajaLabel__' + ${caja.id}" aria-hidden="true">
+     th:attr="aria-labelledby='cerrarCajaLabel__' + ${caja.id}" aria-hidden="true"
+     data-bs-backdrop="static" data-bs-keyboard="false">
                   <div class="modal-dialog">
                     <div class="modal-content">
                       <form th:action="@{/caja-sesion/cerrar-sesion}" method="post" th:onsubmit="guardarCierreCaja(event, [[${caja.id}]])">
@@ -357,7 +358,6 @@
 </div>
         <!-- Aquí va el script, dentro del fragmento contenido -->
         <script th:inline="javascript">
-            console.log('Script de cajas.html cargado');
             if (window.location.search.includes('aperturaExitosa=true')) {
         alert('Apertura de caja realizada.');
         var url = new URL(window.location);
@@ -455,6 +455,9 @@
             exitoDiv.textContent = 'Cierre de caja realizado.';
             exitoDiv.classList.remove('d-none');
             errorDiv.classList.add('d-none');
+            // Deshabilitar el botón Guardar
+            var btnGuardar = modal.querySelector('button[type="submit"]');
+            if (btnGuardar) btnGuardar.disabled = true;
             // Aquí NO recargues la página
         } else {
             throw new Error();
@@ -515,40 +518,43 @@ document.querySelectorAll('.modal').forEach(function(modalEl) {
 
             // Voucher de apertura de caja
             function guardarAperturaCaja(event, cajaId) {
-                event.preventDefault();
-                var form = event.target;
-                var modal = form.closest('.modal-content');
-                var exitoDiv = modal.querySelector('.alert-apertura-exito');
-                var errorDiv = modal.querySelector('.alert-apertura-error');
-                exitoDiv.classList.add('d-none');
-                errorDiv.classList.add('d-none');
+    event.preventDefault();
+    var form = event.target;
+    var modal = form.closest('.modal-content');
+    var exitoDiv = modal.querySelector('.alert-apertura-exito');
+    var errorDiv = modal.querySelector('.alert-apertura-error');
+    exitoDiv.classList.add('d-none');
+    errorDiv.classList.add('d-none');
 
-                var formData = new FormData(form);
-                fetch(form.action, {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(res => {
-                    if (res.ok) {
-                        exitoDiv.textContent = 'Apertura de caja realizada.';
-                        exitoDiv.classList.remove('d-none');
-                        errorDiv.classList.add('d-none');
-                        // Mostrar botón imprimir voucher
-                        var btnImprimir = document.getElementById('btnImprimirVoucherApertura__' + cajaId);
-                        btnImprimir.classList.remove('d-none');
-                        // Llenar datos del voucher
-                        document.getElementById('voucher-monto-inicial__' + cajaId).textContent = form.querySelector('input[name="montoInicial"]').value;
-                        document.getElementById('voucher-fecha-apertura__' + cajaId).textContent = new Date().toLocaleString();
-                    } else {
-                        throw new Error();
-                    }
-                })
-                .catch(() => {
-                    errorDiv.textContent = 'Ocurrió un error al abrir la caja.';
-                    errorDiv.classList.remove('d-none');
-                    exitoDiv.classList.add('d-none');
-                });
-            }
+    var formData = new FormData(form);
+    fetch(form.action, {
+        method: 'POST',
+        body: formData
+    })
+    .then(res => {
+        if (res.ok) {
+            exitoDiv.textContent = 'Apertura de caja realizada.';
+            exitoDiv.classList.remove('d-none');
+            errorDiv.classList.add('d-none');
+            // Mostrar botón imprimir voucher
+            var btnImprimir = document.getElementById('btnImprimirVoucherApertura__' + cajaId);
+            btnImprimir.classList.remove('d-none');
+            // Llenar datos del voucher
+            document.getElementById('voucher-monto-inicial__' + cajaId).textContent = form.querySelector('input[name="montoInicial"]').value;
+            document.getElementById('voucher-fecha-apertura__' + cajaId).textContent = new Date().toLocaleString();
+            // Deshabilitar el botón Guardar
+            var btnGuardar = modal.querySelector('button[type="submit"]');
+            if (btnGuardar) btnGuardar.disabled = true;
+        } else {
+            throw new Error();
+        }
+    })
+    .catch(() => {
+        errorDiv.textContent = 'Ocurrió un error al abrir la caja.';
+        errorDiv.classList.remove('d-none');
+        exitoDiv.classList.add('d-none');
+    });
+}
 
             function imprimirVoucherApertura(cajaId) {
                 var voucher = document.getElementById('voucher-apertura-caja__' + cajaId);
@@ -559,6 +565,21 @@ document.querySelectorAll('.modal').forEach(function(modalEl) {
                 document.body.innerHTML = originalBody;
                 location.reload();
             }
+
+            document.querySelectorAll('.modal').forEach(function(modalEl) {
+    modalEl.addEventListener('hidden.bs.modal', function () {
+        // Recarga si hubo éxito en el cierre de caja
+        if (modalEl.querySelector('.alert-cierre-exito') && 
+            !modalEl.querySelector('.alert-cierre-exito').classList.contains('d-none')) {
+            window.location.reload();
+        }
+        // Recarga si hubo éxito en la apertura de caja
+        if (modalEl.querySelector('.alert-apertura-exito') && 
+            !modalEl.querySelector('.alert-apertura-exito').classList.contains('d-none')) {
+            window.location.reload();
+        }
+    });
+});
         </script>
     </div>
 </body>

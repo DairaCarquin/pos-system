@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
+import com.cibertec.pos_system.entity.ArqueoCajaEntity;
 import com.cibertec.pos_system.entity.CajaSesionEntity;
 import com.cibertec.pos_system.entity.UsuarioEntity;
 import com.cibertec.pos_system.repository.CajaSesionRepository;
@@ -55,6 +56,11 @@ public class CajaSesionService {
     public List<CajaSesionEntity> buscarPorCualquierCampo(String q) {
         return repository.buscarPorCualquierCampo(q.toLowerCase());
     }
+
+   public Optional<CajaSesionEntity> obtenerConVentas(Long id) {
+    CajaSesionEntity sesion = repository.findByIdWithVentas(id);
+    return Optional.ofNullable(sesion);
+}
 
     @Transactional
 public CajaSesionEntity actualizarUsuarioCierre(Long sesionId, UsuarioEntity usuarioCierre) {

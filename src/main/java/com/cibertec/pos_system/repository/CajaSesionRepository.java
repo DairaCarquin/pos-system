@@ -29,4 +29,8 @@ public interface CajaSesionRepository extends JpaRepository<CajaSesionEntity, Lo
            "OR CAST(s.fechaApertura AS string) LIKE %:q% " +
            "OR CAST(s.fechaCierre AS string) LIKE %:q%")
     List<CajaSesionEntity> buscarPorCualquierCampo(@Param("q") String q);
+
+    // --- AGREGADO: Traer sesión con ventas (fetch join) ---
+    @Query("SELECT s FROM CajaSesionEntity s LEFT JOIN FETCH s.ventas WHERE s.id = :id")
+    CajaSesionEntity findByIdWithVentas(@Param("id") Long id);
 }

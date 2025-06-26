@@ -213,40 +213,41 @@
         renderCarrito();
     }
 
-    function renderCarrito() {
-        var lista = document.getElementById('carrito-lista');
-        lista.innerHTML = '';
-        var subtotal = 0;
-        var tieneProductos = false;
-        Object.entries(carrito).forEach(function([id, prod]) {
-            tieneProductos = true;
-            var itemSubtotal = prod.precio * prod.cantidad;
-            subtotal += itemSubtotal;
-            lista.innerHTML += `
-                <div class="carrito-producto mb-2 d-flex justify-content-between align-items-center">
-                    <span style="min-width:120px">${prod.nombre}</span>
-                    <span class="mx-2">S/ ${prod.precio.toFixed(2)}</span>
-                    <div>
-                        <button class="btn btn-sm btn-secondary" onclick="disminuirCantidad('${id}')">
-                            ${prod.cantidad > 1 ? '-' : '✖'}
-                        </button>
-                        <span class="carrito-cantidad mx-2">${prod.cantidad}</span>
-                        <button class="btn btn-sm btn-secondary" onclick="aumentarCantidad('${id}')">+</button>
-                    </div>
-                    <span class="mx-2 fw-bold">S/ ${itemSubtotal.toFixed(2)}</span>
+function renderCarrito() {
+    var lista = document.getElementById('carrito-lista');
+    lista.innerHTML = '';
+    var subtotal = 0;
+    var tieneProductos = false;
+    Object.entries(carrito).forEach(function([id, prod]) {
+        tieneProductos = true;
+        var itemSubtotal = prod.precio * prod.cantidad;
+        subtotal += itemSubtotal;
+        lista.innerHTML += `
+            <div class="carrito-producto mb-2 d-flex justify-content-between align-items-center">
+                <span style="min-width:120px">${prod.nombre}</span>
+                <span class="mx-2">S/ ${prod.precio.toFixed(2)}</span>
+                <div>
+                    <button class="btn btn-sm btn-secondary" onclick="disminuirCantidad('${id}')">
+                        ${prod.cantidad > 1 ? '-' : '✖'}
+                    </button>
+                    <span class="carrito-cantidad mx-2">${prod.cantidad}</span>
+                    <button class="btn btn-sm btn-secondary" onclick="aumentarCantidad('${id}')">+</button>
                 </div>
-            `;
-        });
+                <span class="mx-2 fw-bold">S/ ${itemSubtotal.toFixed(2)}</span>
+            </div>
+        `;
+    });
 
-        // Cálculo de impuestos
-        var impuesto = subtotal * 0.18; // 18% IGV
-        var total = subtotal + impuesto;
+    // Cálculo de impuestos (IGV incluido en el precio)
+    var subtotalSinIgv = subtotal / 1.18;
+    var impuesto = subtotal - subtotalSinIgv;
+    var total = subtotal;
 
-        document.getElementById('carrito-subtotal').textContent = 'S/ ' + subtotal.toFixed(2);
-        document.getElementById('carrito-impuesto').textContent = 'S/ ' + impuesto.toFixed(2);
-        document.getElementById('carrito-total').textContent = 'S/ ' + total.toFixed(2);
-        document.getElementById('btn-finalizar-venta').disabled = !tieneProductos;
-    }
+    document.getElementById('carrito-subtotal').textContent = 'S/ ' + subtotalSinIgv.toFixed(2);
+    document.getElementById('carrito-impuesto').textContent = 'S/ ' + impuesto.toFixed(2);
+    document.getElementById('carrito-total').textContent = 'S/ ' + total.toFixed(2);
+    document.getElementById('btn-finalizar-venta').disabled = !tieneProductos;
+}
 
     window.onload = function() {
         var primerBtn = document.querySelector('.categoria-btn');

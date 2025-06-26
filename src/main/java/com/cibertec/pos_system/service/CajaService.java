@@ -62,4 +62,9 @@ public class CajaService implements CajaServiceInterface {
         // Debes tener este método en tu repository, aquí es solo un ejemplo:
         return cajaRepository.buscarPorCualquierCampo(q);
     }
+@Override
+public String obtenerUltimoCodigoPorLocalYPrefijo(Long localId, String prefijo) {
+    return cajaRepository.findMaxCodigoByLocalAndPrefijo(localId, prefijo);
+}
+    
 }
