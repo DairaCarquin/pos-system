@@ -68,4 +68,8 @@ public CajaSesionEntity actualizarUsuarioCierre(Long sesionId, UsuarioEntity usu
     sesion.setUsuarioCierre(usuarioCierre);
     return repository.save(sesion);
 }
+
+public CajaSesionEntity buscarSesionActivaPorUsuario(Long usuarioId) {
+    return repository.findByUsuarioAperturaIdAndEstado(usuarioId, "ABIERTA");
+}
 }

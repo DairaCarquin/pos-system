@@ -81,7 +81,7 @@ public class CajaSesionController {
         return "caja/caja-sesion";
     }
 
-    @PostMapping("/abrir")
+@PostMapping("/abrir")
 public String abrirCaja(
         @RequestParam Long cajaId,
         @RequestParam double montoInicial,
@@ -92,14 +92,29 @@ public String abrirCaja(
     String usuarioActual = authentication.getName();
     UsuarioEntity usuarioSesion = usuarioRepository.getUserByUsername(usuarioActual);
 
-    // Validar si el usuario ya tiene una caja abierta
-    boolean tieneCajaAbierta = sesionService.listar().stream()
-        .anyMatch(s -> s.getUsuarioApertura() != null
-            && s.getUsuarioApertura().getId().equals(usuarioSesion.getId())
-            && "ABIERTA".equals(s.getEstado()));
+    // Verificar si es ADMIN
+    boolean esAdmin = authentication.getAuthorities().stream()
+        .anyMatch(auth -> auth.getAuthority().equals("ADMIN"));
 
-    if (tieneCajaAbierta) {
-        redirectAttributes.addFlashAttribute("errorApertura", "Ya tienes una caja abierta. Debes cerrarla antes de abrir otra.");
+    // Validar si el usuario ya tiene una caja abierta (SOLO para NO-ADMIN)
+    if (!esAdmin) {
+        boolean tieneCajaAbierta = sesionService.listar().stream()
+            .anyMatch(s -> s.getUsuarioApertura() != null
+                && s.getUsuarioApertura().getId().equals(usuarioSesion.getId())
+                && "ABIERTA".equals(s.getEstado()));
+
+        if (tieneCajaAbierta) {
+            redirectAttributes.addFlashAttribute("errorApertura", "Ya tienes una caja abierta. Debes cerrarla antes de abrir otra.");
+            return "redirect:/caja";
+        }
+    }
+
+    // Verificar si la caja específica ya está abierta (para TODOS)
+    boolean cajaYaAbierta = sesionService.listar().stream()
+        .anyMatch(s -> s.getCaja().getId().equals(cajaId) && "ABIERTA".equals(s.getEstado()));
+
+    if (cajaYaAbierta) {
+        redirectAttributes.addFlashAttribute("errorApertura", "Esta caja ya tiene una sesión abierta.");
         return "redirect:/caja";
     }
 
@@ -112,8 +127,8 @@ public String abrirCaja(
     sesion.setUsuarioApertura(usuarioSesion);
 
     sesionService.guardar(sesion);
-    redirectAttributes.addAttribute("aperturaExitosa", true);
-    return "redirect:/caja";
+redirectAttributes.addAttribute("aperturaExitosa", true);  // ← CAMBIAR ESTA LÍNEA
+return "redirect:/caja";
 }
 
 @GetMapping("/detalle/{id}")

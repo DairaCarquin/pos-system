@@ -78,7 +78,6 @@ public class CajaVentaService {
     return montoInicial.add(ventasEfectivo);
 }
 
-
     // Lógica de negocio para registrar venta con DTO (sin validación/descuento de stock)
     @Transactional
     public Long registrarVenta(CajaVentaDTO dto, String username) {
@@ -121,7 +120,7 @@ public class CajaVentaService {
         if (ultimo != null) {
             String ultimoNum = "000000";
             if (ultimo.length() > 2) {
-                ultimoNum = ultimo.substring(2); // Quita el prefijo
+                ultimoNum = ultimo.substring(2); // Quita el prefijo de 2 letras
             }
             int secuencia;
             try {

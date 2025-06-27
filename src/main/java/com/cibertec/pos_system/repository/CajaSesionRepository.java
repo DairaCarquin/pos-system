@@ -33,4 +33,7 @@ public interface CajaSesionRepository extends JpaRepository<CajaSesionEntity, Lo
     // --- AGREGADO: Traer sesión con ventas (fetch join) ---
     @Query("SELECT s FROM CajaSesionEntity s LEFT JOIN FETCH s.ventas WHERE s.id = :id")
     CajaSesionEntity findByIdWithVentas(@Param("id") Long id);
+    
+    // Agrega esta línea al final de tu CajaSesionRepository
+CajaSesionEntity findByUsuarioAperturaIdAndEstado(Long usuarioId, String estado);
 }

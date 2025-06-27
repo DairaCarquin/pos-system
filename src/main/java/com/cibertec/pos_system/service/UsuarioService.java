@@ -61,4 +61,10 @@ public class UsuarioService implements UsuarioServiceInterface {
     public UsuarioEntity obtenerPorUsername(String username) {
         return usuarioRepository.findByUsername(username);
     }
+
+    // Agrega este método al final de tu UsuarioService
+    public boolean esCajero(UsuarioEntity usuario) {
+    return usuario.getRoles().stream()
+            .anyMatch(rol -> "CASHIER".equals(rol.getNombre()));
+}
 }

@@ -28,7 +28,8 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Set;                    // <-- AGREGAR ESTA LÍNEA
+import java.util.stream.Collectors; 
 
 @Controller
 @RequestMapping("/caja")
@@ -66,16 +67,68 @@ public class CajaController {
         this.cajaSesionService = cajaSesionService;
     }
 
-@GetMapping
+    @GetMapping("/nuevo")
+public String mostrarFormularioNuevo(Model model) {
+    model.addAttribute("caja", new CajaEntity());
+    model.addAttribute("locales", localService.listar());
+    model.addAttribute("accion", "/caja/nuevo");
+    return "caja/formulario";
+}
+
+    @GetMapping
 public String listar(@RequestParam(value = "q", required = false) String q, Model model) {
-    List<CajaEntity> cajas;
-    if (q != null && !q.isEmpty()) {
-        cajas = cajaService.buscarPorCualquierCampo(q);
-    } else {
-        cajas = cajaService.listar();
-    }
+    // Obtener usuario autenticado
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    String usuarioActual = authentication.getName();
+    UsuarioEntity usuarioSesion = usuarioRepository.getUserByUsername(usuarioActual);
+
+    // Verificar si es ADMIN
+    boolean esAdmin = authentication.getAuthorities().stream()
+        .anyMatch(auth -> auth.getAuthority().equals("ADMIN"));
+
+    // Obtener todas las sesiones
     List<CajaSesionEntity> sesiones = cajaSesionService.listar();
 
+    // Buscar si el usuario tiene una caja abierta
+    CajaSesionEntity sesionActivaUsuario = sesiones.stream()
+        .filter(s -> s.getUsuarioApertura() != null
+            && s.getUsuarioApertura().getId().equals(usuarioSesion.getId())
+            && "ABIERTA".equals(s.getEstado()))
+        .findFirst()
+        .orElse(null);
+
+    // LÓGICA PRINCIPAL: Filtrar cajas según el estado del usuario
+    List<CajaEntity> cajas;
+    if (sesionActivaUsuario != null && !esAdmin) {
+        // Si el usuario tiene caja abierta Y NO es admin, solo mostrar esa caja
+        cajas = List.of(sesionActivaUsuario.getCaja());
+    } else {
+        // Obtener todas las cajas según búsqueda
+        List<CajaEntity> todasLasCajas;
+        if (q != null && !q.isEmpty()) {
+            todasLasCajas = cajaService.buscarPorCualquierCampo(q);
+        } else {
+            todasLasCajas = cajaService.listar();
+        }
+        
+        // NUEVA LÓGICA: Filtrar según tipo de usuario
+        if (esAdmin) {
+            // ADMIN ve todas las cajas
+            cajas = todasLasCajas;
+        } else {
+            // Usuario normal ve SOLO cajas cerradas (sin sesión activa)
+            Set<Long> cajasAbiertas = sesiones.stream()
+                .filter(s -> "ABIERTA".equals(s.getEstado()))
+                .map(s -> s.getCaja().getId())
+                .collect(Collectors.toSet());
+            
+            cajas = todasLasCajas.stream()
+                .filter(caja -> !cajasAbiertas.contains(caja.getId()))
+                .collect(Collectors.toList());
+        }
+    }
+
+    // Crear mapas de sesiones activas
     Map<Long, CajaSesionEntity> sesionesActivas = new HashMap<>();
     Map<Long, Integer> sesionesPorCaja = new HashMap<>();
 
@@ -87,57 +140,45 @@ public String listar(@RequestParam(value = "q", required = false) String q, Mode
         sesionesPorCaja.put(cajaId, sesionesPorCaja.getOrDefault(cajaId, 0) + 1);
     }
 
-    // NUEVO: Verificar si el usuario autenticado ya tiene una caja abierta
-    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    String usuarioActual = authentication.getName();
-    UsuarioEntity usuarioSesion = usuarioRepository.getUserByUsername(usuarioActual);
-
-    boolean usuarioTieneCajaAbierta = sesiones.stream()
-        .anyMatch(s -> s.getUsuarioApertura() != null
-            && s.getUsuarioApertura().getId().equals(usuarioSesion.getId())
-            && "ABIERTA".equals(s.getEstado()));
+    // CAMBIO CLAVE: Verificar si el usuario tiene una caja abierta (para el botón)
+    // Para ADMIN, no restringir la apertura de múltiples cajas
+    boolean usuarioTieneCajaAbierta = sesionActivaUsuario != null && !esAdmin;
 
     model.addAttribute("cajas", cajas);
     model.addAttribute("locales", localService.listar());
     model.addAttribute("sesionesActivas", sesionesActivas);
     model.addAttribute("sesionesPorCaja", sesionesPorCaja);
-    model.addAttribute("usuarioTieneCajaAbierta", usuarioTieneCajaAbierta); // <-- agregado
+    model.addAttribute("usuarioTieneCajaAbierta", usuarioTieneCajaAbierta);
+    model.addAttribute("esAdmin", esAdmin);
 
     return "caja/cajas";
 }
 
-@GetMapping("/siguiente-codigo")
-@ResponseBody
-public Map<String, String> siguienteCodigo(@RequestParam Long localId) {
-    // Lógica para obtener el local y generar el código y nombre sugeridos
-    LocalEntity local = localRepository.findById(localId).orElse(null);
-    if (local == null) return Map.of();
+// *** AGREGAR SOLO ESTE MÉTODO ***
+    @GetMapping("/siguiente-codigo")
+    @ResponseBody
+    public Map<String, String> siguienteCodigo(@RequestParam Long localId) {
+        // Lógica para obtener el local y generar el código y nombre sugeridos
+        LocalEntity local = localRepository.findById(localId).orElse(null);
+        if (local == null) return Map.of();
 
-    // Obtener las dos primeras letras de la tercera palabra del nombre del local
-    String[] palabras = local.getNombre().split("\\s+");
-    String prefijo = palabras.length >= 3 ? palabras[2].substring(0, 2).toUpperCase() : "XX";
+        // Obtener las dos primeras letras de la tercera palabra del nombre del local
+        String[] palabras = local.getNombre().split("\\s+");
+        String prefijo = palabras.length >= 3 ? palabras[2].substring(0, 2).toUpperCase() : "XX";
 
-    // Buscar el último número usado para ese local y prefijo
-    String maxCodigo = cajaService.obtenerUltimoCodigoPorLocalYPrefijo(localId, prefijo);
-    int siguienteNumero = 1;
-    if (maxCodigo != null && maxCodigo.length() > 2) {
-        try {
-            siguienteNumero = Integer.parseInt(maxCodigo.substring(2)) + 1;
-        } catch (NumberFormatException ignored) {}
-    }
-    String numero = String.format("%02d", siguienteNumero);
-    String codigo = prefijo + numero;
-    String nombre = "Caja " + numero;
+        // Buscar el último número usado para ese local y prefijo
+        String maxCodigo = cajaService.obtenerUltimoCodigoPorLocalYPrefijo(localId, prefijo);
+        int siguienteNumero = 1;
+        if (maxCodigo != null && maxCodigo.length() > 2) {
+            try {
+                siguienteNumero = Integer.parseInt(maxCodigo.substring(2)) + 1;
+            } catch (NumberFormatException ignored) {}
+        }
+        String numero = String.format("%02d", siguienteNumero);
+        String codigo = prefijo + numero;
+        String nombre = "Caja " + numero;
 
-    return Map.of("codigo", codigo, "nombre", nombre);
-}
-
-    @GetMapping("/nuevo")
-    public String mostrarFormularioNuevaCaja(Model model) {
-        model.addAttribute("caja", new CajaEntity());
-        model.addAttribute("locales", localService.listar());
-        model.addAttribute("accion", "/caja/nuevo");
-        return "caja/formulario";
+        return Map.of("codigo", codigo, "nombre", nombre);
     }
 
     @PostMapping("/nuevo")

@@ -41,10 +41,12 @@
 
     <div class="card">
         <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-          <h5 class="mb-0">Listado de Cajas</h5>
-          <a th:href="@{/caja/nuevo}" class="btn btn-light">
-            <i class="bi bi-plus-circle"></i> Nueva Caja
-          </a>
+            <h5 class="mb-0">Listado de Cajas</h5>
+   <!-- BOTÓN NUEVA CAJA (líneas 45-48) -->
+<a th:href="@{/caja/nuevo}" class="btn btn-light" 
+   th:if="${#authentication.principal.authorities.?[authority == 'ADMIN'].size() > 0}">
+    <i class="bi bi-plus-circle"></i> Nueva Caja
+</a>
         </div>
         <div class="card-body">
             <table class="table table-striped table-hover">
@@ -71,42 +73,50 @@
                     <td th:text="${caja.usuario != null ? caja.usuario.username : ''}"></td>
                     <td th:text="${caja.fechaActualizacion != null ? #temporals.format(caja.fechaActualizacion, 'yyyy-MM-dd HH:mm') : ''}"></td>
                     <td th:text="${caja.usuarioActualizacion != null ? caja.usuarioActualizacion.username : ''}"></td>
-            <td class="text-center" style="white-space:nowrap;">
-    <a th:href="@{/caja/editar/{id}(id=${caja.id})}" class="btn btn-warning btn-sm mx-1" title="Editar">
-        <i class="bi bi-pencil"></i>
-    </a>
-    <a th:href="@{/caja/eliminar/{id}(id=${caja.id})}"
-       class="btn btn-danger btn-sm mx-1" title="Eliminar"
-       th:attr="onclick=${sesionesActivas.containsKey(caja.id)} ? 'window.mostrarMensajeCajaAbierta(event)' : 'return confirm(\'¿Eliminar esta caja?\')'">
-        <i class="bi bi-trash"></i>
-    </a>
-   <button type="button" class="btn btn-success btn-sm mx-1"
-        th:if="${!sesionesActivas.containsKey(caja.id)}"
-        th:onclick="${usuarioTieneCajaAbierta} ? 'alert(\'Error: ya tiene una caja abierta\');' : ''"
-        th:attr="data-bs-toggle=${!usuarioTieneCajaAbierta} ? 'modal' : null, data-bs-target=${!usuarioTieneCajaAbierta} ? '#abrirCajaModal__' + ${caja.id} : null"
-        title="Abrir Caja">
+                    <td class="text-center" style="white-space:nowrap;">
+    <!-- BOTÓN EDITAR (líneas 75-78) -->
+<a th:href="@{/caja/editar/{id}(id=${caja.id})}" class="btn btn-warning btn-sm mx-1" title="Editar"
+   th:if="${#authentication.principal.authorities.?[authority == 'ADMIN'].size() > 0}">
+    <i class="bi bi-pencil"></i>
+</a>
+                       <!-- BOTÓN ELIMINAR (líneas 79-84) -->
+<a th:href="@{/caja/eliminar/{id}(id=${caja.id})}"
+   class="btn btn-danger btn-sm mx-1" title="Eliminar"
+   th:if="${#authentication.principal.authorities.?[authority == 'ADMIN'].size() > 0}"
+   th:attr="onclick=${sesionesActivas.containsKey(caja.id)} ? 'window.mostrarMensajeCajaAbierta(event)' : 'return confirm(\'¿Eliminar esta caja?\')'">
+    <i class="bi bi-trash"></i>
+</a>
+<!-- Botón Abrir Caja - VERSIÓN MEJORADA -->
+<button type="button" class="btn btn-success btn-sm mx-1"
+        th:classappend="${sesionesActivas.containsKey(caja.id)} ? 'disabled' : ''"
+        th:disabled="${sesionesActivas.containsKey(caja.id)}"
+        th:onclick="${usuarioTieneCajaAbierta && !esAdmin} ? 'alert(\'Error: ya tiene una caja abierta\');' : (${sesionesActivas.containsKey(caja.id)} ? 'return false;' : '')"
+        th:attr="data-bs-toggle=${!sesionesActivas.containsKey(caja.id) && (!usuarioTieneCajaAbierta || esAdmin)} ? 'modal' : null, data-bs-target=${!sesionesActivas.containsKey(caja.id) && (!usuarioTieneCajaAbierta || esAdmin)} ? '#abrirCajaModal__' + ${caja.id} : null"
+        th:title="${sesionesActivas.containsKey(caja.id)} ? 'Caja ya está abierta' : 'Abrir Caja'">
     <i class="bi bi-box-arrow-in-right"></i>
+    <span th:if="${sesionesActivas.containsKey(caja.id)}" class="text-muted"> </span>
 </button>
-    <button type="button" class="btn btn-secondary btn-sm mx-1"
-            data-bs-toggle="modal"
-            th:attr="data-bs-target='#cerrarCajaModal__' + ${caja.id}"
-            th:disabled="${!sesionesActivas.containsKey(caja.id)}"
-            title="Cerrar Caja">
-        <i class="bi bi-box-arrow-left"></i>
-    </button>
-    <!-- Botón Iniciar Ventas con Modal Cliente SOLO cochecito -->
-    <button th:if="${sesionesActivas.containsKey(caja.id)}"
-            type="button"
-            class="btn btn-primary btn-sm mx-1"
-            data-bs-toggle="modal"
-            th:attr="data-bs-target='#modalCliente_' + ${caja.id}" title="Iniciar Ventas">
-        <i class="bi bi-cart"></i>
-    </button>
-    <button th:if="${!sesionesActivas.containsKey(caja.id)}"
-            class="btn btn-primary btn-sm mx-1" disabled title="Iniciar Ventas">
-        <i class="bi bi-cart"></i>
-    </button>
-</td>
+                        <!-- Botón Cerrar Caja -->
+                        <button type="button" class="btn btn-secondary btn-sm mx-1"
+                                data-bs-toggle="modal"
+                                th:attr="data-bs-target='#cerrarCajaModal__' + ${caja.id}"
+                                th:disabled="${!sesionesActivas.containsKey(caja.id)}"
+                                title="Cerrar Caja">
+                            <i class="bi bi-box-arrow-left"></i>
+                        </button>
+                        <!-- Botón Iniciar Ventas -->
+                        <button th:if="${sesionesActivas.containsKey(caja.id)}"
+                                type="button"
+                                class="btn btn-primary btn-sm mx-1"
+                                data-bs-toggle="modal"
+                                th:attr="data-bs-target='#modalCliente_' + ${caja.id}" title="Iniciar Ventas">
+                            <i class="bi bi-cart"></i>
+                        </button>
+                        <button th:if="${!sesionesActivas.containsKey(caja.id)}"
+                                class="btn btn-primary btn-sm mx-1" disabled title="Iniciar Ventas">
+                            <i class="bi bi-cart"></i>
+                        </button>
+                    </td>
                 </tr>
                 </tbody>
             </table>
@@ -115,166 +125,171 @@
                     <i class="bi bi-clock-history"></i> Ver Sesiones
                 </a>
             </div>
+            
+            <!-- MODALES -->
             <div th:each="caja : ${cajas}">
                 <!-- Modal Abrir Caja -->
                 <div th:id="'abrirCajaModal__' + ${caja.id}" class="modal fade" tabindex="-1"
                      th:attr="aria-labelledby='abrirCajaLabel__' + ${caja.id}" aria-hidden="true">
-                  <div class="modal-dialog">
-                    <div class="modal-content">
-                      <form th:action="@{/caja-sesion/abrir}" method="post" th:onsubmit="'guardarAperturaCaja(event, ' + ${caja.id} + ')'" >
-                        <input type="hidden" name="cajaId" th:value="${caja.id}" />
-                        <div class="modal-header">
-                          <h5 class="modal-title" th:id="'abrirCajaLabel__' + ${caja.id}">Abrir Caja</h5>
-                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <form th:action="@{/caja-sesion/abrir}" method="post" th:onsubmit="'guardarAperturaCaja(event, ' + ${caja.id} + ')'" >
+                                <input type="hidden" name="cajaId" th:value="${caja.id}" />
+                                <div class="modal-header">
+                                    <h5 class="modal-title" th:id="'abrirCajaLabel__' + ${caja.id}">Abrir Caja</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="mb-3">
+                                        <label class="form-label">Monto Inicial</label>
+                                        <input type="number" class="form-control" name="montoInicial" required min="0" step="0.01">
+                                    </div>
+                                    <div class="alert alert-success alert-apertura-exito mt-2 d-none"></div>
+                                    <div class="alert alert-danger alert-apertura-error mt-2 d-none"></div>
+                                    <!-- Botón Imprimir Voucher de Apertura (oculto al inicio) -->
+                                    <button type="button" class="btn btn-secondary d-none mt-2"
+                                            th:attr="id='btnImprimirVoucherApertura__' + ${caja.id}"
+                                            th:onclick="'imprimirVoucherApertura(' + ${caja.id} + ')'" >
+                                        Imprimir Voucher de Apertura
+                                    </button>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                    <button type="submit" class="btn btn-primary">Guardar</button>
+                                </div>
+                            </form>
                         </div>
-                        <div class="modal-body">
-                          <div class="mb-3">
-                            <label class="form-label">Monto Inicial</label>
-                            <input type="number" class="form-control" name="montoInicial" required min="0" step="0.01">
-                          </div>
-                          <div class="alert alert-success alert-apertura-exito mt-2 d-none"></div>
-                          <div class="alert alert-danger alert-apertura-error mt-2 d-none"></div>
-                          <!-- Botón Imprimir Voucher de Apertura (oculto al inicio) -->
-                          <button type="button" class="btn btn-secondary d-none mt-2"
-        th:attr="id='btnImprimirVoucherApertura__' + ${caja.id}"
-        th:onclick="'imprimirVoucherApertura(' + ${caja.id} + ')'" >
-    Imprimir Voucher de Apertura
-</button>
-                        </div>
-                        <div class="modal-footer">
-                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                          <button type="submit" class="btn btn-primary">Guardar</button>
-                        </div>
-                      </form>
                     </div>
-                  </div>
                 </div>
+                
                 <!-- Modal Cerrar Caja -->
                 <div th:id="'cerrarCajaModal__' + ${caja.id}" class="modal fade" tabindex="-1"
-     th:attr="aria-labelledby='cerrarCajaLabel__' + ${caja.id}" aria-hidden="true"
-     data-bs-backdrop="static" data-bs-keyboard="false">
-                  <div class="modal-dialog">
-                    <div class="modal-content">
-                      <form th:action="@{/caja-sesion/cerrar-sesion}" method="post" th:onsubmit="guardarCierreCaja(event, [[${caja.id}]])">
-                        <input type="hidden" name="cajaSesionId" th:value="${sesionesActivas.containsKey(caja.id) ? sesionesActivas.get(caja.id).id : ''}" />
-                        <!-- Campos ocultos para voucher -->
-                        <input type="hidden" name="voucher_codigoCaja" th:value="${caja.codigo}" />
-                        <input type="hidden" name="voucher_nombreCaja" th:value="${caja.nombre}" />
-                        <input type="hidden" name="voucher_usuario" th:value="${#authentication.name}" />
-                        <input type="hidden" name="voucher_rol" th:value="${#authentication.principal.authorities[0].authority}" />
-                        <div class="modal-header">
-                          <h5 class="modal-title" th:id="'cerrarCajaLabel__' + ${caja.id}">Cerrar Caja</h5>
-                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                     th:attr="aria-labelledby='cerrarCajaLabel__' + ${caja.id}" aria-hidden="true"
+                     data-bs-backdrop="static" data-bs-keyboard="false">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <form th:action="@{/caja-sesion/cerrar-sesion}" method="post" th:onsubmit="guardarCierreCaja(event, [[${caja.id}]])">
+                                <input type="hidden" name="cajaSesionId" th:value="${sesionesActivas.containsKey(caja.id) ? sesionesActivas.get(caja.id).id : ''}" />
+                                <!-- Campos ocultos para voucher -->
+                                <input type="hidden" name="voucher_codigoCaja" th:value="${caja.codigo}" />
+                                <input type="hidden" name="voucher_nombreCaja" th:value="${caja.nombre}" />
+                                <input type="hidden" name="voucher_usuario" th:value="${#authentication.name}" />
+                                <input type="hidden" name="voucher_rol" th:value="${#authentication.principal.authorities[0].authority}" />
+                                <div class="modal-header">
+                                    <h5 class="modal-title" th:id="'cerrarCajaLabel__' + ${caja.id}">Cerrar Caja</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="mb-3" th:if="${sesionesActivas.containsKey(caja.id)}">
+                                        <label class="form-label">Monto según sistema</label>
+                                        <input type="number" class="form-control" name="montoSistema"
+                                               th:value="${#numbers.formatDecimal(@cajaVentaService.calcularTotalEnCajaIncluyendoInicial(sesionesActivas.get(caja.id)?.id), 1, 'POINT', 2, 'POINT')}"
+                                               readonly>
+                                    </div>
+                                    <div class="mb-3" th:unless="${sesionesActivas.containsKey(caja.id)}">
+                                        <label class="form-label">Monto según sistema</label>
+                                        <input type="number" class="form-control" name="montoSistema" value="0.00" readonly>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Monto contado (cierre)</label>
+                                        <input type="number" class="form-control" name="montoFisico" required min="0" step="0.01"
+                                               th:attr="id='montoFisico__' + ${caja.id}" oninput="calcularDiferencia(this)">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Diferencia</label>
+                                        <input type="text" class="form-control" readonly
+                                               th:attr="id='diferencia__' + ${caja.id}">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Observaciones</label>
+                                        <textarea class="form-control" name="observaciones" rows="2"></textarea>
+                                    </div>
+                                    <div class="alert alert-success alert-cierre-exito mt-2 d-none"></div>
+                                    <div class="alert alert-danger alert-cierre-error mt-2 d-none"></div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                    <button type="submit" class="btn btn-primary">Guardar</button>
+                                    <a th:href="@{/caja-sesion/reporte/{id}(id=${sesionesActivas.get(caja.id)?.id})}"
+                                       class="btn btn-info"
+                                       th:if="${sesionesActivas.containsKey(caja.id)}"
+                                       target="_blank">
+                                        Ver Transacciones
+                                    </a>
+                                    <!-- Botón para imprimir voucher simple -->
+                                    <button type="button" class="btn btn-secondary"
+                                            th:attr="onclick='imprimirVoucherCierre(' + ${caja.id} + ')'" >
+                                        Imprimir Voucher de Cierre
+                                    </button>
+                                </div>
+                            </form>
                         </div>
-                        <div class="modal-body">
-                          <div class="mb-3" th:if="${sesionesActivas.containsKey(caja.id)}">
-                            <label class="form-label">Monto según sistema</label>
-                            <input type="number" class="form-control" name="montoSistema"
-           th:value="${#numbers.formatDecimal(@cajaVentaService.calcularTotalEnCajaIncluyendoInicial(sesionesActivas.get(caja.id)?.id), 1, 'POINT', 2, 'POINT')}"
-           readonly>
                     </div>
-                          <div class="mb-3" th:unless="${sesionesActivas.containsKey(caja.id)}">
-                            <label class="form-label">Monto según sistema</label>
-                            <input type="number" class="form-control" name="montoSistema" value="0.00" readonly>
-                    </div>
-                          <div class="mb-3">
-                            <label class="form-label">Monto contado (cierre)</label>
-                            <input type="number" class="form-control" name="montoFisico" required min="0" step="0.01"
-                                   th:attr="id='montoFisico__' + ${caja.id}" oninput="calcularDiferencia(this)">
-                          </div>
-                          <div class="mb-3">
-                            <label class="form-label">Diferencia</label>
-                            <input type="text" class="form-control" readonly
-                                   th:attr="id='diferencia__' + ${caja.id}">
-                          </div>
-                          <div class="mb-3">
-                            <label class="form-label">Observaciones</label>
-                            <textarea class="form-control" name="observaciones" rows="2"></textarea>
-                          </div>
-                          <div class="alert alert-success alert-cierre-exito mt-2 d-none"></div>
-                          <div class="alert alert-danger alert-cierre-error mt-2 d-none"></div>
-                        </div>
-                        <div class="modal-footer">
-                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                          <button type="submit" class="btn btn-primary">Guardar</button>
-                          <a th:href="@{/caja-sesion/reporte/{id}(id=${sesionesActivas.get(caja.id)?.id})}"
-   class="btn btn-info"
-   th:if="${sesionesActivas.containsKey(caja.id)}"
-   target="_blank">
-  Ver Transacciones
-</a>
-                          <!-- Botón para imprimir voucher simple -->
-                          <button type="button" class="btn btn-secondary"
-        th:attr="onclick='imprimirVoucherCierre(' + ${caja.id} + ')'" >
-    Imprimir Voucher de Cierre
-</button>
-                        </div>
-                      </form>
-                    </div>
-                  </div>
                 </div>
+                
                 <!-- Modal Cliente para Iniciar Venta -->
                 <div th:id="'modalCliente_' + ${caja.id}" class="modal fade" tabindex="-1" aria-hidden="true">
-                  <div class="modal-dialog">
-                    <div class="modal-content">
-                      <form th:action="@{/caja/carrito}" method="get">
-                        <input type="hidden" name="cajaId" th:value="${caja.id}" />
-                        <div class="modal-header">
-                          <h5 class="modal-title">Asociar Cliente a la Venta</h5>
-                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <form th:action="@{/caja/carrito}" method="get">
+                                <input type="hidden" name="cajaId" th:value="${caja.id}" />
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Asociar Cliente a la Venta</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <!-- Mensaje de error para cliente no registrado -->
+                                    <div th:id="'cliente-error-' + ${caja.id}" class="alert alert-danger d-none" role="alert"></div>
+                                    <a th:id="'btn-registrar-cliente-' + ${caja.id}"
+                                       th:href="@{/clientes}"
+                                       class="btn btn-outline-primary d-none mt-2"
+                                       target="_blank">
+                                        Registrar cliente
+                                    </a>
+                                    <div class="mb-3">
+                                        <label class="form-label" th:for="'dniInput__' + ${caja.id}">Buscar por DNI</label>
+                                        <input type="text" class="form-control" th:id="'dniInput__' + ${caja.id}" name="dni" placeholder="Ingrese DNI del cliente">
+                                        <button type="button" class="btn btn-secondary btn-sm mt-2 btn-buscar-cliente"
+                                                th:attr="data-caja-id=${caja.id}">Buscar</button>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label" th:for="'nombreCliente__' + ${caja.id}">Nombre</label>
+                                        <input type="text" class="form-control" th:id="'nombreCliente__' + ${caja.id}" name="nombre" readonly>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label" th:for="'apellidoCliente__' + ${caja.id}">Apellido</label>
+                                        <input type="text" class="form-control" th:id="'apellidoCliente__' + ${caja.id}" name="apellido" readonly>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label" th:for="'telefonoCliente__' + ${caja.id}">Teléfono</label>
+                                        <input type="text" class="form-control" th:id="'telefonoCliente__' + ${caja.id}" name="telefono" readonly>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label" th:for="'direccionCliente__' + ${caja.id}">Dirección</label>
+                                        <input type="text" class="form-control" th:id="'direccionCliente__' + ${caja.id}" name="direccion" readonly>
+                                    </div>
+                                    <input type="hidden" th:id="'clienteId__' + ${caja.id}" name="clienteId">
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                    <button type="submit" class="btn btn-primary">Iniciar</button>
+                                </div>
+                            </form>
                         </div>
-                        <div class="modal-body">
-                          <!-- Mensaje de error para cliente no registrado -->
-                          <div th:id="'cliente-error-' + ${caja.id}" class="alert alert-danger d-none" role="alert"></div>
-                          <a th:id="'btn-registrar-cliente-' + ${caja.id}"
-                             th:href="@{/clientes}"
-                             class="btn btn-outline-primary d-none mt-2"
-                             target="_blank">
-                             Registrar cliente
-                          </a>
-                          <div class="mb-3">
-                            <label class="form-label" th:for="'dniInput__' + ${caja.id}">Buscar por DNI</label>
-                            <input type="text" class="form-control" th:id="'dniInput__' + ${caja.id}" name="dni" placeholder="Ingrese DNI del cliente">
-                            <button type="button" class="btn btn-secondary btn-sm mt-2 btn-buscar-cliente"
-                                    th:attr="data-caja-id=${caja.id}">Buscar</button>
-                          </div>
-                          <div class="mb-3">
-                            <label class="form-label" th:for="'nombreCliente__' + ${caja.id}">Nombre</label>
-                            <input type="text" class="form-control" th:id="'nombreCliente__' + ${caja.id}" name="nombre" readonly>
-                          </div>
-                          <div class="mb-3">
-                            <label class="form-label" th:for="'apellidoCliente__' + ${caja.id}">Apellido</label>
-                            <input type="text" class="form-control" th:id="'apellidoCliente__' + ${caja.id}" name="apellido" readonly>
-                          </div>
-                          <div class="mb-3">
-                            <label class="form-label" th:for="'telefonoCliente__' + ${caja.id}">Teléfono</label>
-                            <input type="text" class="form-control" th:id="'telefonoCliente__' + ${caja.id}" name="telefono" readonly>
-                          </div>
-                          <div class="mb-3">
-                            <label class="form-label" th:for="'direccionCliente__' + ${caja.id}">Dirección</label>
-                            <input type="text" class="form-control" th:id="'direccionCliente__' + ${caja.id}" name="direccion" readonly>
-                          </div>
-                          <input type="hidden" th:id="'clienteId__' + ${caja.id}" name="clienteId">
-                        </div>
-                        <div class="modal-footer">
-                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                          <button type="submit" class="btn btn-primary">Iniciar</button>
-                        </div>
-                      </form>
                     </div>
-                  </div>
                 </div>
+                
                 <!-- Voucher oculto para impresión de apertura -->
                 <div th:attr="id='voucher-apertura-caja__' + ${caja.id}" style="display:none;
-    font-family: 'Segoe UI', Arial, sans-serif;
-    background: #fff;
-    color: #222;
-    max-width: 350px;
-    margin: 0 auto;
-    border: 2px solid #007bff;
-    border-radius: 10px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    padding: 24px 20px 20px 20px;">
+                    font-family: 'Segoe UI', Arial, sans-serif;
+                    background: #fff;
+                    color: #222;
+                    max-width: 350px;
+                    margin: 0 auto;
+                    border: 2px solid #007bff;
+                    border-radius: 10px;
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+                    padding: 24px 20px 20px 20px;">
                     <h2 style="text-align:center; color:#007bff; margin-bottom: 18px; letter-spacing:1px;">
                         Voucher de Apertura de Caja
                     </h2>
@@ -304,66 +319,68 @@
                 </div>
             </div>
         </div>
-        <!-- Voucher oculto para impresión -->
-    <div id="voucher-cierre-caja" style="
-    display:none;
-    font-family: 'Segoe UI', Arial, sans-serif;
-    background: #fff;
-    color: #222;
-    max-width: 350px;
-    margin: 0 auto;
-    border: 2px solid #007bff;
-    border-radius: 10px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    padding: 24px 20px 20px 20px;
-">
-    <h2 style="text-align:center; color:#007bff; margin-bottom: 18px; letter-spacing:1px;">
-        Voucher de Cierre de Caja
-    </h2>
-    <hr style="margin: 0 0 12px 0; border: none; border-top: 1px solid #007bff;">
-    <table style="width:100%; font-size: 1.05em;">
-        <tr>
-            <td style="font-weight:600;">Caja:</td>
-            <td id="voucher-caja"></td>
-        </tr>
-        <tr>
-            <td style="font-weight:600;">Cerrado por:</td>
-            <td id="voucher-cerrado-por"></td>
-        </tr>
-        <tr>
-            <td style="font-weight:600;">Monto según sistema:</td>
-            <td id="voucher-monto-sistema"></td>
-        </tr>
-        <tr>
-            <td style="font-weight:600;">Monto contado:</td>
-            <td id="voucher-monto-fisico"></td>
-        </tr>
-        <tr>
-            <td style="font-weight:600;">Diferencia:</td>
-            <td id="voucher-diferencia"></td>
-        </tr>
-        <tr>
-            <td style="font-weight:600;">Observaciones:</td>
-            <td id="voucher-observaciones"></td>
-        </tr>
-        <tr>
-            <td style="font-weight:600;">Fecha:</td>
-            <td id="voucher-fecha"></td>
-        </tr>
-    </table>
-    <hr style="margin: 16px 0 0 0; border: none; border-top: 1px dashed #007bff;">
-    <div style="text-align:center; font-size:0.95em; color:#888; margin-top:8px;">
-        ¡Gracias por su trabajo!
-    </div>
-</div>
-        <!-- Aquí va el script, dentro del fragmento contenido -->
+        
+        <!-- Voucher oculto para impresión de cierre -->
+        <div id="voucher-cierre-caja" style="
+            display:none;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #fff;
+            color: #222;
+            max-width: 350px;
+            margin: 0 auto;
+            border: 2px solid #007bff;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            padding: 24px 20px 20px 20px;">
+            <h2 style="text-align:center; color:#007bff; margin-bottom: 18px; letter-spacing:1px;">
+                Voucher de Cierre de Caja
+            </h2>
+            <hr style="margin: 0 0 12px 0; border: none; border-top: 1px solid #007bff;">
+            <table style="width:100%; font-size: 1.05em;">
+                <tr>
+                    <td style="font-weight:600;">Caja:</td>
+                    <td id="voucher-caja"></td>
+                </tr>
+                <tr>
+                    <td style="font-weight:600;">Cerrado por:</td>
+                    <td id="voucher-cerrado-por"></td>
+                </tr>
+                <tr>
+                    <td style="font-weight:600;">Monto según sistema:</td>
+                    <td id="voucher-monto-sistema"></td>
+                </tr>
+                <tr>
+                    <td style="font-weight:600;">Monto contado:</td>
+                    <td id="voucher-monto-fisico"></td>
+                </tr>
+                <tr>
+                    <td style="font-weight:600;">Diferencia:</td>
+                    <td id="voucher-diferencia"></td>
+                </tr>
+                <tr>
+                    <td style="font-weight:600;">Observaciones:</td>
+                    <td id="voucher-observaciones"></td>
+                </tr>
+                <tr>
+                    <td style="font-weight:600;">Fecha:</td>
+                    <td id="voucher-fecha"></td>
+                </tr>
+            </table>
+            <hr style="margin: 16px 0 0 0; border: none; border-top: 1px dashed #007bff;">
+            <div style="text-align:center; font-size:0.95em; color:#888; margin-top:8px;">
+                ¡Gracias por su trabajo!
+            </div>
+        </div>
+        
+        <!-- JavaScript -->
         <script th:inline="javascript">
             if (window.location.search.includes('aperturaExitosa=true')) {
-        alert('Apertura de caja realizada.');
-        var url = new URL(window.location);
-        url.searchParams.delete('aperturaExitosa');
-        window.history.replaceState({}, document.title, url.pathname + url.search);
-    }
+                alert('Apertura de caja realizada.');
+                var url = new URL(window.location);
+                url.searchParams.delete('aperturaExitosa');
+                window.history.replaceState({}, document.title, url.pathname + url.search);
+            }
+            
             var aperturaExitosa = /*[[${param.aperturaExitosa}]]*/ false;
             if (aperturaExitosa && aperturaExitosa.toString() === "true") {
                 setTimeout(function() {
@@ -376,10 +393,12 @@
                     });
                 }, 500);
             }
+            
             window.mostrarMensajeCajaAbierta = function(event) {
                 event.preventDefault();
                 alert("Esta caja se encuentra abierta, no puede ser eliminada");
             };
+            
             // Delegación de eventos para buscar cliente
             document.addEventListener('click', function(e) {
                 if (e.target.classList.contains('btn-buscar-cliente')) {
@@ -389,7 +408,6 @@
                     var btnRegistrar = document.getElementById('btn-registrar-cliente-' + cajaId);
 
                     if (!dni) {
-                        // Si no se ingresa DNI, limpia campos y oculta mensajes/botón
                         errorDiv.classList.add('d-none');
                         btnRegistrar.classList.add('d-none');
                         document.getElementById('nombreCliente__' + cajaId).value = '';
@@ -399,6 +417,7 @@
                         document.getElementById('clienteId__' + cajaId).value = '';
                         return;
                     }
+                    
                     fetch('/clientes/buscar?dni=' + dni)
                         .then(function(res) { return res.json(); })
                         .then(function(cliente) {
@@ -435,60 +454,56 @@
                 diferenciaInput.value = diferencia;
             }
 
-            // Script para guardar cierre de caja por AJAX y mostrar mensaje sin cerrar el modal
+            // Script para guardar cierre de caja por AJAX
             function guardarCierreCaja(event, cajaId) {
-    event.preventDefault();
-    var form = event.target;
-    var modal = form.closest('.modal-content');
-    var exitoDiv = modal.querySelector('.alert-cierre-exito');
-    var errorDiv = modal.querySelector('.alert-cierre-error');
-    exitoDiv.classList.add('d-none');
-    errorDiv.classList.add('d-none');
+                event.preventDefault();
+                var form = event.target;
+                var modal = form.closest('.modal-content');
+                var exitoDiv = modal.querySelector('.alert-cierre-exito');
+                var errorDiv = modal.querySelector('.alert-cierre-error');
+                exitoDiv.classList.add('d-none');
+                errorDiv.classList.add('d-none');
 
-    var formData = new FormData(form);
-    fetch(form.action, {
-        method: 'POST',
-        body: formData
-    })
-    .then(res => {
-        if (res.ok) {
-            exitoDiv.textContent = 'Cierre de caja realizado.';
-            exitoDiv.classList.remove('d-none');
-            errorDiv.classList.add('d-none');
-            // Deshabilitar el botón Guardar
-            var btnGuardar = modal.querySelector('button[type="submit"]');
-            if (btnGuardar) btnGuardar.disabled = true;
-            // Aquí NO recargues la página
-        } else {
-            throw new Error();
-        }
-    })
-    .catch(() => {
-        errorDiv.textContent = 'Ocurrió un error al cerrar la caja.';
-        errorDiv.classList.remove('d-none');
-        exitoDiv.classList.add('d-none');
-    });
-}
+                var formData = new FormData(form);
+                fetch(form.action, {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(res => {
+                    if (res.ok) {
+                        exitoDiv.textContent = 'Cierre de caja realizado.';
+                        exitoDiv.classList.remove('d-none');
+                        errorDiv.classList.add('d-none');
+                        var btnGuardar = modal.querySelector('button[type="submit"]');
+                        if (btnGuardar) btnGuardar.disabled = true;
+                    } else {
+                        throw new Error();
+                    }
+                })
+                .catch(() => {
+                    errorDiv.textContent = 'Ocurrió un error al cerrar la caja.';
+                    errorDiv.classList.remove('d-none');
+                    exitoDiv.classList.add('d-none');
+                });
+            }
 
-document.querySelectorAll('.modal').forEach(function(modalEl) {
-    modalEl.addEventListener('hidden.bs.modal', function () {
-        // Solo recarga si hubo éxito en el cierre (puedes mejorar la condición si lo deseas)
-        if (modalEl.querySelector('.alert-cierre-exito') && 
-            !modalEl.querySelector('.alert-cierre-exito').classList.contains('d-none')) {
-            window.location.reload();
-        }
-    });
-});
+            document.querySelectorAll('.modal').forEach(function(modalEl) {
+                modalEl.addEventListener('hidden.bs.modal', function () {
+                    if (modalEl.querySelector('.alert-cierre-exito') && 
+                        !modalEl.querySelector('.alert-cierre-exito').classList.contains('d-none')) {
+                        window.location.reload();
+                    }
+                });
+            });
+            
             // Voucher de cierre de caja
             function imprimirVoucherCierre(cajaId) {
-                // Busca el modal correspondiente
                 var modal = document.querySelector('#cerrarCajaModal__' + cajaId + ' .modal-content');
                 var montoSistema = modal.querySelector('input[name="montoSistema"]').value;
                 var montoFisico = modal.querySelector('input[name="montoFisico"]').value;
                 var diferencia = modal.querySelector('input[id^="diferencia__"]').value;
                 var observaciones = modal.querySelector('textarea[name="observaciones"]').value;
 
-                // Lee código, nombre, usuario y rol de la caja desde los campos ocultos
                 var codigoCaja = modal.querySelector('input[name="voucher_codigoCaja"]').value;
                 var nombreCaja = modal.querySelector('input[name="voucher_nombreCaja"]').value;
                 var usuario = modal.querySelector('input[name="voucher_usuario"]').value;
@@ -497,7 +512,6 @@ document.querySelectorAll('.modal').forEach(function(modalEl) {
 
                 var fecha = new Date().toLocaleString();
 
-                // Llena el voucher
                 document.getElementById('voucher-caja').textContent = nombreCompletoCaja;
                 document.getElementById('voucher-cerrado-por').textContent = rol + ' - ' + usuario;
                 document.getElementById('voucher-monto-sistema').textContent = montoSistema;
@@ -506,7 +520,6 @@ document.querySelectorAll('.modal').forEach(function(modalEl) {
                 document.getElementById('voucher-observaciones').textContent = observaciones;
                 document.getElementById('voucher-fecha').textContent = fecha;
 
-                // Muestra y manda a imprimir solo el voucher
                 var voucher = document.getElementById('voucher-cierre-caja');
                 voucher.style.display = 'block';
                 var originalBody = document.body.innerHTML;
@@ -518,43 +531,40 @@ document.querySelectorAll('.modal').forEach(function(modalEl) {
 
             // Voucher de apertura de caja
             function guardarAperturaCaja(event, cajaId) {
-    event.preventDefault();
-    var form = event.target;
-    var modal = form.closest('.modal-content');
-    var exitoDiv = modal.querySelector('.alert-apertura-exito');
-    var errorDiv = modal.querySelector('.alert-apertura-error');
-    exitoDiv.classList.add('d-none');
-    errorDiv.classList.add('d-none');
+                event.preventDefault();
+                var form = event.target;
+                var modal = form.closest('.modal-content');
+                var exitoDiv = modal.querySelector('.alert-apertura-exito');
+                var errorDiv = modal.querySelector('.alert-apertura-error');
+                exitoDiv.classList.add('d-none');
+                errorDiv.classList.add('d-none');
 
-    var formData = new FormData(form);
-    fetch(form.action, {
-        method: 'POST',
-        body: formData
-    })
-    .then(res => {
-        if (res.ok) {
-            exitoDiv.textContent = 'Apertura de caja realizada.';
-            exitoDiv.classList.remove('d-none');
-            errorDiv.classList.add('d-none');
-            // Mostrar botón imprimir voucher
-            var btnImprimir = document.getElementById('btnImprimirVoucherApertura__' + cajaId);
-            btnImprimir.classList.remove('d-none');
-            // Llenar datos del voucher
-            document.getElementById('voucher-monto-inicial__' + cajaId).textContent = form.querySelector('input[name="montoInicial"]').value;
-            document.getElementById('voucher-fecha-apertura__' + cajaId).textContent = new Date().toLocaleString();
-            // Deshabilitar el botón Guardar
-            var btnGuardar = modal.querySelector('button[type="submit"]');
-            if (btnGuardar) btnGuardar.disabled = true;
-        } else {
-            throw new Error();
-        }
-    })
-    .catch(() => {
-        errorDiv.textContent = 'Ocurrió un error al abrir la caja.';
-        errorDiv.classList.remove('d-none');
-        exitoDiv.classList.add('d-none');
-    });
-}
+                var formData = new FormData(form);
+                fetch(form.action, {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(res => {
+                    if (res.ok) {
+                        exitoDiv.textContent = 'Apertura de caja realizada.';
+                        exitoDiv.classList.remove('d-none');
+                        errorDiv.classList.add('d-none');
+                        var btnImprimir = document.getElementById('btnImprimirVoucherApertura__' + cajaId);
+                        btnImprimir.classList.remove('d-none');
+                        document.getElementById('voucher-monto-inicial__' + cajaId).textContent = form.querySelector('input[name="montoInicial"]').value;
+                        document.getElementById('voucher-fecha-apertura__' + cajaId).textContent = new Date().toLocaleString();
+                        var btnGuardar = modal.querySelector('button[type="submit"]');
+                        if (btnGuardar) btnGuardar.disabled = true;
+                    } else {
+                        throw new Error();
+                    }
+                })
+                .catch(() => {
+                    errorDiv.textContent = 'Ocurrió un error al abrir la caja.';
+                    errorDiv.classList.remove('d-none');
+                    exitoDiv.classList.add('d-none');
+                });
+            }
 
             function imprimirVoucherApertura(cajaId) {
                 var voucher = document.getElementById('voucher-apertura-caja__' + cajaId);
@@ -567,19 +577,17 @@ document.querySelectorAll('.modal').forEach(function(modalEl) {
             }
 
             document.querySelectorAll('.modal').forEach(function(modalEl) {
-    modalEl.addEventListener('hidden.bs.modal', function () {
-        // Recarga si hubo éxito en el cierre de caja
-        if (modalEl.querySelector('.alert-cierre-exito') && 
-            !modalEl.querySelector('.alert-cierre-exito').classList.contains('d-none')) {
-            window.location.reload();
-        }
-        // Recarga si hubo éxito en la apertura de caja
-        if (modalEl.querySelector('.alert-apertura-exito') && 
-            !modalEl.querySelector('.alert-apertura-exito').classList.contains('d-none')) {
-            window.location.reload();
-        }
-    });
-});
+                modalEl.addEventListener('hidden.bs.modal', function () {
+                    if (modalEl.querySelector('.alert-cierre-exito') && 
+                        !modalEl.querySelector('.alert-cierre-exito').classList.contains('d-none')) {
+                        window.location.reload();
+                    }
+                    if (modalEl.querySelector('.alert-apertura-exito') && 
+                        !modalEl.querySelector('.alert-apertura-exito').classList.contains('d-none')) {
+                        window.location.reload();
+                    }
+                });
+            });
         </script>
     </div>
 </body>
