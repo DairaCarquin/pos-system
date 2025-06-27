@@ -13,6 +13,7 @@ public class CajaVentaDTO {
     private Long medioPagoId; 
     private String tipoComprobante;
     private BigDecimal subtotal;
+    private BigDecimal descuento;  //  NUEVA LÍNEA
     private BigDecimal impuesto;
     private BigDecimal total;
     private List<CajaVentaDetalleDTO> detalles = new ArrayList<>(); 

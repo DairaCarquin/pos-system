@@ -180,15 +180,20 @@
             </tr>
         </tbody>
     </table>
-    <div class="totales">
+    
+<div class="totales">
+    
     <p><strong>Subtotal:</strong>
-        <span th:text="${#numbers.formatDecimal(venta.total / 1.18, 1, 'POINT', 2, 'POINT')}"></span>
+        <span th:text="${'S/ ' + #numbers.formatDecimal(venta.subtotal + venta.descuento, 1, 'POINT', 2, 'POINT')}"></span>
     </p>
-    <p><strong>Impuesto:</strong>
-        <span th:text="${#numbers.formatDecimal(venta.total - (venta.total / 1.18), 1, 'POINT', 2, 'POINT')}"></span>
+    <p><strong>Descuentos:</strong>
+        <span th:text="${'-S/ ' + #numbers.formatDecimal(venta.descuento, 1, 'POINT', 2, 'POINT')}" style="color: #28a745;"></span>
+    </p>
+    <p><strong>IGV (18%):</strong>
+        <span th:text="${'S/ ' + #numbers.formatDecimal(venta.impuesto, 1, 'POINT', 2, 'POINT')}"></span>
     </p>
     <p><strong>Total:</strong>
-        <span th:text="${#numbers.formatDecimal(venta.total, 1, 'POINT', 2, 'POINT')}"></span>
+        <span th:text="${'S/ ' + #numbers.formatDecimal(venta.total, 1, 'POINT', 2, 'POINT')}"></span>
     </p>
 </div>
     

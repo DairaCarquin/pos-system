@@ -127,6 +127,10 @@
                     <span>Subtotal:</span>
                     <span id="carrito-subtotal">S/ 0.00</span>
                 </div>
+                <div class="d-flex justify-content-between align-items-center mb-1 text-success">
+                    <span>Descuentos aplicados:</span>
+                    <span id="carrito-descuentos">-S/ 0.00</span>
+                </div>
                 <div class="d-flex justify-content-between align-items-center mb-1">
                     <span>IGV (18%):</span>
                     <span id="carrito-impuesto">S/ 0.00</span>
@@ -145,11 +149,12 @@
 
     <!-- Formulario oculto para enviar la venta al backend-->
     <form id="form-venta" th:action="@{/caja-venta/guardar}" method="post" style="display:none;">
-        <input type="hidden" name="cajaSesionId" th:value="${cajaSesion.id}" /> <!-- AQUI DEBE IR EL ID DE LA SESION, NO DE LA CAJA -->
+        <input type="hidden" name="cajaSesionId" th:value="${cajaSesion.id}" />
         <input type="hidden" name="clienteId" th:value="${cliente != null ? cliente.id : ''}" />
         <input type="hidden" name="medioPagoId" id="input-medioPagoId" />
         <input type="hidden" name="tipoComprobante" id="input-tipoComprobante" />
         <input type="hidden" name="subtotal" id="input-subtotal" />
+        <input type="hidden" name="descuento" id="input-descuento" />
         <input type="hidden" name="impuesto" id="input-impuesto" />
         <input type="hidden" name="total" id="input-total" />
         <div id="input-productos"></div>
@@ -186,12 +191,42 @@
         var id = btn.getAttribute('data-id');
         var nombre = btn.getAttribute('data-nombre');
         var precio = parseFloat(btn.getAttribute('data-precio'));
-        if (!carrito[id]) {
-            carrito[id] = { nombre: nombre, precio: precio, cantidad: 1 };
-        } else {
-            carrito[id].cantidad += 1;
-        }
-        renderCarrito();
+        
+        // CONSULTAR DESCUENTO ANTES DE AGREGAR
+        fetch(`/caja-venta/api/caja/precio-descuento?productoId=${id}&cantidad=1&precio=${precio}`)
+            .then(response => response.json())
+            .then(data => {
+                if (!carrito[id]) {
+                    carrito[id] = { 
+                        nombre: nombre, 
+                        precio: precio, 
+                        precioConDescuento: data.precioConDescuento,
+                        descuentoAplicado: data.descuentoAplicado,
+                        tieneDescuento: data.tieneDescuento,
+                        cantidad: 1 
+                    };
+                } else {
+                    carrito[id].cantidad += 1;
+                }
+                renderCarrito();
+            })
+            .catch(error => {
+                console.error('Error al consultar descuento:', error);
+                // Agregar sin descuento en caso de error
+                if (!carrito[id]) {
+                    carrito[id] = { 
+                        nombre: nombre, 
+                        precio: precio, 
+                        precioConDescuento: precio,
+                        descuentoAplicado: 0,
+                        tieneDescuento: false,
+                        cantidad: 1 
+                    };
+                } else {
+                    carrito[id].cantidad += 1;
+                }
+                renderCarrito();
+            });
     }
 
     function aumentarCantidad(id) {
@@ -213,41 +248,64 @@
         renderCarrito();
     }
 
-function renderCarrito() {
-    var lista = document.getElementById('carrito-lista');
-    lista.innerHTML = '';
-    var subtotal = 0;
-    var tieneProductos = false;
-    Object.entries(carrito).forEach(function([id, prod]) {
-        tieneProductos = true;
-        var itemSubtotal = prod.precio * prod.cantidad;
-        subtotal += itemSubtotal;
-        lista.innerHTML += `
-            <div class="carrito-producto mb-2 d-flex justify-content-between align-items-center">
-                <span style="min-width:120px">${prod.nombre}</span>
-                <span class="mx-2">S/ ${prod.precio.toFixed(2)}</span>
-                <div>
-                    <button class="btn btn-sm btn-secondary" onclick="disminuirCantidad('${id}')">
-                        ${prod.cantidad > 1 ? '-' : '✖'}
-                    </button>
-                    <span class="carrito-cantidad mx-2">${prod.cantidad}</span>
-                    <button class="btn btn-sm btn-secondary" onclick="aumentarCantidad('${id}')">+</button>
+    function renderCarrito() {
+        var lista = document.getElementById('carrito-lista');
+        lista.innerHTML = '';
+        var subtotalOriginal = 0;  // Subtotal SIN descuentos
+        var totalDescuentos = 0;   // Total de descuentos aplicados
+        var tieneProductos = false;
+        
+        Object.entries(carrito).forEach(function([id, prod]) {
+            tieneProductos = true;
+            var itemSubtotalOriginal = prod.precio * prod.cantidad;
+            var itemSubtotalFinal = prod.precioConDescuento * prod.cantidad;
+            var descuentoLinea = itemSubtotalOriginal - itemSubtotalFinal;
+            
+            subtotalOriginal += itemSubtotalOriginal;  // Acumular subtotal original
+            totalDescuentos += descuentoLinea;         // Acumular descuentos
+            
+            // HTML CON INFORMACIÓN DE DESCUENTOS
+            var descuentoHtml = '';
+            if (prod.tieneDescuento) {
+                descuentoHtml = `
+                    <div class="text-success small">
+                        <span class="text-decoration-line-through text-muted">S/ ${itemSubtotalOriginal.toFixed(2)}</span>
+                        <span class="fw-bold">-S/ ${descuentoLinea.toFixed(2)}</span>
+                    </div>
+                `;
+            }
+            
+            lista.innerHTML += `
+                <div class="carrito-producto mb-2 d-flex justify-content-between align-items-center">
+                    <div style="min-width:120px">
+                        <div>${prod.nombre}</div>
+                        ${descuentoHtml}
+                    </div>
+                    <span class="mx-2">S/ ${prod.precio.toFixed(2)}</span>
+                    <div>
+                        <button class="btn btn-sm btn-secondary" onclick="disminuirCantidad('${id}')">
+                            ${prod.cantidad > 1 ? '-' : '✖'}
+                        </button>
+                        <span class="carrito-cantidad mx-2">${prod.cantidad}</span>
+                        <button class="btn btn-sm btn-secondary" onclick="aumentarCantidad('${id}')">+</button>
+                    </div>
+                    <span class="mx-2 fw-bold text-success">S/ ${itemSubtotalFinal.toFixed(2)}</span>
                 </div>
-                <span class="mx-2 fw-bold">S/ ${itemSubtotal.toFixed(2)}</span>
-            </div>
-        `;
-    });
+            `;
+        });
 
-    // Cálculo de impuestos (IGV incluido en el precio)
-    var subtotalSinIgv = subtotal / 1.18;
-    var impuesto = subtotal - subtotalSinIgv;
-    var total = subtotal;
+        // ✅ CÁLCULO CORREGIDO
+        var subtotalConDescuento = subtotalOriginal - totalDescuentos;  // Subtotal después de descuentos
+        var impuesto = subtotalConDescuento * 0.18;                     // IGV del 18% sobre el subtotal CON descuentos
+        var total = subtotalConDescuento + impuesto;                    // Total final
 
-    document.getElementById('carrito-subtotal').textContent = 'S/ ' + subtotalSinIgv.toFixed(2);
-    document.getElementById('carrito-impuesto').textContent = 'S/ ' + impuesto.toFixed(2);
-    document.getElementById('carrito-total').textContent = 'S/ ' + total.toFixed(2);
-    document.getElementById('btn-finalizar-venta').disabled = !tieneProductos;
-}
+        // ✅ MOSTRAR VALORES CORRECTOS
+        document.getElementById('carrito-subtotal').textContent = 'S/ ' + subtotalOriginal.toFixed(2);      // Subtotal original
+        document.getElementById('carrito-descuentos').textContent = '-S/ ' + totalDescuentos.toFixed(2);   // Descuentos
+        document.getElementById('carrito-impuesto').textContent = 'S/ ' + impuesto.toFixed(2);             // IGV sobre subtotal con descuento
+        document.getElementById('carrito-total').textContent = 'S/ ' + total.toFixed(2);                   // Total final
+        document.getElementById('btn-finalizar-venta').disabled = !tieneProductos;
+    }
 
     window.onload = function() {
         var primerBtn = document.querySelector('.categoria-btn');
@@ -309,8 +367,12 @@ function renderCarrito() {
         var metodo = document.getElementById('metodoPago').value;
         var tipoComprobante = document.getElementById('tipoComprobante').value;
         var total = parseFloat(document.getElementById('carrito-total').textContent.replace('S/','').trim());
-        var subtotal = parseFloat(document.getElementById('carrito-subtotal').textContent.replace('S/','').trim());
+        var subtotalOriginal = parseFloat(document.getElementById('carrito-subtotal').textContent.replace('S/','').trim());
+        var totalDescuentos = parseFloat(document.getElementById('carrito-descuentos').textContent.replace('-S/','').trim());
         var impuesto = parseFloat(document.getElementById('carrito-impuesto').textContent.replace('S/','').trim());
+        
+        var subtotalConDescuento = subtotalOriginal - totalDescuentos;  // Subtotal después de descuentos
+        
         var errorDiv = document.getElementById('pago-error');
         errorDiv.classList.add('d-none');
         if (!metodo) {
@@ -327,12 +389,13 @@ function renderCarrito() {
             }
         }
 
-        // Llenar el formulario oculto con los datos de la venta
+        // ✅ Llenar el formulario oculto con los datos CORREGIDOS
         document.getElementById('input-medioPagoId').value = metodo;
         document.getElementById('input-tipoComprobante').value = tipoComprobante;
-        document.getElementById('input-subtotal').value = subtotal;
-        document.getElementById('input-impuesto').value = impuesto;
-        document.getElementById('input-total').value = total;
+        document.getElementById('input-subtotal').value = subtotalConDescuento.toFixed(2);  // Subtotal después de descuentos
+        document.getElementById('input-descuento').value = totalDescuentos.toFixed(2);      // ✅ NUEVA LÍNEA
+        document.getElementById('input-impuesto').value = impuesto.toFixed(2);
+        document.getElementById('input-total').value = total.toFixed(2);
 
         // Limpiar productos anteriores
         var inputProductos = document.getElementById('input-productos');
