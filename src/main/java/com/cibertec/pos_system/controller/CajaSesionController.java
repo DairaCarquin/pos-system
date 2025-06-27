@@ -362,19 +362,24 @@ public String cerrarSesionCaja(@RequestParam Long cajaSesionId,
     // Obtener la sesión de caja
     CajaSesionEntity sesion = cajaSesionService.obtenerPorId(cajaSesionId);
 
+    // Calcular el monto inicial y el total en efectivo
+    BigDecimal montoInicial = sesion.getMontoInicial() != null ? BigDecimal.valueOf(sesion.getMontoInicial()) : BigDecimal.ZERO;
+    BigDecimal totalEfectivo = cajaVentaRepository.totalVentasEfectivoPorSesion(sesion.getId());
+    if (totalEfectivo == null) totalEfectivo = BigDecimal.ZERO;
+
     // Calcular el monto esperado por el sistema
-    double montoSistema = cajaVentaService.calcularTotalEnCaja(sesion.getId());
+    BigDecimal montoSistema = montoInicial.add(totalEfectivo);
 
     // Calcular diferencia
-    double diferencia = montoFisico - montoSistema;
+    BigDecimal diferencia = BigDecimal.valueOf(montoFisico).subtract(montoSistema);
 
     // Registrar arqueo
     ArqueoCajaEntity arqueo = new ArqueoCajaEntity();
     arqueo.setCajaSesion(sesion);
     arqueo.setFechaArqueo(LocalDateTime.now());
-    arqueo.setMontoSistema(montoSistema);
+    arqueo.setMontoSistema(montoSistema.doubleValue());
     arqueo.setMontoFisico(montoFisico);
-    arqueo.setDiferencia(diferencia);
+    arqueo.setDiferencia(diferencia.doubleValue());
     arqueo.setObservaciones(observaciones);
     arqueo.setUsuarioArqueo(usuarioCierre);
     arqueoCajaService.guardar(arqueo);
