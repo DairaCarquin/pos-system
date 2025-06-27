@@ -7,15 +7,15 @@ import java.util.ArrayList;
 
 @Data
 public class CajaVentaDTO {
-    private Long id; // opcional, para anulación o edición
+    private Long id; 
     private Long cajaSesionId;
     private Long clienteId;
-    private Long medioPagoId; // Debe ser Long para recibir el ID numérico del método de pago
+    private Long medioPagoId; 
     private String tipoComprobante;
     private BigDecimal subtotal;
     private BigDecimal impuesto;
     private BigDecimal total;
-    private List<CajaVentaDetalleDTO> detalles = new ArrayList<>(); // <-- inicialización aquí
+    private List<CajaVentaDetalleDTO> detalles = new ArrayList<>(); 
     private String motivoAnulacion;
 }
 // numero de comprobante y estado

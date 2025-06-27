@@ -19,8 +19,6 @@ public class CajaVentaService {
     @Autowired
     private CajaVentaRepository cajaVentaRepository;
     @Autowired
-    private CajaVentaDetalleRepository cajaVentaDetalleRepository;
-    @Autowired
     private CajaSesionRepository cajaSesionRepository;
     @Autowired
     private UsuarioRepository usuarioRepository;

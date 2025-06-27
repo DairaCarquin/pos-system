@@ -22,7 +22,8 @@
     <form th:action="@{/caja-sesion}" method="get" class="mb-3">
         <div class="d-flex">
             <input type="text" class="form-control form-control-sm me-2" style="max-width: 250px;" name="q"
-                   placeholder="Buscar por caja, local, usuario, estado o fecha" th:value="${param.q}">
+                   placeholder="Buscar por caja, local, usuario, estado o fecha"
+                   th:value="${param.q}">
             <button type="submit" class="btn btn-primary btn-sm">
                 <i class="bi bi-search"></i> Buscar
             </button>
@@ -67,12 +68,19 @@
         <span th:text="${sesion.estado}" th:classappend="${sesion.estado == 'ABIERTA'} ? 'badge bg-success' : 'badge bg-secondary'"></span>
     </td>
    <td class="text-center">
+    <!-- Botón Ver Reporte con control de acceso -->
     <a th:href="@{'/caja-sesion/reporte/' + ${sesion.id}}" target="_blank"
-       class="btn btn-outline-primary btn-sm border-2" title="Ver transacciones de caja" style="border-width:2px;">
+       th:class="${esAdmin or cajaSesionUsuarioActual == sesion.id} ? 'btn btn-outline-primary btn-sm border-2' : 'btn btn-outline-primary btn-sm border-2 disabled'"
+       th:onclick="${esAdmin or cajaSesionUsuarioActual == sesion.id} ? '' : 'return false;'"
+       title="Ver transacciones de caja" style="border-width:2px;">
         <i class="bi bi-eye" style="font-size:1.2rem; color:#0d6efd;"></i>
     </a>
+    
+    <!-- Botón Ver Detalle con control de acceso -->
     <a th:href="@{'/caja-sesion/detalle/' + ${sesion.id}}"
-       class="btn btn-warning btn-sm ms-1" title="Ver detalle de sesión">
+       th:class="${esAdmin or cajaSesionUsuarioActual == sesion.id} ? 'btn btn-warning btn-sm ms-1' : 'btn btn-warning btn-sm ms-1 disabled'"
+       th:onclick="${esAdmin or cajaSesionUsuarioActual == sesion.id} ? '' : 'return false;'"
+       title="Ver detalle de sesión">
         <i class="bi bi-file-earmark-text"></i>
     </a>
 </td>

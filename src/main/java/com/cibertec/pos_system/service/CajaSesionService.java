@@ -5,7 +5,6 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
-import com.cibertec.pos_system.entity.ArqueoCajaEntity;
 import com.cibertec.pos_system.entity.CajaSesionEntity;
 import com.cibertec.pos_system.entity.UsuarioEntity;
 import com.cibertec.pos_system.repository.CajaSesionRepository;

@@ -22,11 +22,11 @@ import com.cibertec.pos_system.service.CajaSesionService;
 import com.cibertec.pos_system.service.CajaVentaService;
 
 import java.math.BigDecimal;
-import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -56,14 +56,37 @@ public class CajaSesionController {
     @Autowired
     private CajaSesionService cajaSesionService;
 
-    @GetMapping
+        @GetMapping
     public String listarSesiones(@RequestParam(value = "q", required = false) String q, Model model) {
+        // Obtener usuario autenticado
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String usuarioActual = authentication.getName();
+        UsuarioEntity usuarioSesion = usuarioRepository.getUserByUsername(usuarioActual);
+
+        // Verificar si es ADMIN
+        boolean esAdmin = authentication.getAuthorities().stream()
+            .anyMatch(auth -> auth.getAuthority().equals("ADMIN"));
+
+        // TODOS ven todas las sesiones (cambio aquí)
         List<CajaSesionEntity> sesiones;
         if (q != null && !q.isEmpty()) {
             sesiones = sesionService.buscarPorCualquierCampo(q);
         } else {
             sesiones = sesionService.listar();
         }
+        
+        // Obtener ID de la caja abierta por el usuario actual (para cajeros)
+        Long cajaSesionUsuarioActual = null;
+        if (!esAdmin) {
+            cajaSesionUsuarioActual = sesiones.stream()
+                .filter(s -> s.getUsuarioApertura() != null && 
+                            s.getUsuarioApertura().getId().equals(usuarioSesion.getId()) &&
+                            "ABIERTA".equals(s.getEstado()))
+                .map(CajaSesionEntity::getId)
+                .findFirst()
+                .orElse(null);
+        }
+        
         List<CajaEntity> cajas = cajaService.listar();
 
         Map<Long, CajaSesionEntity> sesionesActivas = new HashMap<>();
@@ -77,9 +100,12 @@ public class CajaSesionController {
         model.addAttribute("cajas", cajas);
         model.addAttribute("sesionesActivas", sesionesActivas);
         model.addAttribute("fechaActual", LocalDateTime.now());
+        model.addAttribute("esAdmin", esAdmin);
+        model.addAttribute("cajaSesionUsuarioActual", cajaSesionUsuarioActual); // NUEVO
 
         return "caja/caja-sesion";
     }
+
 
 @PostMapping("/abrir")
 public String abrirCaja(
@@ -143,23 +169,55 @@ public String detalleSesion(@PathVariable Long id, Model model) {
     // Buscar el último arqueo de caja para esta sesión (si existe)
     ArqueoCajaEntity arqueo = arqueoCajaService.obtenerUltimoPorSesion(sesion.getId()).orElse(null);
 
-    // Ventas con tarjeta
-    List<Object[]> ventasTarjeta = cajaVentaRepository.findVentasTarjetaPorSesion(id);
+    // Ventas con tarjeta - MODIFICADO para incluir DNI
+    List<Object[]> ventasTarjetaOriginal = cajaVentaRepository.findVentasTarjetaPorSesion(id);
+    List<Object[]> ventasTarjeta = ventasTarjetaOriginal.stream().map(venta -> {
+        Object[] ventaConDNI = new Object[6];
+        ventaConDNI[0] = venta[0]; // ID Venta
+        ventaConDNI[1] = venta[1]; // Monto
+        ventaConDNI[2] = venta[2]; // Nombre Cliente (MANTENER)
+        ventaConDNI[3] = venta[3]; // Estado
+        ventaConDNI[4] = venta[4]; // Fecha
+        // Obtener DNI del cliente
+        Long ventaId = (Long) venta[0];
+        String dniCliente = cajaVentaRepository.findById(ventaId)
+            .map(v -> v.getCliente() != null ? v.getCliente().getDni() : null)
+            .orElse(null);
+        ventaConDNI[5] = dniCliente; // DNI
+        return ventaConDNI;
+    }).collect(Collectors.toList());
+    
     BigDecimal totalTarjeta = BigDecimal.ZERO;
-    for (Object[] v : ventasTarjeta) {
+    for (Object[] v : ventasTarjetaOriginal) {
         if (v[1] != null) totalTarjeta = totalTarjeta.add((BigDecimal) v[1]);
     }
 
-    // Ventas en efectivo
-    List<Object[]> ventasEfectivo = cajaVentaRepository.findVentasEfectivoPorSesion(id);
+    // Ventas en efectivo - MODIFICADO para incluir DNI
+    List<Object[]> ventasEfectivoOriginal = cajaVentaRepository.findVentasEfectivoPorSesion(id);
+    List<Object[]> ventasEfectivo = ventasEfectivoOriginal.stream().map(venta -> {
+        Object[] ventaConDNI = new Object[6];
+        ventaConDNI[0] = venta[0]; // ID Venta
+        ventaConDNI[1] = venta[1]; // Monto
+        ventaConDNI[2] = venta[2]; // Nombre Cliente (MANTENER)
+        ventaConDNI[3] = venta[3]; // Estado
+        ventaConDNI[4] = venta[4]; // Fecha
+        // Obtener DNI del cliente
+        Long ventaId = (Long) venta[0];
+        String dniCliente = cajaVentaRepository.findById(ventaId)
+            .map(v -> v.getCliente() != null ? v.getCliente().getDni() : null)
+            .orElse(null);
+        ventaConDNI[5] = dniCliente; // DNI
+        return ventaConDNI;
+    }).collect(Collectors.toList());
+    
     BigDecimal totalEfectivo = BigDecimal.ZERO;
-    for (Object[] v : ventasEfectivo) {
+    for (Object[] v : ventasEfectivoOriginal) {
         if (v[1] != null) totalEfectivo = totalEfectivo.add((BigDecimal) v[1]);
     }
 
     BigDecimal totalGeneral = totalTarjeta.add(totalEfectivo);
 
-    // Pasar los datos al modelo
+    // Pasar los datos al modelo - TODO IGUAL
     model.addAttribute("sesion", sesion);
     model.addAttribute("ventasTarjeta", ventasTarjeta);
     model.addAttribute("totalTarjeta", totalTarjeta);

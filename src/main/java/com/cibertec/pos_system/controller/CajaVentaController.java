@@ -4,6 +4,7 @@ import com.cibertec.pos_system.dto.CajaVentaDTO;
 import com.cibertec.pos_system.dto.CajaVentaDetalleDTO;
 import com.cibertec.pos_system.entity.*;
 import com.cibertec.pos_system.service.*;
+import com.cibertec.pos_system.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -33,11 +34,25 @@ public class CajaVentaController {
     private CajaSesionService cajaSesionService;
     @Autowired
     private UsuarioService usuarioService;
+    @Autowired
+    private UsuarioRepository usuarioRepository;
 
     @GetMapping
     public String listarVentas(Model model) {
+        // Obtener usuario autenticado
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String usuarioActual = authentication.getName();
+        UsuarioEntity usuarioSesion = usuarioRepository.getUserByUsername(usuarioActual);
+
+        // Verificar si es ADMIN
+        boolean esAdmin = authentication.getAuthorities().stream()
+            .anyMatch(auth -> auth.getAuthority().equals("ADMIN"));
+
         List<CajaVentaEntity> ventas = cajaVentaService.listar();
         model.addAttribute("listaVentas", ventas);
+        model.addAttribute("esAdmin", esAdmin);
+        model.addAttribute("usuarioActualId", usuarioSesion.getId());
+        
         return "caja/caja-ventas-listar";
     }
 

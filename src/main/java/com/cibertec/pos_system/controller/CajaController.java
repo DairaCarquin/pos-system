@@ -76,7 +76,7 @@ public String mostrarFormularioNuevo(Model model) {
 }
 
     @GetMapping
-public String listar(@RequestParam(value = "q", required = false) String q, Model model) {
+    public String listar(@RequestParam(value = "q", required = false) String q, Model model) {
     // Obtener usuario autenticado
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     String usuarioActual = authentication.getName();
@@ -111,7 +111,6 @@ public String listar(@RequestParam(value = "q", required = false) String q, Mode
             todasLasCajas = cajaService.listar();
         }
         
-        // NUEVA LÓGICA: Filtrar según tipo de usuario
         if (esAdmin) {
             // ADMIN ve todas las cajas
             cajas = todasLasCajas;
@@ -140,8 +139,7 @@ public String listar(@RequestParam(value = "q", required = false) String q, Mode
         sesionesPorCaja.put(cajaId, sesionesPorCaja.getOrDefault(cajaId, 0) + 1);
     }
 
-    // CAMBIO CLAVE: Verificar si el usuario tiene una caja abierta (para el botón)
-    // Para ADMIN, no restringir la apertura de múltiples cajas
+    
     boolean usuarioTieneCajaAbierta = sesionActivaUsuario != null && !esAdmin;
 
     model.addAttribute("cajas", cajas);
@@ -154,7 +152,6 @@ public String listar(@RequestParam(value = "q", required = false) String q, Mode
     return "caja/cajas";
 }
 
-// *** AGREGAR SOLO ESTE MÉTODO ***
     @GetMapping("/siguiente-codigo")
     @ResponseBody
     public Map<String, String> siguienteCodigo(@RequestParam Long localId) {
