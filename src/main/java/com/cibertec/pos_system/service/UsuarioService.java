@@ -5,6 +5,9 @@ import com.cibertec.pos_system.repository.UsuarioRepository;
 import com.cibertec.pos_system.service.impl.UsuarioServiceInterface;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,9 +23,10 @@ public class UsuarioService implements UsuarioServiceInterface {
     public List<UsuarioEntity> obtenerTodas() {
         return usuarioRepository.findAll();
     }
+
     @Override
     public UsuarioEntity obtenerPorId(Long id) {
-        return usuarioRepository.findById(id).orElse(null);
+        return usuarioRepository.findById(id).orElse(null);// si no encuentra devolvemos nulos
     }
 
     @Override
@@ -32,13 +36,25 @@ public class UsuarioService implements UsuarioServiceInterface {
 
     @Override
     public UsuarioEntity actualizarUser(Long id, UsuarioEntity user) {
-        UsuarioEntity userBBDD = usuarioRepository.findById(id).orElse(null);
 
-        if(userBBDD != null){
-            // Actualizar roles
-            return usuarioRepository.save(userBBDD);
+        UsuarioEntity usuarioEncontrado = usuarioRepository.findById(id).orElseThrow(() -> new RuntimeException("Usuario no encontrado")); // si no encuentra mandamos una excepcion
+
+        // actualizamos valores
+        usuarioEncontrado.setUsername(user.getUsername());
+        usuarioEncontrado.setEnabled(user.isEnabled());
+
+        // Actualizar roles
+        if (user.getRoles() != null) {
+            usuarioEncontrado.setRoles(user.getRoles());
         }
-        return null;
+
+        if (user.getPassword() != null && !user.getPassword().isEmpty()) {
+            BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(); // Utilizamos BCryptPasswordEncoder para encriptar el password
+            String encodedPassword = encoder.encode(user.getPassword()); // Encriptamos passworrd
+            usuarioEncontrado.setPassword(encodedPassword); // actualizamos el password encriptado
+        }
+
+        return usuarioRepository.save(usuarioEncontrado); // guardamos
     }
 
     @Override
@@ -54,5 +70,10 @@ public class UsuarioService implements UsuarioServiceInterface {
     @Override
     public Optional<UsuarioEntity> obtener(Long id) {
         return usuarioRepository.findById(id);
+    }
+
+    // Método agregado para buscar usuario por username
+    public UsuarioEntity obtenerPorUsername(String username) {
+        return usuarioRepository.findByUsername(username);
     }
 }

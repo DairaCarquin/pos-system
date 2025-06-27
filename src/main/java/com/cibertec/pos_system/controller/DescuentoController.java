@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @Controller
-@RequestMapping("/descuento")
+@RequestMapping("/descuentos")
 public class DescuentoController {
 
     @Autowired
@@ -23,22 +23,22 @@ public class DescuentoController {
     @Autowired
     private ProductoService productoService;
 
-    @GetMapping
-    public String listarDescuentos(Model model) {
-        model.addAttribute("descuentos", descuentoService.listarActivos());
-        return "descuento/lista";
-    }
+    
 
     @GetMapping("/activos")
     public String listarActivos(Model model) {
         model.addAttribute("descuentos", descuentoService.listarActivos());
-        return "descuento/activos";
+        return "descuentos/activos";
     }
+@GetMapping
+public String redirigirAActivos() {
+    return "redirect:/descuentos/activos";
+}
 
     @GetMapping("/historial")
     public String listarHistorial(Model model) {
         model.addAttribute("descuentos", descuentoService.listarHistorial());
-        return "descuento/historial";
+        return "descuentos/historial";
     }
 
     @GetMapping("/nuevo")
@@ -47,7 +47,7 @@ public class DescuentoController {
         model.addAttribute("tipos", List.of(TipoDescuento.PORCENTAJE, TipoDescuento.FIJO, TipoDescuento.DOS_POR_UNO));
         model.addAttribute("productos", productoService.listarTodos());
         model.addAttribute("categorias", productoService.listarCategorias());
-        return "descuento/formulario";
+        return "descuentos/formulario";
     }
 
     @PostMapping("/guardar")
@@ -72,13 +72,14 @@ public class DescuentoController {
         }
 
         descuentoService.guardar(descuento);
-        return "redirect:/descuento/activos";
+        return "redirect:/descuentos/activos";
     }
 
     @GetMapping("/aplicados")
-    public String verPreciosConDescuento(Model model) {
-        List<ProductoEntity> productos = productoService.listarConDescuentosAplicados();
-        model.addAttribute("productos", productos);
-        return "descuento/precio-descuento";
-    }
+public String verPreciosConDescuento(Model model) {
+    List<ProductoEntity> productos = productoService.listarSoloConDescuento();
+    model.addAttribute("productos", productos);
+    return "descuentos/precio-descuento";
+}
+
 }
