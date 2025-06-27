@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Lista de Productos</title>
+</head>
+<body>
+<div layout:fragment="contenido">
+    <div class="container mt-4">
+        <h2>Lista de Productos</h2>
+
+        <a th:href="@{/producto/nuevo}" class="btn btn-success mb-3">Registrar nuevo producto</a>
+
+        <table class="table table-bordered">
+            <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Código</th>
+                <th>Descripción</th>
+                <th>Precio</th>
+                <th>Stock</th>
+                <th>Categoría</th>
+                <th>Proveedor</th>
+                <th>Activo</th>
+                <th>Acciones</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="producto : ${productos}">
+                <td th:text="${producto.nombre}">Nombre</td>
+                <td th:text="${producto.codigo}">Código</td>
+                <td th:text="${producto.descripcion}">Descripción</td>
+                <td th:text="${producto.precio}">Precio</td>
+                <td th:text="${producto.stockActual}">Stock</td>
+                <td th:text="${producto.categoria.nombre}">Categoría</td>
+                <td th:text="${producto.proveedor.razonSocial}">Proveedor</td>
+                <td th:text="${producto.activo ? 'Sí' : 'No'}">Activo</td>
+                <td>
+                    <a th:href="@{'/producto/editar/' + ${producto.id}}" class="btn btn-warning btn-sm">Editar</a>
+                    <a th:href="@{'/producto/eliminar/' + ${producto.id}}"
+                       class="btn btn-danger btn-sm"
+                       onclick="return confirm('¿Estás seguro de eliminar este producto?')">Eliminar</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

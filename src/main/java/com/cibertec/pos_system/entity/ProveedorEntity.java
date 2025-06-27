@@ -12,8 +12,7 @@ import lombok.Data;
 @Data
 public class ProveedorEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)     private Long id;
     private String ruc;
     private String razonSocial;
     private String direccion;
