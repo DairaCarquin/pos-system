@@ -21,11 +21,21 @@ public class CajaVentaEntity {
     @Column(name = "subtotal")
     private BigDecimal subtotal;
 
+    @Column(name = "descuento", precision = 10, scale = 2)
+    private BigDecimal descuento = BigDecimal.ZERO;
+
     @Column(name = "impuesto")
     private BigDecimal impuesto;
 
     @Column(name = "total")
     private BigDecimal total;
+
+    // PASO 1: AGREGAR ESTOS CAMPOS PARA DESCUENTOS
+    @Column(name = "total_descuentos", precision = 10, scale = 2)
+    private BigDecimal totalDescuentos = BigDecimal.ZERO;
+    
+    @Column(name = "subtotal_sin_descuento", precision = 10, scale = 2) 
+    private BigDecimal subtotalSinDescuento = BigDecimal.ZERO;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "medio_pago_id")

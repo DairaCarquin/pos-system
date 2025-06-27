@@ -71,8 +71,8 @@
             color: #1976d2;
         }
         .btn-print {
-            display: block;
-            margin: 18px auto 0 auto;
+            display: inline-block;
+            margin: 18px 5px 0 5px;
             padding: 8px 28px;
             border: none;
             border-radius: 5px;
@@ -87,9 +87,26 @@
         .btn-print:hover {
             background: #125ea8;
         }
+        .btn-pdf {
+            display: inline-block;
+            margin: 18px 5px 0 5px;
+            padding: 8px 28px;
+            border: none;
+            border-radius: 5px;
+            background: #dc3545;
+            color: #fff;
+            font-size: 1em;
+            cursor: pointer;
+            font-weight: 500;
+            box-shadow: 0 1px 4px #0002;
+            transition: background 0.2s;
+        }
+        .btn-pdf:hover {
+            background: #c82333;
+        }
         .btn-back {
-            display: block;
-            margin: 18px auto 0 auto;
+            display: inline-block;
+            margin: 18px 5px 0 5px;
             padding: 8px 28px;
             border: none;
             border-radius: 5px;
@@ -107,6 +124,15 @@
             background: #495057;
             color: #fff;
             text-decoration: none;
+        }
+        .buttons-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+        @media print {
+            .buttons-container {
+                display: none !important;
+            }
         }
     </style>
 </head>
@@ -154,15 +180,86 @@
             </tr>
         </tbody>
     </table>
-    <div class="totales">
-        <p><strong>Subtotal:</strong> <span th:text="${venta.subtotal}"></span></p>
-        <p><strong>Impuesto:</strong> <span th:text="${venta.impuesto}"></span></p>
-        <p><strong>Total:</strong> <span th:text="${venta.total}"></span></p>
-    </div>
-    <button class="btn-print" onclick="window.print()">Imprimir</button>
-    <a th:href="@{/caja}" class="btn-back">
-        <i class="bi bi-arrow-left"></i> Volver a caja
-    </a>
+    
+<div class="totales">
+    
+    <p><strong>Subtotal:</strong>
+        <span th:text="${'S/ ' + #numbers.formatDecimal(venta.subtotal + venta.descuento, 1, 'POINT', 2, 'POINT')}"></span>
+    </p>
+    <p><strong>Descuentos:</strong>
+        <span th:text="${'-S/ ' + #numbers.formatDecimal(venta.descuento, 1, 'POINT', 2, 'POINT')}" style="color: #28a745;"></span>
+    </p>
+    <p><strong>IGV (18%):</strong>
+        <span th:text="${'S/ ' + #numbers.formatDecimal(venta.impuesto, 1, 'POINT', 2, 'POINT')}"></span>
+    </p>
+    <p><strong>Total:</strong>
+        <span th:text="${'S/ ' + #numbers.formatDecimal(venta.total, 1, 'POINT', 2, 'POINT')}"></span>
+    </p>
 </div>
+    
+    <div class="buttons-container">
+        <button class="btn-print" onclick="window.print()">
+            <i class="bi bi-printer"></i> Imprimir
+        </button>
+        <button class="btn-pdf" onclick="generarPDF()">
+            <i class="bi bi-file-earmark-pdf"></i> Descargar PDF
+        </button>
+        <a th:href="@{/caja}" class="btn-back">
+            <i class="bi bi-arrow-left"></i> Volver a caja
+        </a>
+    </div>
+</div>
+
+<!-- Scripts para PDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<script>
+function generarPDF() {
+    const { jsPDF } = window.jspdf;
+    const element = document.querySelector('.voucher-container');
+    
+    // Ocultar botones temporalmente
+    const buttonsContainer = document.querySelector('.buttons-container');
+    buttonsContainer.style.display = 'none';
+    
+    html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#ffffff'
+    }).then(canvas => {
+        const imgData = canvas.toDataURL('image/png');
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        
+        const imgWidth = 210;
+        const pageHeight = 295;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        let heightLeft = imgHeight;
+        
+        let position = 0;
+        
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+        
+        while (heightLeft >= 0) {
+            position = heightLeft - imgHeight;
+            pdf.addPage();
+            pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+            heightLeft -= pageHeight;
+        }
+        
+        // Mostrar botones de nuevo
+        buttonsContainer.style.display = 'block';
+        
+        const numeroComprobante = '[[${venta.numeroComprobante}]]';
+        pdf.save(`comprobante-${numeroComprobante}.pdf`);
+    }).catch(error => {
+        console.error('Error generando PDF:', error);
+        buttonsContainer.style.display = 'block';
+        alert('Error al generar el PDF. Por favor, inténtalo de nuevo.');
+    });
+}
+</script>
 </body>
 </html>

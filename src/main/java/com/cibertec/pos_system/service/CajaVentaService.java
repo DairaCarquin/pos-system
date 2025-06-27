@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,8 +20,6 @@ public class CajaVentaService {
     @Autowired
     private CajaVentaRepository cajaVentaRepository;
     @Autowired
-    private CajaVentaDetalleRepository cajaVentaDetalleRepository;
-    @Autowired
     private CajaSesionRepository cajaSesionRepository;
     @Autowired
     private UsuarioRepository usuarioRepository;
@@ -30,6 +29,10 @@ public class CajaVentaService {
     private MedioPagoRepository medioPagoRepository;
     @Autowired
     private ProductoRepository productoRepository;
+    
+    // PASO 4: AGREGAR esta dependencia
+    @Autowired
+    private DescuentoService descuentoService;
 
     // CRUD básico para el controlador
     public List<CajaVentaEntity> listar() {
@@ -78,6 +81,49 @@ public class CajaVentaService {
     return montoInicial.add(ventasEfectivo);
 }
 
+    // PASO 4: MÉTODO CORREGIDO usando método existente del DescuentoService
+    public BigDecimal calcularPrecioConDescuento(Long productoId, int cantidad, BigDecimal precioOriginal) {
+        // USAR método existente del service
+        ProductoEntity producto = productoRepository.findById(productoId).orElse(null);
+        if (producto == null) {
+            return precioOriginal.multiply(BigDecimal.valueOf(cantidad));
+        }
+        
+        // USAR método que YA existe
+        DescuentoEntity descuento = descuentoService.obtenerDescuentoAplicable(producto);
+        
+        if (descuento == null) {
+            return precioOriginal.multiply(BigDecimal.valueOf(cantidad));
+        }
+        
+        return aplicarDescuento(precioOriginal, cantidad, descuento);
+    }
+    
+    // PASO 4: AGREGAR este método privado
+    private BigDecimal aplicarDescuento(BigDecimal precioUnitario, int cantidad, DescuentoEntity descuento) {
+        BigDecimal subtotal = precioUnitario.multiply(BigDecimal.valueOf(cantidad));
+        
+        switch (descuento.getTipo()) {
+            case PORCENTAJE:
+                BigDecimal descuentoPorcentaje = subtotal.multiply(descuento.getValor())
+                    .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+                return subtotal.subtract(descuentoPorcentaje);
+                
+            case FIJO:
+                return subtotal.subtract(descuento.getValor());
+                
+            case DOS_POR_UNO:
+                if (cantidad >= 2) {
+                    int productosGratis = cantidad / 2;
+                    int productosAPagar = cantidad - productosGratis;
+                    return precioUnitario.multiply(BigDecimal.valueOf(productosAPagar));
+                }
+                return subtotal;
+                
+            default:
+                return subtotal;
+        }
+    }
 
     // Lógica de negocio para registrar venta con DTO (sin validación/descuento de stock)
     @Transactional
@@ -121,7 +167,7 @@ public class CajaVentaService {
         if (ultimo != null) {
             String ultimoNum = "000000";
             if (ultimo.length() > 2) {
-                ultimoNum = ultimo.substring(2); // Quita el prefijo
+                ultimoNum = ultimo.substring(2); // Quita el prefijo de 2 letras
             }
             int secuencia;
             try {
@@ -134,6 +180,10 @@ public class CajaVentaService {
             nuevoNumero = prefijo + "000001";
         }
 
+        // PASO 6: CALCULAR TOTALES CON DESCUENTOS
+        BigDecimal subtotalSinDescuento = BigDecimal.ZERO;
+        BigDecimal totalDescuentos = BigDecimal.ZERO;
+
         // Crear venta
         CajaVentaEntity venta = new CajaVentaEntity();
         venta.setCajaSesion(sesion);
@@ -141,18 +191,29 @@ public class CajaVentaService {
         venta.setCliente(cliente);
         venta.setMedioPago(medioPago);
         venta.setTipoComprobante(tipoComprobante);
-        venta.setNumeroComprobante(nuevoNumero); // Asigna el número generado
+        venta.setNumeroComprobante(nuevoNumero);
         venta.setSubtotal(dto.getSubtotal());
+        venta.setDescuento(dto.getDescuento());
         venta.setImpuesto(dto.getImpuesto());
         venta.setTotal(dto.getTotal());
         venta.setEstado("FINALIZADA");
         venta.setFechaHora(LocalDateTime.now());
 
-        // Crear detalles (sin validar ni descontar stock)
+        // PASO 6: Crear detalles CON información de descuentos
         List<CajaVentaDetalleEntity> detalles = new ArrayList<>();
         for (CajaVentaDetalleDTO det : dto.getDetalles()) {
             ProductoEntity producto = productoRepository.findById(det.getProductoId())
                     .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+
+            // CALCULAR descuento para este producto
+            BigDecimal precioOriginal = producto.getPrecio();
+            BigDecimal precioConDescuento = calcularPrecioConDescuento(det.getProductoId(), det.getCantidad(), precioOriginal);
+            BigDecimal subtotalOriginal = precioOriginal.multiply(BigDecimal.valueOf(det.getCantidad()));
+            BigDecimal descuentoLinea = subtotalOriginal.subtract(precioConDescuento);
+            
+            // OBTENER información del descuento aplicado
+            DescuentoEntity descuentoAplicado = descuentoService.obtenerDescuentoAplicable(producto);
+            String tipoDescuento = descuentoAplicado != null ? descuentoAplicado.getTipo().toString() : null;
 
             CajaVentaDetalleEntity detalle = new CajaVentaDetalleEntity();
             detalle.setVenta(venta);
@@ -160,8 +221,22 @@ public class CajaVentaService {
             detalle.setCantidad(det.getCantidad());
             detalle.setPrecioUnitario(det.getPrecioUnitario());
             detalle.setSubtotal(det.getSubtotal());
+            
+            // PASO 6: AGREGAR información de descuentos
+            detalle.setPrecioOriginal(precioOriginal);
+            detalle.setDescuentoAplicado(descuentoLinea);
+            detalle.setTipoDescuento(tipoDescuento);
+            
             detalles.add(detalle);
+            
+            // ACUMULAR totales
+            subtotalSinDescuento = subtotalSinDescuento.add(subtotalOriginal);
+            totalDescuentos = totalDescuentos.add(descuentoLinea);
         }
+        
+        // PASO 6: ASIGNAR totales de descuentos a la venta
+        venta.setSubtotalSinDescuento(subtotalSinDescuento);
+        venta.setTotalDescuentos(totalDescuentos);
         venta.setDetalles(detalles);
 
         // Asignar la venta a cada detalle antes de guardar (por seguridad)
