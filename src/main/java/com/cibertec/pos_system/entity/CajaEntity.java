@@ -26,4 +26,12 @@ public class CajaEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "local_id")
     private LocalEntity local;
+
+    // Nuevos campos para auditoría de actualización
+    @Column(name = "fecha_actualizacion")
+    private LocalDateTime fechaActualizacion;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "usuario_actualizacion_id")
+    private UsuarioEntity usuarioActualizacion;
 }

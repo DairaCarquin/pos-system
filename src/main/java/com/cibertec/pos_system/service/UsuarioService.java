@@ -25,6 +25,7 @@ public class UsuarioService implements UsuarioServiceInterface {
     public List<UsuarioEntity> obtenerTodas() {
         return usuarioRepository.findAll();
     }
+
     @Override
     public UsuarioEntity obtenerPorId(Long id) {
         return usuarioRepository.findById(id).orElse(null);// si no encuentra devolvemos nulos
@@ -79,5 +80,10 @@ public class UsuarioService implements UsuarioServiceInterface {
     @Override
     public Optional<UsuarioEntity> obtener(Long id) {
         return usuarioRepository.findById(id);
+    }
+
+    // Método agregado para buscar usuario por username
+    public UsuarioEntity obtenerPorUsername(String username) {
+        return usuarioRepository.findByUsername(username);
     }
 }

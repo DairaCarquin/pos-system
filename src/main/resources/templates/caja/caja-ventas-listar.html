@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Listado de Ventas</title>
+</head>
+<body>
+<div layout:fragment="contenido">
+    <h2 class="mb-4">Listado de Ventas</h2>
+
+    <!-- Barra de búsqueda única -->
+    <div class="mb-3">
+        <input type="text" id="busquedaVentas" class="form-control" placeholder="Buscar por fecha, local, cajero, método de pago, tipo, número, estado o motivo...">
+    </div>
+
+    <!-- Mensajes de éxito/error -->
+    <div th:if="${param.exito}" class="alert alert-success" th:text="${param.exito}"></div>
+    <div th:if="${param.error}" class="alert alert-danger" th:text="${param.error}"></div>
+
+    <div class="card">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Ventas</h5>
+        </div>
+        <div class="card-body">
+            <table class="table table-striped table-hover" id="tablaVentas">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Fecha</th>
+                    <th>Local</th>
+                    <th>Caja</th>
+                    <th>Cajero</th>
+                    <th>Cliente</th>
+                    <th>Método de Pago</th>
+                    <th>Tipo de Comprobante</th>
+                    <th>Número de Comprobante</th>
+                    <th>Total</th>
+                    <th>Estado</th>
+                    <th class="text-center">Acciones</th>
+                    <th>Motivo</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="venta, idx : ${listaVentas}">
+                    <td th:text="${venta.id}"></td>
+                    <td th:text="${#temporals.format(venta.fechaHora, 'yyyy-MM-dd HH:mm')}"></td>
+                    <td th:text="${venta.cajaSesion != null && venta.cajaSesion.caja != null && venta.cajaSesion.caja.local != null ? venta.cajaSesion.caja.local.nombre : ''}"></td>
+                    <td th:text="${venta.cajaSesion != null && venta.cajaSesion.caja != null ? venta.cajaSesion.caja.nombre : ''}"></td>
+                    <td th:text="${venta.usuario != null ? venta.usuario.username : ''}"></td>
+                    <td th:text="${venta.cliente != null ? venta.cliente.nombre : 'Consumidor Final'}"></td>
+                    <td th:text="${venta.medioPago != null ? venta.medioPago.nombre : ''}"></td>
+                    <td th:text="${venta.tipoComprobante}"></td>
+                    <td th:text="${venta.numeroComprobante}"></td>
+                    <td th:text="${venta.total}"></td>
+                    <td>
+                        <span th:text="${venta.estado}" th:classappend="${venta.estado == 'FINALIZADA'} ? 'badge bg-success' : 'badge bg-danger'"></span>
+                    </td>
+                    <!-- Acciones -->
+                <td class="text-center">
+    <a th:href="@{/caja-venta/detalle/{id}(id=${venta.id})}" class="btn btn-info btn-sm" target="_blank" title="Ver comprobante">
+        <i class="bi bi-receipt"></i>
+    </a>
+    <button type="button" class="btn btn-danger btn-sm"
+        th:if="${venta.estado == 'FINALIZADA'}"
+        th:attr="data-bs-toggle='modal',data-bs-target='#anularModal__' + ${venta.id}"
+        title="Anular">
+        <i class="bi bi-x-circle"></i>
+    </button>
+    <span th:if="${venta.estado == 'ANULADA'}" class="text-muted">Anulada</span>
+</td>
+                    <!-- Motivo -->
+                    <td class="text-center">
+                        <span th:if="${venta.estado == 'ANULADA' and venta.motivoAnulacion != null and #strings.length(venta.motivoAnulacion) > 0}">
+                            <a href="javascript:void(0);"
+                               th:attr="data-bs-toggle='modal',data-bs-target='#motivoModal__' + ${idx.index}"
+                               title="Ver motivo">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                        </span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            <!-- Filtro por todas las columnas relevantes -->
+            <script>
+document.addEventListener("DOMContentLoaded", function() {
+    const input = document.getElementById("busquedaVentas");
+    input.addEventListener("keyup", function() {
+        const filtro = input.value.toLowerCase();
+        const filas = document.querySelectorAll("#tablaVentas tbody tr");
+        filas.forEach(function(fila) {
+            const celdas = fila.querySelectorAll("td");
+            let texto = "";
+            if (celdas.length > 12) {
+                texto += (celdas[1].innerText || "") + " "; // Fecha
+                texto += (celdas[2].innerText || "") + " "; // Local
+                texto += (celdas[4].innerText || "") + " "; // Cajero
+                texto += (celdas[5].innerText || "") + " "; // Cliente
+                texto += (celdas[6].innerText || "") + " "; // Método de Pago
+                texto += (celdas[7].innerText || "") + " "; // Tipo de Comprobante
+                texto += (celdas[8].innerText || "") + " "; // Número de Comprobante
+                texto += (celdas[9].innerText || "") + " "; // Total
+                texto += (celdas[10].innerText || "") + " "; // Estado
+                texto += (celdas[12].innerText || "") + " "; // Motivo
+            }
+            texto = texto.toLowerCase();
+            fila.style.display = texto.includes(filtro) ? "" : "none";
+        });
+    });
+});
+</script>
+            <!-- Modales fuera de la tabla para evitar problemas con el filtro -->
+            <div th:each="venta, idx : ${listaVentas}">
+                <!-- Modal para anulación -->
+                <div class="modal fade" th:id="'anularModal__' + ${venta.id}" tabindex="-1" aria-labelledby="anularModalLabel" aria-hidden="true">
+                  <div class="modal-dialog">
+                    <form th:action="@{/caja-venta/anular/{id}(id=${venta.id})}" method="post">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h5 class="modal-title" id="anularModalLabel">Motivo de Anulación</h5>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                        </div>
+                        <div class="modal-body">
+                          <textarea name="motivo" class="form-control" placeholder="Ingrese el motivo de anulación" required></textarea>
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                          <button type="submit" class="btn btn-danger">Anular</button>
+                        </div>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+                <!-- Modal para motivo de anulación -->
+                <div class="modal fade" th:id="'motivoModal__' + ${idx.index}" tabindex="-1" aria-labelledby="motivoModalLabel" aria-hidden="true">
+                  <div class="modal-dialog">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="motivoModalLabel">Motivo de Anulación</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                      </div>
+                      <div class="modal-body" th:text="${venta.motivoAnulacion}"></div>
+                    </div>
+                  </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

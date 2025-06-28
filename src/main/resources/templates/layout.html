@@ -18,6 +18,7 @@
         .sidebar {
             width: 230px;
             height: 100vh;
+            overflow-y: auto;
             position: fixed;
             top: 0;
             left: 0;
@@ -72,6 +73,16 @@
             left: 15px;
             z-index: 1040;
         }
+
+        .sidebar .badge {
+            font-size: 0.75rem;
+            background-color: #6c757d; /* gris elegante */
+        }
+        .sidebar .fw-semibold {
+            font-size: 0.95rem;
+            color: #dee2e6;
+        }
+
     </style>
 </head>
 <body class="bg-light">
@@ -82,17 +93,28 @@
 
 <!-- Sidebar reusable -->
 <div class="sidebar" id="sidebar" th:fragment="sidebar">
+    <!-- Info de usuario -->
+    <div class="px-3 pb-3 border-bottom" sec:authorize="isAuthenticated()">
+        <div class="d-flex flex-column align-items-start">
+            <span class="fw-semibold"><i class="bi bi-person-circle"></i> <span sec:authentication="name">Usuario</span></span>
+            <span class="badge bg-secondary mt-1" sec:authentication="principal.authorities">Rol</span>
+        </div>
+    </div>
+
     <a th:href="@{/menu}"><i class="bi bi-house-door-fill"></i> Inicio</a>
     <a th:href="@{/user}"><i class="bi bi-people-fill"></i> Usuarios</a>
     <a th:href="@{/rol}"><i class="bi bi-person-badge-fill"></i> Roles</a>
     <a th:href="@{/producto}"><i class="bi bi-box-seam"></i> Productos</a>
     <a th:href="@{/categoria}"><i class="bi bi-tags-fill"></i> Categorías</a>
     <a th:href="@{/local}"><i class="bi bi-geo-alt-fill"></i> Locales</a>
-    <a th:href="@{/shopping}"><i class="bi bi-cart-fill"></i> Compras</a>
+    <a th:href="@{/compras/ordenes}"><i class="bi bi-cart-fill"></i> Compras</a>
     <a th:href="@{/medioPago}"><i class="bi bi-credit-card-2-front-fill"></i> Medios de Pago</a>
+    <a th:href="@{/ventas/preciosDescuentos}"><i class="bi bi-calendar-check"></i> Precios y Descuentos</a>
+    <a th:href="@{/}"><i class="bi bi-cart-plus"></i> Registrar Venta</a>
     <a th:href="@{/proveedor}"><i class="bi bi-truck"></i> Proveedores</a>
-    <a th:href="@{/cliente}"><i class="bi bi-person-lines-fill"></i> Clientes</a>
+    <a th:href="@{/}"><i class="bi bi-person-lines-fill"></i> Clientes</a>
     <a th:href="@{/caja}"><i class="bi bi-cash-stack"></i> Caja</a>
+    <a th:href="@{/caja-venta}"><i class="bi bi-receipt"></i> Registro de ventas físicas</a>
     <form th:action="@{/logout}" method="post">
         <button type="submit" class="logout-btn">
             <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
@@ -100,14 +122,12 @@
     </form>
 </div>
 
-<!-- User info -->
-<div class="user-info text-end text-primary" sec:authorize="isAuthenticated()">
+<!-- <div class="user-info text-end text-primary" sec:authorize="isAuthenticated()">
     <i class="bi bi-person-circle"></i>
     <span sec:authentication="name">Usuario</span>
     <span class="badge bg-primary text-white ms-2" sec:authentication="principal.authorities">Rol</span>
-</div>
+</div> -->
 
-<!-- Aquí se inyecta el contenido de cada página -->
 <div id="main-content" layout:fragment="contenido"></div>
 
 <script>

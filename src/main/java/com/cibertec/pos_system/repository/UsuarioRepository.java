@@ -13,4 +13,6 @@ public interface UsuarioRepository extends JpaRepository<UsuarioEntity, Long> {
     UsuarioEntity getUserByUsername(@Param("username") String username);
     //Se usa cuando queremos buscar un usuario (login)
 
+    UsuarioEntity findByUsername(String username);
+
 }
