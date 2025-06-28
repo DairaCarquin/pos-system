@@ -275,4 +275,7 @@ public class CajaVentaService {
         }
         cajaVentaRepository.save(venta);
     }
+
+    public List<CajaVentaEntity> listarVentasPorClienteDni(String dni);
+public List<CajaVentaEntity> listarVentasPorClienteId(Long id);
 }

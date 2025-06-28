@@ -252,4 +252,21 @@ public class CajaVentaController {
             return ResponseEntity.badRequest().body(error);
         }
     }
+       // --- NUEVOS ENDPOINTS: Historial de ventas por cliente ---
+
+    @GetMapping("/historial/dni")
+    public String verHistorialPorDni(@RequestParam("dni") String dni, Model model) {
+        List<CajaVentaEntity> ventas = cajaVentaService.listarVentasPorClienteDni(dni);
+        model.addAttribute("ventas", ventas);
+        model.addAttribute("criterio", "DNI: " + dni);
+        return "caja/ventas-historial";
     }
+
+    @GetMapping("/historial/id")
+    public String verHistorialPorId(@RequestParam("id") Long id, Model model) {
+        List<CajaVentaEntity> ventas = cajaVentaService.listarVentasPorClienteId(id);
+        model.addAttribute("ventas", ventas);
+        model.addAttribute("criterio", "ID: " + id);
+        return "caja/ventas-historial";
+    }
+}
