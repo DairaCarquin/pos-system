@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -15,6 +16,7 @@ import com.cibertec.pos_system.service.impl.UsuarioDetalleServiceImpl;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class WebSecurityConfig {
 
     @Bean
@@ -60,6 +62,7 @@ public class WebSecurityConfig {
                         .requestMatchers("/clientes/nuevo").hasAnyAuthority("ADMIN", "CREATOR")
                         .requestMatchers("/clientes/editar/*").hasAnyAuthority("ADMIN", "EDITOR")
                         .requestMatchers("/clientes/eliminar/*").hasAnyAuthority("ADMIN")
+
                         .anyRequest().authenticated())
                 .formLogin(form -> form
                         .loginPage("/login")

@@ -1,10 +1,6 @@
 package com.cibertec.pos_system.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -19,6 +15,7 @@ public class ClienteEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "dni")
     @NotBlank(message = "El DNI es obligatorio")
     @Size(min = 8, max = 8, message = "El DNI debe tener 8 dígitos")
     @Pattern(regexp = "\\d{8}", message = "El DNI solo debe contener números")
@@ -41,4 +38,8 @@ public class ClienteEntity {
     private String email;
 
     private boolean activo;
+
+    @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL)
+    private java.util.List<CompraEntity> compras;
+
 }

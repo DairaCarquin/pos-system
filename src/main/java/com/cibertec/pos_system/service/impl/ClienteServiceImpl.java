@@ -4,9 +4,11 @@ import com.cibertec.pos_system.entity.ClienteEntity;
 import com.cibertec.pos_system.repository.ClienteRepository;
 import com.cibertec.pos_system.service.ClienteService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -45,4 +47,19 @@ public class ClienteServiceImpl extends ClienteService {
     public Optional<ClienteEntity> obtener(Long id) {
         return clienteRepository.findById(id);
     }
+
+
+    @Override
+    public Page<ClienteEntity> listarPaginado(Pageable pageable) {
+        return clienteRepository.findAll(pageable); // ← Este debe retornar correctamente
+    }
+
+
+    @Override
+    public Page<ClienteEntity> buscarPorDni(String dni, Pageable pageable) {
+        return clienteRepository.findByDniContaining(dni, pageable);
+    }
+
+
+
 }
