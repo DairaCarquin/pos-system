@@ -29,4 +29,12 @@ public class ProductoEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "proveedor_id", nullable = false)
     private ProveedorEntity proveedor;
+
+
+    @Transient
+    private BigDecimal precioFinal;//natm
+    @Transient
+private DescuentoEntity descuentoAplicado;//natm
+    @Transient
+private BigDecimal montoDescuento;//natm
 }

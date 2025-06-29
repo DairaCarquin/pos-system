@@ -76,9 +76,9 @@ public String redirigirAActivos() {
     }
 
     @GetMapping("/aplicados")
-    public String verPreciosConDescuento(Model model) {
-        List<ProductoEntity> productos = productoService.listarConDescuentosAplicados();
-        model.addAttribute("productos", productos);
-        return "descuentos/precio-descuento";
-    }
+public String verPreciosConDescuento(Model model) {
+    List<ProductoEntity> productos = productoService.listarSoloConDescuento();
+    model.addAttribute("productos", productos);
+    return "descuentos/precio-descuento";
+}
 }
