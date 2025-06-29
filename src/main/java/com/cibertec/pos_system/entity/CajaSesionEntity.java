@@ -9,8 +9,10 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Data;
+import java.util.List;
 
 @Entity
 @Table(name = "caja_sesion")
@@ -24,9 +26,15 @@ public class CajaSesionEntity {
     @JoinColumn(name = "caja_id", nullable = false)
     private CajaEntity caja;
 
+    // Usuario que abre la sesión
     @ManyToOne
-    @JoinColumn(name = "usuario_id", nullable = false)
-    private UsuarioEntity usuario;
+    @JoinColumn(name = "usuario_apertura_id", nullable = false)
+    private UsuarioEntity usuarioApertura;
+
+    // Usuario que cierra la sesión
+    @ManyToOne
+    @JoinColumn(name = "usuario_cierre_id")
+    private UsuarioEntity usuarioCierre;
 
     @Column(name = "fecha_apertura")
     private LocalDateTime fechaApertura;
@@ -42,5 +50,8 @@ public class CajaSesionEntity {
 
     @Column(name = "estado")
     private String estado;
+
+    @OneToMany(mappedBy = "cajaSesion")
+private List<CajaVentaEntity> ventas;
 
 }
