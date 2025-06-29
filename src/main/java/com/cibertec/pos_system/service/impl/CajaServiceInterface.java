@@ -21,4 +21,6 @@ public interface CajaServiceInterface {
 
     // Método para búsqueda por cualquier campo
     List<CajaEntity> buscarPorCualquierCampo(String q);
+
+    String obtenerUltimoCodigoPorLocalYPrefijo(Long localId, String prefijo);
 }

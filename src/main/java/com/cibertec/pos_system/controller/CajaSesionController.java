@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -21,11 +22,11 @@ import com.cibertec.pos_system.service.CajaSesionService;
 import com.cibertec.pos_system.service.CajaVentaService;
 
 import java.math.BigDecimal;
-import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -55,14 +56,37 @@ public class CajaSesionController {
     @Autowired
     private CajaSesionService cajaSesionService;
 
-    @GetMapping
+        @GetMapping
     public String listarSesiones(@RequestParam(value = "q", required = false) String q, Model model) {
+        // Obtener usuario autenticado
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String usuarioActual = authentication.getName();
+        UsuarioEntity usuarioSesion = usuarioRepository.getUserByUsername(usuarioActual);
+
+        // Verificar si es ADMIN
+        boolean esAdmin = authentication.getAuthorities().stream()
+            .anyMatch(auth -> auth.getAuthority().equals("ADMIN"));
+
+        // TODOS ven todas las sesiones (cambio aquí)
         List<CajaSesionEntity> sesiones;
         if (q != null && !q.isEmpty()) {
             sesiones = sesionService.buscarPorCualquierCampo(q);
         } else {
             sesiones = sesionService.listar();
         }
+        
+        // Obtener ID de la caja abierta por el usuario actual (para cajeros)
+        Long cajaSesionUsuarioActual = null;
+        if (!esAdmin) {
+            cajaSesionUsuarioActual = sesiones.stream()
+                .filter(s -> s.getUsuarioApertura() != null && 
+                            s.getUsuarioApertura().getId().equals(usuarioSesion.getId()) &&
+                            "ABIERTA".equals(s.getEstado()))
+                .map(CajaSesionEntity::getId)
+                .findFirst()
+                .orElse(null);
+        }
+        
         List<CajaEntity> cajas = cajaService.listar();
 
         Map<Long, CajaSesionEntity> sesionesActivas = new HashMap<>();
@@ -76,32 +100,136 @@ public class CajaSesionController {
         model.addAttribute("cajas", cajas);
         model.addAttribute("sesionesActivas", sesionesActivas);
         model.addAttribute("fechaActual", LocalDateTime.now());
+        model.addAttribute("esAdmin", esAdmin);
+        model.addAttribute("cajaSesionUsuarioActual", cajaSesionUsuarioActual); // NUEVO
 
         return "caja/caja-sesion";
     }
 
-    @PostMapping("/abrir")
-    public String abrirCaja(
-            @RequestParam Long cajaId,
-            @RequestParam double montoInicial,
-            RedirectAttributes redirectAttributes) {
 
-        CajaSesionEntity sesion = new CajaSesionEntity();
-        sesion.setCaja(cajaService.obtener(cajaId).orElseThrow());
-        sesion.setFechaApertura(LocalDateTime.now());
-        sesion.setMontoInicial(montoInicial);
-        sesion.setEstado("ABIERTA");
+@PostMapping("/abrir")
+public String abrirCaja(
+        @RequestParam Long cajaId,
+        @RequestParam double montoInicial,
+        RedirectAttributes redirectAttributes) {
 
-        // Asignar usuario de apertura
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String usuarioActual = authentication.getName();
-        UsuarioEntity usuarioSesion = usuarioRepository.getUserByUsername(usuarioActual);
-        sesion.setUsuarioApertura(usuarioSesion);
+    // Obtener usuario autenticado
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    String usuarioActual = authentication.getName();
+    UsuarioEntity usuarioSesion = usuarioRepository.getUserByUsername(usuarioActual);
 
-        sesionService.guardar(sesion);
-        redirectAttributes.addAttribute("aperturaExitosa", true);
+    // Verificar si es ADMIN
+    boolean esAdmin = authentication.getAuthorities().stream()
+        .anyMatch(auth -> auth.getAuthority().equals("ADMIN"));
+
+    // Validar si el usuario ya tiene una caja abierta (SOLO para NO-ADMIN)
+    if (!esAdmin) {
+        boolean tieneCajaAbierta = sesionService.listar().stream()
+            .anyMatch(s -> s.getUsuarioApertura() != null
+                && s.getUsuarioApertura().getId().equals(usuarioSesion.getId())
+                && "ABIERTA".equals(s.getEstado()));
+
+        if (tieneCajaAbierta) {
+            redirectAttributes.addFlashAttribute("errorApertura", "Ya tienes una caja abierta. Debes cerrarla antes de abrir otra.");
+            return "redirect:/caja";
+        }
+    }
+
+    // Verificar si la caja específica ya está abierta (para TODOS)
+    boolean cajaYaAbierta = sesionService.listar().stream()
+        .anyMatch(s -> s.getCaja().getId().equals(cajaId) && "ABIERTA".equals(s.getEstado()));
+
+    if (cajaYaAbierta) {
+        redirectAttributes.addFlashAttribute("errorApertura", "Esta caja ya tiene una sesión abierta.");
         return "redirect:/caja";
     }
+
+    // Si no tiene caja abierta, abrir nueva sesión
+    CajaSesionEntity sesion = new CajaSesionEntity();
+    sesion.setCaja(cajaService.obtener(cajaId).orElseThrow());
+    sesion.setFechaApertura(LocalDateTime.now());
+    sesion.setMontoInicial(montoInicial);
+    sesion.setEstado("ABIERTA");
+    sesion.setUsuarioApertura(usuarioSesion);
+
+    sesionService.guardar(sesion);
+redirectAttributes.addAttribute("aperturaExitosa", true);  // ← CAMBIAR ESTA LÍNEA
+return "redirect:/caja";
+}
+
+@GetMapping("/detalle/{id}")
+public String detalleSesion(@PathVariable Long id, Model model) {
+    // Trae la sesión con ventas
+    CajaSesionEntity sesion = sesionService.obtenerConVentas(id).orElse(null);
+    if (sesion == null) {
+        model.addAttribute("error", "Sesión no encontrada");
+        return "caja/caja-sesion";
+    }
+
+    // Buscar el último arqueo de caja para esta sesión (si existe)
+    ArqueoCajaEntity arqueo = arqueoCajaService.obtenerUltimoPorSesion(sesion.getId()).orElse(null);
+
+    // Ventas con tarjeta - MODIFICADO para incluir DNI
+    List<Object[]> ventasTarjetaOriginal = cajaVentaRepository.findVentasTarjetaPorSesion(id);
+    List<Object[]> ventasTarjeta = ventasTarjetaOriginal.stream().map(venta -> {
+        Object[] ventaConDNI = new Object[6];
+        ventaConDNI[0] = venta[0]; // ID Venta
+        ventaConDNI[1] = venta[1]; // Monto
+        ventaConDNI[2] = venta[2]; // Nombre Cliente (MANTENER)
+        ventaConDNI[3] = venta[3]; // Estado
+        ventaConDNI[4] = venta[4]; // Fecha
+        // Obtener DNI del cliente
+        Long ventaId = (Long) venta[0];
+        String dniCliente = cajaVentaRepository.findById(ventaId)
+            .map(v -> v.getCliente() != null ? v.getCliente().getDni() : null)
+            .orElse(null);
+        ventaConDNI[5] = dniCliente; // DNI
+        return ventaConDNI;
+    }).collect(Collectors.toList());
+    
+    BigDecimal totalTarjeta = BigDecimal.ZERO;
+    for (Object[] v : ventasTarjetaOriginal) {
+        if (v[1] != null) totalTarjeta = totalTarjeta.add((BigDecimal) v[1]);
+    }
+
+    // Ventas en efectivo - MODIFICADO para incluir DNI
+    List<Object[]> ventasEfectivoOriginal = cajaVentaRepository.findVentasEfectivoPorSesion(id);
+    List<Object[]> ventasEfectivo = ventasEfectivoOriginal.stream().map(venta -> {
+        Object[] ventaConDNI = new Object[6];
+        ventaConDNI[0] = venta[0]; // ID Venta
+        ventaConDNI[1] = venta[1]; // Monto
+        ventaConDNI[2] = venta[2]; // Nombre Cliente (MANTENER)
+        ventaConDNI[3] = venta[3]; // Estado
+        ventaConDNI[4] = venta[4]; // Fecha
+        // Obtener DNI del cliente
+        Long ventaId = (Long) venta[0];
+        String dniCliente = cajaVentaRepository.findById(ventaId)
+            .map(v -> v.getCliente() != null ? v.getCliente().getDni() : null)
+            .orElse(null);
+        ventaConDNI[5] = dniCliente; // DNI
+        return ventaConDNI;
+    }).collect(Collectors.toList());
+    
+    BigDecimal totalEfectivo = BigDecimal.ZERO;
+    for (Object[] v : ventasEfectivoOriginal) {
+        if (v[1] != null) totalEfectivo = totalEfectivo.add((BigDecimal) v[1]);
+    }
+
+    BigDecimal totalGeneral = totalTarjeta.add(totalEfectivo);
+
+    // Pasar los datos al modelo - TODO IGUAL
+    model.addAttribute("sesion", sesion);
+    model.addAttribute("ventasTarjeta", ventasTarjeta);
+    model.addAttribute("totalTarjeta", totalTarjeta);
+    model.addAttribute("ventasEfectivo", ventasEfectivo);
+    model.addAttribute("totalEfectivo", totalEfectivo);
+    model.addAttribute("totalGeneral", totalGeneral);
+    model.addAttribute("montoSistema", arqueo != null ? arqueo.getMontoSistema() : null);
+    model.addAttribute("diferencia", arqueo != null ? arqueo.getDiferencia() : null);
+    model.addAttribute("observaciones", arqueo != null ? arqueo.getObservaciones() : null);
+
+    return "caja/caja-detalle-sesion";
+}
 
     @PostMapping("/cerrar")
     public String cerrarCaja(
@@ -234,19 +362,24 @@ public String cerrarSesionCaja(@RequestParam Long cajaSesionId,
     // Obtener la sesión de caja
     CajaSesionEntity sesion = cajaSesionService.obtenerPorId(cajaSesionId);
 
+    // Calcular el monto inicial y el total en efectivo
+    BigDecimal montoInicial = sesion.getMontoInicial() != null ? BigDecimal.valueOf(sesion.getMontoInicial()) : BigDecimal.ZERO;
+    BigDecimal totalEfectivo = cajaVentaRepository.totalVentasEfectivoPorSesion(sesion.getId());
+    if (totalEfectivo == null) totalEfectivo = BigDecimal.ZERO;
+
     // Calcular el monto esperado por el sistema
-    double montoSistema = cajaVentaService.calcularTotalEnCaja(sesion.getId());
+    BigDecimal montoSistema = montoInicial.add(totalEfectivo);
 
     // Calcular diferencia
-    double diferencia = montoFisico - montoSistema;
+    BigDecimal diferencia = BigDecimal.valueOf(montoFisico).subtract(montoSistema);
 
     // Registrar arqueo
     ArqueoCajaEntity arqueo = new ArqueoCajaEntity();
     arqueo.setCajaSesion(sesion);
     arqueo.setFechaArqueo(LocalDateTime.now());
-    arqueo.setMontoSistema(montoSistema);
+    arqueo.setMontoSistema(montoSistema.doubleValue());
     arqueo.setMontoFisico(montoFisico);
-    arqueo.setDiferencia(diferencia);
+    arqueo.setDiferencia(diferencia.doubleValue());
     arqueo.setObservaciones(observaciones);
     arqueo.setUsuarioArqueo(usuarioCierre);
     arqueoCajaService.guardar(arqueo);

@@ -27,4 +27,14 @@ public class CajaVentaDetalleEntity {
 
     @Column(name = "subtotal")
     private BigDecimal subtotal;
+
+    // PASO 2: AGREGAR ESTOS CAMPOS PARA DESCUENTOS
+    @Column(name = "precio_original", precision = 10, scale = 2)
+    private BigDecimal precioOriginal = BigDecimal.ZERO;
+    
+    @Column(name = "descuento_aplicado", precision = 10, scale = 2)
+    private BigDecimal descuentoAplicado = BigDecimal.ZERO;
+    
+    @Column(name = "tipo_descuento")
+    private String tipoDescuento; // PORCENTAJE, FIJO, DOS_POR_UNO
 }

@@ -51,19 +51,17 @@ public class WebSecurityConfig {
     @Bean
     protected SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.authorizeHttpRequests(
-
                 auth -> auth
-
-                        .requestMatchers("/user").hasAnyAuthority("USUARIOS") // solo si tiene permiso "USUARIOS"
-                        .requestMatchers("/rol").hasAnyAuthority("ROLES")
-                        .requestMatchers("/producto").hasAnyAuthority("PRODUCTOS")
-                        .requestMatchers("/categoria").hasAnyAuthority("CATEGORIAS")
-                        .requestMatchers("/local").hasAnyAuthority("LOCALES")
-                        .requestMatchers("/shopping").hasAnyAuthority("COMPRAS")
-                        .requestMatchers("/medioPago").hasAnyAuthority("MEDIOS_DE_PAGO")
-                        .requestMatchers("/proveedor").hasAnyAuthority("PROVEEDORES")
-                        .requestMatchers("/cliente").hasAnyAuthority("CLIENTES")
-                        .requestMatchers("/caja").hasAnyAuthority("CAJA")
+                        .requestMatchers("/user").hasAnyAuthority("USUARIOS", "ADMIN") // solo si tiene permiso "USUARIOS"
+                        .requestMatchers("/rol").hasAnyAuthority("ROLES", "ADMIN")
+                        .requestMatchers("/producto").hasAnyAuthority("PRODUCTOS", "ADMIN")
+                        .requestMatchers("/categoria").hasAnyAuthority("CATEGORIAS", "ADMIN")
+                        .requestMatchers("/local").hasAnyAuthority("LOCALES", "ADMIN")
+                        .requestMatchers("/shopping").hasAnyAuthority("COMPRAS", "ADMIN")
+                        .requestMatchers("/medioPago").hasAnyAuthority("MEDIOS_DE_PAGO", "ADMIN")
+                        .requestMatchers("/proveedor").hasAnyAuthority("PROVEEDORES", "ADMIN")
+                        .requestMatchers("/cliente").hasAnyAuthority("CLIENTES", "ADMIN")
+                        .requestMatchers("/caja").hasAnyAuthority("CAJA", "ADMIN")
                         .anyRequest().authenticated()) // lo demás necesita que el usuario esté logueado
                 .formLogin(form -> form
                         .loginPage("/login")  // ruta donde está el formulario de login
@@ -71,8 +69,6 @@ public class WebSecurityConfig {
                         .permitAll())
                 .logout(l -> l.permitAll())  // todos pueden cerrar sesión
                 .exceptionHandling(e -> e.accessDeniedPage("/403"));  // si no tiene permiso, va a /403
-
         return httpSecurity.build(); // devuelve toda la configuración de seguridad
-
     }
 }
