@@ -3,7 +3,8 @@
    <head>
       <meta charset="UTF-8" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <title>Document</title>
+      <title>About</title>
+      <link rel="stylesheet" th:href="@{/css/about.css}">
    </head>
    <body>
       <header class="header">
@@ -12,10 +13,9 @@
             <a href="/">Inicio</a>
             <a href="/productos">Productos</a>
             <a href="/about">about</a>
-            <a href="/carrito" class="cart"
-               >🛒
-               <p th:text="${carritoQuantity}"></p
-            ></a>
+          <a href="/carrito" class="cart">
+   🛒 <span th:text="${carritoQuantity}">0</span>
+</a>
          </nav>
       </header>
    </body>

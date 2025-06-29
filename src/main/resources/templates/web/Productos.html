@@ -17,10 +17,9 @@
             <a href="/">Inicio</a>
             <a href="/productos">Productos</a>
             <a href="/about">about</a>
-            <a href="/carrito" class="cart"
-               >🛒
-               <p th:text="${carritoQuantity}"></p
-            ></a>
+           <a href="/carrito" class="cart">
+               🛒 <span th:text="${carritoQuantity}">0</span>
+            </a>
          </nav>
       </header>
       <main>

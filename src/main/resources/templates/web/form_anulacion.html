@@ -1,19 +1,22 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-   <head>
-      <title>Anular Venta</title>
-   </head>
-   <body>
+  <head>
+    <title>Anular Venta</title>
+    <link rel="stylesheet" th:href="@{/css/anular.css}">
+  </head>
+  <body>
+    <div class="anular-container">
       <h2>Anular Venta</h2>
       <form th:action="@{'/ventas/' + ${venta.id} + '/anular'}" method="post">
-         <p>¿Estás seguro de que deseas anular esta venta?</p>
-         <p>Total: <span th:text="${venta.total}"></span></p>
+        <p>¿Estás seguro de que deseas anular esta venta?</p>
+        <p>Total: <span th:text="${venta.total}"></span></p>
 
-         <label>Motivo de anulación:</label><br />
-         <textarea name="motivoAnulacion" required></textarea><br /><br />
+        <label>Motivo de anulación:</label><br />
+        <textarea name="motivoAnulacion" required></textarea><br /><br />
 
-         <button type="submit">Anular Venta</button>
-         <a href="/ventas">Cancelar</a>
+        <button type="submit">Anular Venta</button>
+        <a href="/ventas">Cancelar</a>
       </form>
-   </body>
+    </div>
+  </body>
 </html>
