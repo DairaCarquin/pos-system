@@ -1,13 +1,17 @@
 package com.cibertec.pos_system.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 
 import java.math.BigDecimal;
 
 @Entity
 @Table(name = "productos")
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+
 public class ProductoEntity {
 
     @Id

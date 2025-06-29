@@ -52,7 +52,17 @@ public class WebSecurityConfig {
     protected SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.authorizeHttpRequests(
                 auth -> auth
-                        .requestMatchers("/user").hasAnyAuthority("USUARIOS", "ADMIN") // solo si tiene permiso "USUARIOS"
+
+                        .requestMatchers("/users").hasAnyAuthority("USER","CREATOR","EDITOR","ADMIN")
+                        .requestMatchers("/users/nueva").hasAnyAuthority("ADMIN","CREATOR")
+                        .requestMatchers("/users/editar/*").hasAnyAuthority("ADMIN","EDITOR")
+                        .requestMatchers("/users/eliminar/*").hasAnyAuthority("ADMIN")
+                        .requestMatchers("/clientes").hasAnyAuthority("USER", "CREATOR", "EDITOR", "ADMIN")
+                        .requestMatchers("/clientes/nuevo").hasAnyAuthority("ADMIN", "CREATOR")
+                        .requestMatchers("/clientes/editar/*").hasAnyAuthority("ADMIN", "EDITOR")
+                        .requestMatchers("/clientes/eliminar/*").hasAnyAuthority("ADMIN")
+                        .requestMatchers("/user").hasAnyAuthority("USUARIOS", "ADMIN") // TODO: Determinar cual es 
+                        .requestMatchers("/cliente").hasAnyAuthority("CLIENTES", "ADMIN") // TODO: Determinar cual es 
                         .requestMatchers("/rol").hasAnyAuthority("ROLES", "ADMIN")
                         .requestMatchers("/producto").hasAnyAuthority("PRODUCTOS", "ADMIN")
                         .requestMatchers("/categoria").hasAnyAuthority("CATEGORIAS", "ADMIN")
@@ -60,9 +70,10 @@ public class WebSecurityConfig {
                         .requestMatchers("/shopping").hasAnyAuthority("COMPRAS", "ADMIN")
                         .requestMatchers("/medioPago").hasAnyAuthority("MEDIOS_DE_PAGO", "ADMIN")
                         .requestMatchers("/proveedor").hasAnyAuthority("PROVEEDORES", "ADMIN")
-                        .requestMatchers("/cliente").hasAnyAuthority("CLIENTES", "ADMIN")
+                       
                         .requestMatchers("/caja").hasAnyAuthority("CAJA", "ADMIN")
                         .anyRequest().authenticated()) // lo demás necesita que el usuario esté logueado
+
                 .formLogin(form -> form
                         .loginPage("/login")  // ruta donde está el formulario de login
                         .defaultSuccessUrl("/menu", true) // si entra bien, va al menú principal
