@@ -64,60 +64,75 @@ public class CajaVentaController {
     }
 
     @PostMapping("/guardar")
-    public String guardarVenta(@ModelAttribute CajaVentaDTO ventaDTO, RedirectAttributes redirectAttributes) {
-        // Buscar entidades relacionadas y validar
-        CajaSesionEntity cajaSesion = cajaSesionService.obtenerPorId(ventaDTO.getCajaSesionId());
-        if (cajaSesion == null) throw new RuntimeException("Sesión de caja no encontrada");
+public String guardarVenta(@ModelAttribute CajaVentaDTO ventaDTO, RedirectAttributes redirectAttributes) {
+    // Buscar entidades relacionadas y validar
+    CajaSesionEntity cajaSesion = cajaSesionService.obtenerPorId(ventaDTO.getCajaSesionId());
+    if (cajaSesion == null) throw new RuntimeException("Sesión de caja no encontrada");
 
-        ClienteEntity cliente = ventaDTO.getClienteId() != null ? clienteService.obtener(ventaDTO.getClienteId()).orElse(null) : null;
+    ClienteEntity cliente = ventaDTO.getClienteId() != null ? clienteService.obtener(ventaDTO.getClienteId()).orElse(null) : null;
 
-        MedioPagoEntity medioPago = medioPagoService.obtener(ventaDTO.getMedioPagoId()).orElse(null);
-        if (medioPago == null) throw new RuntimeException("Medio de pago no encontrado");
+    MedioPagoEntity medioPago = medioPagoService.obtener(ventaDTO.getMedioPagoId()).orElse(null);
+    if (medioPago == null) throw new RuntimeException("Medio de pago no encontrado");
 
-        // Obtener usuario autenticado
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = authentication.getName();
-        UsuarioEntity usuario = usuarioService.obtenerPorUsername(username);
-        if (usuario == null) throw new RuntimeException("Usuario no encontrado");
+    // Obtener usuario autenticado
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    String username = authentication.getName();
+    UsuarioEntity usuario = usuarioService.obtenerPorUsername(username);
+    if (usuario == null) throw new RuntimeException("Usuario no encontrado");
 
-        // Crear la venta (tu lógica actual)
-        CajaVentaEntity venta = new CajaVentaEntity();
+    // Crear la venta (tu lógica actual)
+    CajaVentaEntity venta = new CajaVentaEntity();
     venta.setCajaSesion(cajaSesion);
     venta.setCliente(cliente);
     venta.setMedioPago(medioPago);
     venta.setUsuario(usuario);
     venta.setFechaHora(LocalDateTime.now());
     venta.setSubtotal(ventaDTO.getSubtotal());
-    venta.setDescuento(ventaDTO.getDescuento());  // ✅ AGREGAR ESTA LÍNEA
+    venta.setDescuento(ventaDTO.getDescuento());
     venta.setImpuesto(ventaDTO.getImpuesto());
     venta.setTotal(ventaDTO.getTotal());
     venta.setTipoComprobante(ventaDTO.getTipoComprobante());
     venta.setEstado("FINALIZADA");
-    
 
-        // Crear detalles
-        List<CajaVentaDetalleEntity> detalles = new ArrayList<>();
-        if (ventaDTO.getDetalles() != null) {
-            for (CajaVentaDetalleDTO detDTO : ventaDTO.getDetalles()) {
-                ProductoEntity producto = productoService.obtener(detDTO.getProductoId()).orElse(null);
-                if (producto == null) throw new RuntimeException("Producto no encontrado");
-                CajaVentaDetalleEntity detalle = new CajaVentaDetalleEntity();
-                detalle.setVenta(venta);
-                detalle.setProducto(producto);
-                detalle.setCantidad(detDTO.getCantidad());
-                detalle.setPrecioUnitario(producto.getPrecio());
-                detalles.add(detalle);
-            }
+    // Crear detalles
+    List<CajaVentaDetalleEntity> detalles = new ArrayList<>();
+    if (ventaDTO.getDetalles() != null) {
+        for (CajaVentaDetalleDTO detDTO : ventaDTO.getDetalles()) {
+            ProductoEntity producto = productoService.obtener(detDTO.getProductoId()).orElse(null);
+            if (producto == null) throw new RuntimeException("Producto no encontrado");
+            CajaVentaDetalleEntity detalle = new CajaVentaDetalleEntity();
+            detalle.setVenta(venta);
+            detalle.setProducto(producto);
+            detalle.setCantidad(detDTO.getCantidad());
+            detalle.setPrecioUnitario(producto.getPrecio());
+            detalles.add(detalle);
         }
-        venta.setDetalles(detalles);
-
-        // --- AGREGADO: también registrar la venta usando el método que genera el número de comprobante ---
-        Long idVenta = cajaVentaService.registrarVenta(ventaDTO, username);
-
-        redirectAttributes.addFlashAttribute("exito", "¡Venta registrada correctamente!");
-        // Redirigir directamente al comprobante de la venta recién creada
-        return "redirect:/caja-venta/detalle/" + idVenta;
     }
+    venta.setDetalles(detalles);
+
+    // Registrar la venta usando el método que genera el número de comprobante
+    Long idVenta = cajaVentaService.registrarVenta(ventaDTO, username);
+
+ // --- ASIGNAR PUNTOS AUTOMÁTICAMENTE ---
+if (cliente != null) {
+    int puntos = 0;
+    if ("vip".equalsIgnoreCase(cliente.getTipo())) {
+        puntos = ventaDTO.getTotal().intValue() / 5; // VIP: 1 punto cada 5 soles
+    } else {
+        puntos = ventaDTO.getTotal().intValue() / 10; // Regular: 1 punto cada 10 soles
+    }
+    // Solución: inicializar si es null
+    if (cliente.getPuntosAcumulados() == null) {
+        cliente.setPuntosAcumulados(0);
+    }
+    cliente.setPuntosAcumulados(cliente.getPuntosAcumulados() + puntos);
+    clienteService.guardar(cliente);
+}
+
+    redirectAttributes.addFlashAttribute("exito", "¡Venta registrada correctamente!");
+    // Redirigir directamente al comprobante de la venta recién creada
+    return "redirect:/caja-venta/detalle/" + idVenta;
+}
 
     @GetMapping("/anular/{id}")
     public String mostrarFormularioAnular(@PathVariable Long id, Model model) {
@@ -269,4 +284,22 @@ public class CajaVentaController {
         model.addAttribute("criterio", "ID: " + id);
         return "caja/ventas-historial";
     }
+
+    @PostMapping("/asignar-puntos")
+@ResponseBody
+public String asignarPuntos(@RequestParam Long clienteId, @RequestParam Double totalVenta) {
+    ClienteEntity cliente = clienteService.obtener(clienteId).orElse(null);
+    if (cliente == null) return "Cliente no encontrado";
+
+    int puntos = 0;
+    if ("vip".equalsIgnoreCase(cliente.getTipo())) {
+        puntos = (int) (totalVenta / 5); // VIP: 1 punto cada 5 soles
+    } else {
+        puntos = (int) (totalVenta / 10); // Regular: 1 punto cada 10 soles
+    }
+    cliente.setPuntosAcumulados(cliente.getPuntosAcumulados() + puntos);
+    clienteService.guardar(cliente);
+
+    return "Puntos asignados: " + puntos;
+}
 }
