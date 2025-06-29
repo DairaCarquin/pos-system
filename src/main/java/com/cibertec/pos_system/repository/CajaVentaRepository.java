@@ -22,4 +22,8 @@ List<Object[]> findVentasTarjetaPorSesion(@Param("cajaSesionId") Long cajaSesion
 
 @Query("SELECT v.id, v.total, COALESCE(c.nombre, 'Consumidor Final'), v.estado, v.fechaHora FROM CajaVentaEntity v LEFT JOIN v.cliente c WHERE v.cajaSesion.id = :cajaSesionId AND UPPER(v.medioPago.nombre) = 'EFECTIVO' AND v.estado = 'FINALIZADA'")
 List<Object[]> findVentasEfectivoPorSesion(@Param("cajaSesionId") Long cajaSesionId);
+
+List<CajaVentaEntity> findByCliente_Dni(String dni);
+List<CajaVentaEntity> findByCliente_Id(Long id);
+
 }
