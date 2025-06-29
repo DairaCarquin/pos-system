@@ -51,7 +51,9 @@ public class WebSecurityConfig {
     @Bean
     protected SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.authorizeHttpRequests(
-                /*auth -> auth
+
+                auth -> auth
+
                         .requestMatchers("/user").hasAnyAuthority("USUARIOS") // solo si tiene permiso "USUARIOS"
                         .requestMatchers("/rol").hasAnyAuthority("ROLES")
                         .requestMatchers("/producto").hasAnyAuthority("PRODUCTOS")
@@ -69,19 +71,8 @@ public class WebSecurityConfig {
                         .permitAll())
                 .logout(l -> l.permitAll())  // todos pueden cerrar sesión
                 .exceptionHandling(e -> e.accessDeniedPage("/403"));  // si no tiene permiso, va a /403
-        return httpSecurity.build(); // devuelve toda la configuración de seguridad*/
-        auth -> auth
-                .anyRequest().authenticated()  // solo requiere login, sin roles
-            )
-            .formLogin(form -> form
-                .loginPage("/login")
-                .defaultSuccessUrl("/menu", true)
-                .permitAll()
-            )
-            .logout(logout -> logout.permitAll())
-            .exceptionHandling(e -> e.accessDeniedPage("/403"))
-            .csrf(csrf -> csrf.disable()); // Opcional: desactiva CSRF en pruebas
 
-        return httpSecurity.build();
+        return httpSecurity.build(); // devuelve toda la configuración de seguridad
+
     }
 }

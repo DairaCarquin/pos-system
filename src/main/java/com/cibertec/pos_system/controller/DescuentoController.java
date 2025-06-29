@@ -81,5 +81,4 @@ public String verPreciosConDescuento(Model model) {
     model.addAttribute("productos", productos);
     return "descuentos/precio-descuento";
 }
-
 }
