@@ -74,11 +74,7 @@
                     <td th:text="${caja.fechaActualizacion != null ? #temporals.format(caja.fechaActualizacion, 'yyyy-MM-dd HH:mm') : ''}"></td>
                     <td th:text="${caja.usuarioActualizacion != null ? caja.usuarioActualizacion.username : ''}"></td>
                     <td class="text-center" style="white-space:nowrap;">
-    <!-- BOTÓN EDITAR (líneas 75-78) -->
-<a th:href="@{/caja/editar/{id}(id=${caja.id})}" class="btn btn-warning btn-sm mx-1" title="Editar"
-   th:if="${#authentication.principal.authorities.?[authority == 'ADMIN'].size() > 0}">
-    <i class="bi bi-pencil"></i>
-</a>
+
                        <!-- BOTÓN ELIMINAR (líneas 79-84) -->
 <a th:href="@{/caja/eliminar/{id}(id=${caja.id})}"
    class="btn btn-danger btn-sm mx-1" title="Eliminar"
@@ -142,7 +138,7 @@
                                 <div class="modal-body">
                                     <div class="mb-3">
                                         <label class="form-label">Monto Inicial</label>
-                                        <input type="number" class="form-control" name="montoInicial" required min="0" step="0.01">
+                                       <input type="number" class="form-control" name="montoInicial" required min="200" step="0.01" placeholder="Monto mínimo S/ 200.00">
                                     </div>
                                     <div class="alert alert-success alert-apertura-exito mt-2 d-none"></div>
                                     <div class="alert alert-danger alert-apertura-error mt-2 d-none"></div>
@@ -576,6 +572,16 @@
                 location.reload();
             }
 
+            function validarMontoMinimo(form) {
+        var monto = parseFloat(form.montoInicial.value);
+        if (isNaN(monto) || monto < 200) {
+            alert("El monto inicial debe ser al menos S/ 200.00");
+            return false;
+        }
+        return true;
+    }
+
+
             document.querySelectorAll('.modal').forEach(function(modalEl) {
                 modalEl.addEventListener('hidden.bs.modal', function () {
                     if (modalEl.querySelector('.alert-cierre-exito') && 
@@ -586,6 +592,7 @@
                         !modalEl.querySelector('.alert-apertura-exito').classList.contains('d-none')) {
                         window.location.reload();
                     }
+
                 });
             });
         </script>

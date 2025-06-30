@@ -19,7 +19,6 @@ import com.cibertec.pos_system.repository.CajaVentaRepository;
 import com.cibertec.pos_system.service.ArqueoCajaService;
 import com.cibertec.pos_system.service.CajaService;
 import com.cibertec.pos_system.service.CajaSesionService;
-import com.cibertec.pos_system.service.CajaVentaService;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -49,9 +48,6 @@ public class CajaSesionController {
 
     @Autowired
     private ArqueoCajaService arqueoCajaService;
-
-    @Autowired
-    private CajaVentaService cajaVentaService;
 
     @Autowired
     private CajaSesionService cajaSesionService;
