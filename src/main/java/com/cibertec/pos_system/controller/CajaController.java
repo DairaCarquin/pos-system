@@ -1,5 +1,4 @@
 package com.cibertec.pos_system.controller;
-
 import com.cibertec.pos_system.entity.CajaEntity;
 import com.cibertec.pos_system.entity.CajaSesionEntity;
 import com.cibertec.pos_system.entity.UsuarioEntity;
@@ -15,7 +14,6 @@ import com.cibertec.pos_system.service.ClienteService;
 import com.cibertec.pos_system.service.MedioPagoService;
 import com.cibertec.pos_system.service.impl.CajaServiceInterface;
 import com.cibertec.pos_system.service.impl.LocalServiceInterface;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;

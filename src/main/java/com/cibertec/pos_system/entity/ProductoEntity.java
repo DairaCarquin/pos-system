@@ -2,12 +2,14 @@ package com.cibertec.pos_system.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.ToString;
 
 import java.math.BigDecimal;
 
 @Entity
 @Table(name = "productos")
 @Data
+@ToString(exclude = {"categoria", "proveedor"})
 public class ProductoEntity {
 
     @Id
