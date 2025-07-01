@@ -8,30 +8,24 @@
 <body>
 <div layout:fragment="contenido">
     <h2 th:text="${cliente.id != null} ? 'Editar Cliente' : 'Registrar Cliente'"></h2>
-
     <form th:action="@{/cliente/guardar}" method="post" th:object="${cliente}" class="needs-validation" novalidate>
         <input type="hidden" th:field="*{id}" />
-
         <div class="mb-3">
             <label for="dni" class="form-label">DNI</label>
             <input type="text" th:field="*{dni}" class="form-control" id="dni" required>
         </div>
-
         <div class="mb-3">
             <label for="nombre" class="form-label">Nombre</label>
             <input type="text" th:field="*{nombre}" class="form-control" id="nombre" required>
         </div>
-
         <div class="mb-3">
             <label for="apellido" class="form-label">Apellido</label>
             <input type="text" th:field="*{apellido}" class="form-control" id="apellido" required>
         </div>
-
         <div class="mb-3">
             <label for="email" class="form-label">Correo Electrónico</label>
             <input type="email" th:field="*{email}" class="form-control" id="email" required>
         </div>
-
         <div class="mb-3">
             <label for="tipo" class="form-label">Tipo</label>
             <select th:field="*{tipo}" class="form-select" id="tipo" required>
@@ -40,15 +34,14 @@
                 <option value="VIP">VIP</option>
             </select>
         </div>
-
         <div class="mb-3">
             <label for="puntosAcumulados" class="form-label">Puntos Acumulados</label>
             <input type="number" th:field="*{puntosAcumulados}" class="form-control" id="puntosAcumulados" min="0" required>
         </div>
-
         <button type="submit" class="btn btn-success">Guardar</button>
         <a th:href="@{/cliente}" class="btn btn-secondary">Cancelar</a>
     </form>
 </div>
 </body>
 </html>
+

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <meta charset="UTF-8">
+    <title>Clientes</title>
+    <style>
+        .titulo-seccion {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            border-left: 5px solid #5b605e;
+            padding-left: 10px;
+            color: #343a40;
+        }
+
+        .btn-success {
+            background-color: #5b605e;
+            border: none;
+            font-size: 14px;
+            padding: 8px 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-success:hover {
+            background-color: #343a40;
+        }
+
+        .table-order {
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .table-order thead {
+            background-color: #343a40;
+            color: white;
+        }
+
+        .table-order tbody tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .table-order td, .table-order th {
+            vertical-align: middle;
+            text-align: center;
+            font-size: 13px;
+        }
+
+        .btn-sm {
+            font-size: 12px;
+            padding: 6px 10px;
+        }
+
+        .btn-info {
+            background-color: #0dcaf0;
+            border: none;
+        }
+
+        .btn-info:hover {
+            background-color: #31d2f2;
+        }
+
+        .estado {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 11px;
+            text-transform: uppercase;
+            display: inline-block;
+            width: 80px;
+        }
+
+        .estado-true {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .estado-false {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+<div layout:fragment="contenido">
+    <h1 class="titulo-seccion">Listado de Clientes</h1>
+
+    <div th:if="${mensaje}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <span th:text="${mensaje}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+    </div>
+
+    <a class="btn btn-success mb-3" th:href="@{/clientes/nuevo}">
+        <i class="bi bi-plus-circle"></i> Nuevo Cliente
+    </a>
+
+    <div class="table-responsive table-order">
+        <table class="table table-bordered table-striped mb-0">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>DNI</th>
+                <th>Nombre</th>
+                <th>Apellido</th>
+                <th>Dirección</th>
+                <th>Teléfono</th>
+                <th>Email</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="cliente : ${clientes}">
+                <td th:text="${cliente.id}"></td>
+                <td th:text="${cliente.dni}"></td>
+                <td th:text="${cliente.nombre}"></td>
+                <td th:text="${cliente.apellido}"></td>
+                <td th:text="${cliente.direccion}"></td>
+                <td th:text="${cliente.telefono}"></td>
+                <td th:text="${cliente.email}"></td>
+                <td>
+                    <span class="estado" th:classappend="' estado-' + ${cliente.activo}">
+                        <span th:text="${cliente.activo ? 'Activo' : 'Inactivo'}"></span>
+                    </span>
+                </td>
+                <td>
+                    <a class="btn btn-sm btn-primary" th:href="@{'/clientes/editar/' + ${cliente.id}}">
+                        <i class="bi bi-pencil"></i>
+                    </a>
+                    <a class="btn btn-sm btn-danger" th:href="@{/clientes/eliminar/{id}(id=${cliente.id})}"
+                       onclick="return confirm('¿Estás seguro de eliminar este cliente?')">
+                        <i class="bi bi-trash"></i>
+                    </a>
+                    <a class="btn btn-sm btn-info" th:href="@{'/historial/cliente/' + ${cliente.dni}}">
+                        <i class="bi bi-clock-history"></i>
+                    </a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

@@ -9,7 +9,7 @@ public class SecuredPassword {
         String rawPassword = "password"; //
         String encodedPassword = encoder.encode(rawPassword); // Encriptamos passworrd
 
-        System.out.println(encodedPassword);
+      System.out.println(encodedPassword);
 
     }
 }
