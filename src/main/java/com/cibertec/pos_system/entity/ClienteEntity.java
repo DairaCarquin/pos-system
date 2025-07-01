@@ -42,4 +42,9 @@ public class ClienteEntity {
     @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL)
     private java.util.List<CompraEntity> compras;
 
+  
+    /*Nuevo: entidad para que funcione sistema de puntos */
+    private String tipo; /*Ejemplo: "regular", "vip", etc */
+    /*Nuevo: Puntos acumulados */
+    private Integer puntosAcumulados = 0;
 }

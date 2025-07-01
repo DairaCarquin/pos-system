@@ -7,8 +7,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
+import java.util.Optional;
 
-/*@RestController
+@RestController
 @RequestMapping("/clientes")
 public class ClienteController {
 
@@ -28,6 +29,17 @@ public class ClienteController {
         return clienteService.obtener(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+     @GetMapping("/buscar")
+    public ResponseEntity<?> buscarPorDni(@RequestParam String dni) {
+        Optional<ClienteEntity> cliente = clienteService.buscarPorDni(dni);
+        if (cliente.isPresent()) {
+            return ResponseEntity.ok(cliente.get());
+        } else {
+            // Devuelve un JSON vacío para evitar error en el frontend
+            return ResponseEntity.ok(new java.util.HashMap<>());
+        }
     }
 
     @PostMapping
@@ -52,5 +64,3 @@ public class ClienteController {
         return ResponseEntity.noContent().build();
     }
 }
-
- */

@@ -1,7 +1,6 @@
 package com.cibertec.pos_system.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-
 import com.cibertec.pos_system.entity.ClienteEntity;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Page;
@@ -14,6 +13,7 @@ public interface ClienteRepository extends JpaRepository<ClienteEntity, Long> {
 
 
     List<ClienteEntity> findByDni(String dni);
+    // Optional<ClienteEntity> findByDni(String dni);
     Page<ClienteEntity> findByDniContaining(String dni, Pageable pageable);
 
 

@@ -142,10 +142,10 @@
                     </span>
                 </td>
                 <td>
-                    <a class="btn btn-sm btn-primary" th:href="@{'/clientes/editar/' + ${cliente.id}}">
+                    <a class="btn btn-sm btn-primary" th:href="@{'/clientesVista/editar/' + ${cliente.id}}">
                         <i class="bi bi-pencil"></i>
                     </a>
-                    <a class="btn btn-sm btn-danger" th:href="@{/clientes/eliminar/{id}(id=${cliente.id})}"
+                    <a class="btn btn-sm btn-danger" th:href="@{/clientesVista/eliminar/{id}(id=${cliente.id})}"
                        onclick="return confirm('¿Estás seguro de eliminar este cliente?')">
                         <i class="bi bi-trash"></i>
                     </a>

@@ -19,19 +19,19 @@ import com.cibertec.pos_system.service.impl.UsuarioDetalleServiceImpl;
 @EnableMethodSecurity
 public class WebSecurityConfig {
 
+    // Bean que devuelve nuestra clase que carga los datos del usuario (desde la BD)
     @Bean
     public UserDetailsService userDetailsService(){
         return new UsuarioDetalleServiceImpl();
     }
 
+    // sirve para encriptar las contraseñas
     @Bean
     public BCryptPasswordEncoder passwordEncoder(){
         return new BCryptPasswordEncoder();
     }
 
-    //DaoAuthenticationProvider es una implementacion del AuthenticationProvider
-    //Se utiliza comunmente para autenticar usuarios en bases de datos
-    //Es responsable de verificar las credenciales del usuario y autenticar el usuario
+    //se encarga de validar si el usuario existe y si la contraseña es correcta
     @Bean
     public DaoAuthenticationProvider authenticationProvider(){
         DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
@@ -40,6 +40,7 @@ public class WebSecurityConfig {
         return authenticationProvider;
     }
 
+    //se encarga de validar si el usuario existe y si la contraseña es correcta
     @Bean
     public AuthenticationManager authenticationManager(HttpSecurity httpSecurity) throws Exception {
         AuthenticationManagerBuilder authenticationManagerBuilder = httpSecurity.getSharedObject(AuthenticationManagerBuilder.class);
@@ -53,23 +54,34 @@ public class WebSecurityConfig {
     protected SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.authorizeHttpRequests(
                 auth -> auth
+
                         .requestMatchers("/users").hasAnyAuthority("USER","CREATOR","EDITOR","ADMIN")
                         .requestMatchers("/users/nueva").hasAnyAuthority("ADMIN","CREATOR")
                         .requestMatchers("/users/editar/*").hasAnyAuthority("ADMIN","EDITOR")
                         .requestMatchers("/users/eliminar/*").hasAnyAuthority("ADMIN")
-
                         .requestMatchers("/clientes").hasAnyAuthority("USER", "CREATOR", "EDITOR", "ADMIN")
                         .requestMatchers("/clientes/nuevo").hasAnyAuthority("ADMIN", "CREATOR")
                         .requestMatchers("/clientes/editar/*").hasAnyAuthority("ADMIN", "EDITOR")
                         .requestMatchers("/clientes/eliminar/*").hasAnyAuthority("ADMIN")
+                        .requestMatchers("/user").hasAnyAuthority("USUARIOS", "ADMIN") // TODO: Determinar cual es 
+                        .requestMatchers("/cliente").hasAnyAuthority("CLIENTES", "ADMIN") // TODO: Determinar cual es 
+                        .requestMatchers("/rol").hasAnyAuthority("ROLES", "ADMIN")
+                        .requestMatchers("/producto").hasAnyAuthority("PRODUCTOS", "ADMIN")
+                        .requestMatchers("/categoria").hasAnyAuthority("CATEGORIAS", "ADMIN")
+                        .requestMatchers("/local").hasAnyAuthority("LOCALES", "ADMIN")
+                        .requestMatchers("/shopping").hasAnyAuthority("COMPRAS", "ADMIN")
+                        .requestMatchers("/medioPago").hasAnyAuthority("MEDIOS_DE_PAGO", "ADMIN")
+                        .requestMatchers("/proveedor").hasAnyAuthority("PROVEEDORES", "ADMIN")
+                       
+                        .requestMatchers("/caja").hasAnyAuthority("CAJA", "ADMIN")
+                        .anyRequest().authenticated()) // lo demás necesita que el usuario esté logueado
 
-                        .anyRequest().authenticated())
                 .formLogin(form -> form
-                        .loginPage("/login")
-                        .defaultSuccessUrl("/menu", true)
+                        .loginPage("/login")  // ruta donde está el formulario de login
+                        .defaultSuccessUrl("/menu", true) // si entra bien, va al menú principal
                         .permitAll())
-                .logout(l -> l.permitAll())
-                .exceptionHandling(e -> e.accessDeniedPage("/403"));
-        return httpSecurity.build();
+                .logout(l -> l.permitAll())  // todos pueden cerrar sesión
+                .exceptionHandling(e -> e.accessDeniedPage("/403"));  // si no tiene permiso, va a /403
+        return httpSecurity.build(); // devuelve toda la configuración de seguridad
     }
 }

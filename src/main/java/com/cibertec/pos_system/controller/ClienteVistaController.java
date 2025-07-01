@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Controller
-@RequestMapping("/clientes")
+@RequestMapping("/clientesVista")
 public class ClienteVistaController {
 
     private final ClienteRepository clienteRepository;
@@ -45,7 +45,7 @@ public class ClienteVistaController {
             return "cliente/registro"; // vuelve al formulario con errores
         }
         clienteService.guardar(cliente);
-        return "redirect:/clientes/listado";
+        return "redirect:/clientesVista/listado";
     }
 
     @GetMapping("/listado")
@@ -106,7 +106,7 @@ public class ClienteVistaController {
 
     @GetMapping
     public String redireccionarListado() {
-        return "redirect:/clientes/listado";
+        return "redirect:/clientesVista/listado";
     }
 
 
