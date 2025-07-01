@@ -58,8 +58,6 @@
                     <th>Local</th>
                     <th>Fecha de Creación</th>
                     <th>Usuario Creador</th>
-                    <th>Fecha Actualización</th>
-                    <th>Usuario Actualización</th>
                     <th class="text-center" style="width:200px;">Acciones</th>
                 </tr>
                 </thead>
@@ -71,8 +69,6 @@
                     <td th:text="${caja.local != null ? caja.local.nombre : ''}"></td>
                     <td th:text="${#temporals.format(caja.fechaCreacion, 'yyyy-MM-dd HH:mm')}"></td>
                     <td th:text="${caja.usuario != null ? caja.usuario.username : ''}"></td>
-                    <td th:text="${caja.fechaActualizacion != null ? #temporals.format(caja.fechaActualizacion, 'yyyy-MM-dd HH:mm') : ''}"></td>
-                    <td th:text="${caja.usuarioActualizacion != null ? caja.usuarioActualizacion.username : ''}"></td>
                     <td class="text-center" style="white-space:nowrap;">
 
                        <!-- BOTÓN ELIMINAR (líneas 79-84) -->
@@ -237,7 +233,7 @@
                                     <!-- Mensaje de error para cliente no registrado -->
                                     <div th:id="'cliente-error-' + ${caja.id}" class="alert alert-danger d-none" role="alert"></div>
                                     <a th:id="'btn-registrar-cliente-' + ${caja.id}"
-                                       th:href="@{/clientes}"
+                                       th:href="@{/clientesVista/listado}"
                                        class="btn btn-outline-primary d-none mt-2"
                                        target="_blank">
                                         Registrar cliente
