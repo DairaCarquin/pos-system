@@ -44,7 +44,7 @@ values
     (4,5),
     (4,7);
 
--- CAJAS
+-- LOCALES
 INSERT INTO locales (nombre, direccion, telefono, email, horario, activo) VALUES
 ('Chafa fea Callao', 'Av. Sáenz Peña 150, Callao', '987654321', 'callao@chafafea.com', 'L-D 9am-8pm', TRUE),
 ('Chafa fea Piura', 'Av. Grau 300, Piura', '912345678', 'piura@chafafea.com', 'L-D 10am-7pm', TRUE),
@@ -59,3 +59,9 @@ INSERT INTO locales (nombre, direccion, telefono, email, horario, activo) VALUES
 INSERT INTO medios_pago (id, nombre, descripcion, tipo, activo) VALUES
 (1, 'Efectivo', 'Pago en efectivo', 'EFECTIVO', 1),
 (2, 'Tarjeta', 'Pago con tarjeta de crédito o débito', 'TARJETA', 1);
+
+-- CAJAS
+INSERT INTO cajas (codigo, nombre, fecha_creacion, usuario_id, local_id) VALUES
+('CA01', 'Caja 01', '2024-01-15 08:00:00', 1, 1),
+('PI01', 'Caja 01', '2024-01-20 09:30:00', 1, 2),  
+('TA01', 'Caja 01', '2024-02-01 10:15:00', 1, 3);
