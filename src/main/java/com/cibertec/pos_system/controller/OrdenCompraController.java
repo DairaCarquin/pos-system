@@ -80,16 +80,16 @@ public class OrdenCompraController {
     public Long obtenerUsuarioId() {
         UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String username = userDetails.getUsername();
-        
+
         UsuarioEntity usuario = usuarioRepository.findByUsername(username);
-    
+
         if (usuario != null) {
             return usuario.getId();
         } else {
             throw new IllegalStateException("Usuario no encontrado para el nombre de usuario: " + username);
         }
     }
-    
+
     @GetMapping("/productos")
     @ResponseBody
     public List<ProductoDTO> obtenerProductosPorProveedor(@RequestParam String ruc) {
@@ -114,6 +114,47 @@ public class OrdenCompraController {
     public String verDetalle(@PathVariable Long id, Model model) {
         model.addAttribute("orden", ordenCompraService.obtenerPorId(id));
         return "orden/detalle";
+    }
+
+    @GetMapping("/orden/editar/{id}")
+        public String editarOrden(@PathVariable Long id, Model model) {
+        OrdenCompraEntity orden = ordenCompraService.obtenerPorId(id);
+    model.addAttribute("orden", orden);
+    return "orden/formulario_editar";
+    }
+
+    @PostMapping("/orden/actualizar")
+    public String actualizarOrden(@ModelAttribute OrdenCompraEntity orden,
+                                    @RequestParam String ruc,
+                                    HttpServletRequest request) {
+
+        OrdenCompraEntity existente = ordenCompraService.obtenerPorId(orden.getId());
+
+        if (!existente.getEstado().equalsIgnoreCase("pendiente")) {
+            return "redirect:/compras/ordenes?error=noEditable";
+        }
+
+        Long usuarioId = obtenerUsuarioId();
+        ProveedorEntity proveedor = proveedorService.obtenerProveedorPorRuc(ruc);
+
+        List<OrdenCompraDetalleEntity> detalles = new ArrayList<>();
+        int i = 0;
+        while (true) {
+            String productoIdStr = request.getParameter("detalles[" + i + "].producto.id");
+            String cantidadStr = request.getParameter("detalles[" + i + "].cantidad");
+            if (productoIdStr == null || cantidadStr == null) break;
+
+            OrdenCompraDetalleEntity detalle = new OrdenCompraDetalleEntity();
+            ProductoEntity producto = new ProductoEntity();
+            producto.setId(Long.parseLong(productoIdStr));
+            detalle.setProducto(producto);
+            detalle.setCantidad(Integer.parseInt(cantidadStr));
+            detalles.add(detalle);
+            i++;
+        }
+
+        ordenCompraService.actualizarOrden(orden.getId(), proveedor.getId(), usuarioId, detalles);
+        return "redirect:/compras/ordenes";
     }
 
     @PostMapping("/orden/{id}/recibir")

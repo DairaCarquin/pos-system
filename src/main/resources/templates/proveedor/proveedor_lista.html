@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="es"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+  <meta charset="UTF-8">
+  <title>Lista de Proveedores</title>
+  <style>
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f5f5f5;
+      color: #000;
+      font-size: 13px;
+    }
+
+    .lista-container {
+      max-width: 900px;
+      margin: 30px auto;
+      background: #fff;
+      padding: 25px 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+    }
+
+    h2 {
+      font-size: 16px;
+      text-align: center;
+      margin-bottom: 25px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .btn-nuevo {
+      display: inline-block;
+      background-color: #004080;
+      color: #fff;
+      padding: 8px 16px;
+      font-size: 12px;
+      border-radius: 6px;
+      text-decoration: none;
+      margin-bottom: 15px;
+    }
+
+    .btn-nuevo:hover {
+      background-color: #002e60;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f0f0f0;
+      font-weight: 600;
+    }
+
+    .acciones a {
+      font-size: 12px;
+      text-decoration: none;
+      margin-right: 10px;
+      color: #007bff;
+    }
+
+    .acciones a:hover {
+      text-decoration: underline;
+    }
+
+    .acciones .eliminar {
+      color: #dc3545;
+    }
+
+    .acciones .eliminar:hover {
+      color: #a71d2a;
+    }
+  </style>
+</head>
+<body>
+<div layout:fragment="contenido">
+  <div class="lista-container">
+    <h2>Lista de Proveedores</h2>
+
+    <a href="/vista/proveedores/crear" class="btn-nuevo">+ Nuevo Proveedor</a>
+
+    <table>
+      <thead>
+      <tr>
+        <th>ID</th>
+        <th>RUC</th>
+        <th>Razón Social</th>
+        <th>Teléfono</th>
+        <th>Email</th>
+        <th>Acciones</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr th:each="prov : ${proveedores}">
+        <td th:text="${prov.id}"></td>
+        <td th:text="${prov.ruc}"></td>
+        <td th:text="${prov.razonSocial}"></td>
+        <td th:text="${prov.telefono}"></td>
+        <td th:text="${prov.email}"></td>
+        <td class="acciones">
+          <a th:href="@{'/vista/proveedores/editar/' + ${prov.id}}">Editar</a>
+          <a th:href="@{'/vista/proveedores/eliminar/' + ${prov.id}}"
+             class="eliminar"
+             onclick="return confirm('¿Está seguro que desea eliminar este proveedor?')">
+            Eliminar
+          </a>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+</body>
+</html>

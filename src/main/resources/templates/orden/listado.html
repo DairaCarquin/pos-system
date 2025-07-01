@@ -143,6 +143,12 @@
                     <a class="btn btn-sm btn-primary" th:href="@{'/compras/orden/' + ${orden.id}}">
                         <i class="bi bi-eye-fill"></i> Ver
                     </a>
+
+                    <th:block th:if="${orden.estado == 'pendiente'}">
+                        <a class="btn btn-sm btn-warning" th:href="@{'/compras/orden/editar/' + ${orden.id}}">
+                            <i class="bi bi-pencil-fill"></i> Editar
+                        </a>
+</th:block>
                 </td>
             </tr>
             </tbody>

@@ -81,4 +81,28 @@ public class OrdenCompraService {
     public OrdenCompraEntity obtenerPorId(Long id) {
         return ordenCompraRepo.findById(id).orElseThrow();
     }
+    
+    @Transactional
+public void actualizarOrden(Long id, Long proveedorId, Long usuarioId, List<OrdenCompraDetalleEntity> detalles) {
+    OrdenCompraEntity orden = obtenerPorId(id);
+
+    ProveedorEntity proveedor = proveedorRepo.findById(proveedorId).orElseThrow();
+    UsuarioEntity usuario = usuarioRepo.findById(usuarioId).orElseThrow();
+
+    orden.setProveedor(proveedor);
+    orden.setUsuario(usuario);
+    orden.setDetalles(detalles);
+
+    BigDecimal total = BigDecimal.ZERO;
+    for (OrdenCompraDetalleEntity item : detalles) {
+        ProductoEntity prod = productoRepo.findById(item.getProducto().getId()).orElseThrow();
+        item.setProducto(prod);
+        item.setOrdenCompra(orden);
+        item.setPrecioUnitario(prod.getPrecio());
+        total = total.add(prod.getPrecio().multiply(BigDecimal.valueOf(item.getCantidad())));
+    }
+
+    orden.setTotal(total);
+    ordenCompraRepo.save(orden);
+  }
 }
