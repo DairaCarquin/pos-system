@@ -10,7 +10,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
-@RequestMapping("/clientes")
+@RequestMapping("/clientesVista")
 public class ClienteVistaController {
 
     private final ClienteService clienteService;
@@ -33,7 +33,7 @@ public class ClienteVistaController {
             return "cliente/registro"; // vuelve al formulario con errores
         }
         clienteService.guardar(cliente);
-        return "redirect:/clientes/listado";
+        return "redirect:/clientesVista/listado";
     }
 
     @GetMapping("/listado")
@@ -53,12 +53,12 @@ public class ClienteVistaController {
     public String eliminarCliente(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         clienteService.eliminar(id);
         redirectAttributes.addFlashAttribute("mensaje", "Cliente eliminado correctamente");
-        return "redirect:/clientes/listado";
+        return "redirect:/clientesVista/listado";
 
     }
     @GetMapping
     public String redireccionarListado() {
-        return "redirect:/clientes/listado";
+        return "redirect:/clientesVista/listado";
     }
 
 

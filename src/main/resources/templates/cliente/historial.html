@@ -20,7 +20,7 @@
                     <strong th:text="${descuentoMensaje}"></strong>
                 </div>
 
-                <!-- Tabla de compras -->
+                <!-- Tabla de ventas -->
                 <div class="table-responsive">
                     <table class="table table-bordered table-striped align-middle text-center">
                         <thead class="table-dark">
@@ -32,11 +32,14 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <tr th:each="compra : ${compras}">
-                            <td th:text="${compra.id}"></td>
-                            <td th:text="${#temporals.format(compra.fecha, 'dd/MM/yyyy')}"></td>
-                            <td th:text="${compra.total} + ' S/'"></td>
-                            <td th:text="${compra.metodoPago}"></td>
+                        <tr th:each="venta : ${ventas}">
+                            <td th:text="${venta.id}"></td>
+                            <td th:text="${#temporals.format(venta.fechaHora, 'dd/MM/yyyy HH:mm')}"></td>
+                            <td th:text="${venta.total} + ' S/'"></td>
+                            <td th:text="${venta.medioPago != null ? venta.medioPago.nombre : 'N/A'}"></td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(ventas)}">
+                            <td colspan="4" class="text-center text-muted">No hay ventas registradas para este cliente.</td>
                         </tr>
                         </tbody>
                     </table>
@@ -44,7 +47,7 @@
 
                 <!-- Botón volver -->
                 <div class="mt-4 text-end">
-                    <a th:href="@{/clientes}" class="btn btn-secondary">
+                    <a th:href="@{/clientesVista/listado}" class="btn btn-secondary">
                         <i class="bi bi-arrow-left-circle"></i> Volver
                     </a>
                 </div>

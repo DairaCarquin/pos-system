@@ -14,7 +14,7 @@
                 <h5 class="mb-0">Registrar Nuevo Cliente</h5>
             </div>
             <div class="card-body">
-                <form th:action="@{/clientes/guardar}" th:object="${cliente}" method="post">
+                <form th:action="@{/clientesVista/guardar}" th:object="${cliente}" method="post">
 
                     <!-- Oculto -->
                     <input type="hidden" th:field="*{id}" />
@@ -72,9 +72,14 @@
                     </div>
 
                     <!-- Botón -->
-                    <button type="submit" class="btn btn-success">
-                        <i class="bi bi-save"></i> Guardar
-                    </button>
+                    <div class="d-flex justify-content-end mt-4">
+                        <a th:if="${cliente.dni != null}" th:href="@{'/historial/cliente/' + ${cliente.dni}}" class="btn btn-info me-2">
+                            <i class="bi bi-clock-history"></i> Ver Historial
+                        </a>
+                        <button type="submit" class="btn btn-success">
+                            <i class="bi bi-save"></i> Guardar
+                        </button>
+                    </div>
                 </form>
             </div>
         </div>

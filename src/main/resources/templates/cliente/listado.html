@@ -97,7 +97,7 @@
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
     </div>
 
-    <a class="btn btn-success mb-3" th:href="@{/clientes/nuevo}">
+    <a class="btn btn-success mb-3" th:href="@{/clientesVista/nuevo}">
         <i class="bi bi-plus-circle"></i> Nuevo Cliente
     </a>
 
@@ -131,10 +131,10 @@
                     </span>
                 </td>
                 <td>
-                    <a class="btn btn-sm btn-primary" th:href="@{'/clientes/editar/' + ${cliente.id}}">
+                    <a class="btn btn-sm btn-primary" th:href="@{'/clientesVista/editar/' + ${cliente.id}}">
                         <i class="bi bi-pencil"></i>
                     </a>
-                    <a class="btn btn-sm btn-danger" th:href="@{/clientes/eliminar/{id}(id=${cliente.id})}"
+                    <a class="btn btn-sm btn-danger" th:href="@{/clientesVista/eliminar/{id}(id=${cliente.id})}"
                        onclick="return confirm('¿Estás seguro de eliminar este cliente?')">
                         <i class="bi bi-trash"></i>
                     </a>
