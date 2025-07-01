@@ -1,143 +1,108 @@
-# pos-system
-Sistema de Punto de Venta - Proyecto POS
+#  Módulo de Puntos de Lealtad
 
-# 🌀 Módulo: Sistema de Puntos - Sistema POS
+## ¿Qué Hace este Código? 
 
-Este módulo forma parte del sistema de ventas desarrollado para comercios, y tiene como objetivo premiar a los clientes según sus compras mediante un sistema de puntos. Fue pensado para que funcione de forma clara, lógica y adaptable incluso si otros módulos del sistema aún no están terminados.
+Este Pull Request introduce un módulo completamente automático para el **sistema de puntos de lealtad**. Su funcionalidad principal es **asignar puntos a los clientes cada vez que se registra una venta finalizada** en el módulo de Caja.
 
----
+### Características Clave:
 
-## 🧭 ¿Para qué sirve?
-
-El módulo de **Sistema de Puntos** permite:
-
-- Asignar puntos automáticamente a los clientes según sus compras.
-- Diferenciar entre clientes comunes y VIP.
-- Darle al cliente la opción de rechazar los puntos si así lo prefiere.
-- Guardar los puntos acumulados por cliente.
-- Consultar cuántos puntos ha acumulado cada cliente desde su perfil.
-
-Este sistema busca incentivar la fidelidad de los clientes premiando sus compras frecuentes.
+- Los puntos se calculan según el **tipo de cliente** (por ejemplo, 'Regular' o 'VIP').
+- Sistema flexible con **niveles diferenciados de recompensa**.
+- Incluye una **interfaz de usuario** para consultar el saldo de puntos acumulados por cliente.
 
 ---
 
-## 🛠️ ¿Qué incluye?
+## ¿Cómo Funciona? (La Implementación Técnica)
 
-A continuación, te explicamos cada parte desarrollada:
+Para mantener una separación clara de responsabilidades, el sistema se implementó de manera **asíncrona y reactiva**, evitando cambios directos en el módulo de Caja. A continuación, se detallan los componentes clave:
 
-### 1. Registrar Venta
+### 🔄 Procesamiento Asíncrono
 
-👉 **¿Dónde está?**  
-Ruta: [`/ventas/nueva`](http://localhost:8010/ventas/nueva)  
-Desde aquí se puede registrar una nueva venta. El formulario permite:
+- **Tarea Programada (@Scheduled):**
+  - `ProcesadorPuntosTask` se ejecuta automáticamente cada minuto para detectar nuevas ventas finalizadas.
 
-- Elegir un cliente.
-- Seleccionar productos (simulados por ahora).
-- Definir cantidades.
-- Indicar si el cliente acepta recibir puntos.
+- **Detección de Ventas Nuevas:**
+  - Usa `PuntosCajaVentaRepository` para buscar ventas que:
+    - Estén en estado `FINALIZADA`.
+    - Tengan un cliente asociado.
+    - No hayan sido procesadas anteriormente.
 
-✅ Los puntos se asignan automáticamente al guardar la venta, según la cantidad de productos comprados y el tipo de cliente.
+- **Rastreo de Ventas Procesadas:**
+  - Se implementa una tabla `puntos_ventas_procesadas` para **evitar duplicación de puntos**.
 
----
+### 🧠 Lógica de Negocio
 
-### 2. Ver todas las Ventas
+- **Servicio Centralizado (`PuntosService`):**
+  - Calcula los puntos según el **monto total de la venta** y el **tipo de cliente**.
+  - Actualiza el campo `puntos_acumulados` en la entidad `Cliente`.
 
-👉 **¿Dónde está?**  
-Ruta: [`/ventas/listar`](http://localhost:8010/ventas/listar)  
-Aquí puedes consultar las ventas registradas. La vista muestra:
-
-- Fecha, cliente, total y si se asignaron puntos.
-- Un acceso directo al perfil del cliente.
+Este enfoque garantiza que el módulo de puntos funcione de forma **con respecto al flujo principal de ventas.**
 
 ---
 
-### 3. Ver Perfil del Cliente
+## 📁 Archivos Involucrados en el Cambio
 
-👉 **¿Dónde está?**  
-Ruta: [`/cliente/{id}`] (por ejemplo: `/cliente/1`)  
-Desde esta vista se puede ver:
+### Archivos Nuevos Creados 🚀
 
-- Información básica del cliente.
-- Cuántos puntos tiene acumulados.
+- `src/main/java/.../puntos/entity/VentaProcesadaPuntos.java`  
+  ➤ Entidad para la tabla de rastreo de ventas procesadas.
 
-📌 Puedes ver la lista completa de clientes en [`/cliente`](http://localhost:8010/cliente).
+- `src/main/java/.../puntos/repository/VentaProcesadaPuntosRepository.java`  
+  ➤ Repositorio para ventas ya procesadas.
 
----
+- `src/main/java/.../puntos/repository/PuntosCajaVentaRepository.java`  
+  ➤ Repositorio especializado para lectura segura de la tabla `caja_venta`.
 
-### 4. Vista General: "Precios y Descuentos"
+- `src/main/java/.../puntos/service/PuntosService.java`  
+  ➤ Lógica principal de cálculo y asignación de puntos.
 
-👉 **¿Dónde está?**  
-Ruta: [`/ventas/preciosDescuentos`](http://localhost:8010/ventas/preciosDescuentos)  
-Esta sección agrupa distintas funciones relacionadas a:
+- `src/main/java/.../puntos/task/ProcesadorPuntosTask.java`  
+  ➤ Tarea automática que ejecuta todo el flujo de procesamiento.
 
-- Gestión de precios
-- Promociones
-- Sistema de puntos (el que desarrollamos)
-- Reportes (a futuro)
+- `src/main/resources/templates/panel-control.html`  
+  ➤ Nuevo dashboard para el control y visualización de puntos.
 
-Aquí se centraliza todo lo que ayuda a definir incentivos para el cliente.
+### Archivos Modificados 
 
----
+- `PosSystemApplication.java`  
+  ➤ Se agregó `@EnableScheduling` para activar tareas programadas.
 
-## 🔍 ¿Cómo funciona el cálculo de puntos?
+- `pom.xml`  
+  ➤ Se mejoró y simplificó la configuración de **Lombok**:
+  
+  - En la sección de `<dependencies>`, se reemplazó la etiqueta `<scope>provided</scope>` por `<optional>true</optional>` para asegurar una mejor compatibilidad con herramientas como IDEs y compiladores.
 
-La lógica es muy simple:
+  - **Eliminación de Configuración Redundante**:  
+    Se eliminó por completo el bloque `<configuration>` dentro del plugin `maven-compiler-plugin`:
 
-| Tipo de cliente | Puntos por cada producto |
-|-----------------|--------------------------|
-| Regular         | 1 punto                  |
-| VIP             | 2 puntos                 |
+    ```xml
+    <configuration>
+        <annotationProcessorPaths>
+            <path>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+            </path>
+        </annotationProcessorPaths>
+    </configuration>
+    ```
 
-Además, si el cliente decide **no** recibir puntos, el sistema lo respeta y no asigna nada.
+    **¿Por qué se hizo?**  
+    En versiones modernas de Spring Boot y Maven, esta configuración es innecesaria. El sistema detecta automáticamente la dependencia de Lombok y la configura por sí solo. Quitar este bloque hace que tu `pom.xml` sea más limpio y reduce el riesgo de errores de configuración en el futuro.
 
----
+- `controller/ClienteViewController.java`  
+  ➤ Nuevas rutas y mapeo para el panel de control de puntos.
 
-## 🧪 ¿Funciona aunque otros módulos no estén listos?
+- `templates/layout.html`  
+  ➤ Se actualizaron enlaces de navegación para incluir el nuevo módulo.
 
-✅ ¡Sí! Este módulo está diseñado para funcionar de forma independiente.  
-Aunque los módulos de productos o compras aún no estén implementados completamente, puedes hacer pruebas reales simulando ventas y viendo cómo se asignan los puntos correctamente.
+### Archivos Eliminados (Refactorización) 
 
----
+Se removieron todas las implementaciones anteriores de ventas manuales, incluyendo:
 
-## 📁 Archivos importantes
-
-| Archivo o vista                         | Propósito principal                          |
-|----------------------------------------|----------------------------------------------|
-| `VentaController.java`                 | Controla las rutas de ventas y vista general |
-| `VentaService.java`                    | Lógica de puntos y registro de venta         |
-| `ClienteEntity.java`                   | Define tipo de cliente y puntos acumulados   |
-| `ventas/venta-form.html`              | Formulario para registrar ventas             |
-| `ventas/ventas-lista.html`            | Lista de ventas registradas                  |
-| `cliente/lista.html`                  | Vista de todos los clientes                  |
-| `cliente/perfil.html`                 | Perfil individual del cliente                |
-| `ventas/preciosDescuentos.html`       | Pantalla de funciones del módulo             |
-
----
-
-## 👥 ¿Para quién está hecho esto?
-
-Este módulo fue diseñado pensando en:
-
-- Comercios que desean fidelizar clientes con un sistema de puntos.
-- Administradores que quieren tener control claro sobre promociones y beneficios.
-- Equipos técnicos que necesitan integrar funciones sin afectar lo ya construido.
+- `VentaController`
+- `VentaService`
+- `VentaEntity`, `VentaDetalleEntity`
+- `VentaRepository`
+- Todas las vistas relacionadas dentro de `templates/ventas/`
 
 ---
-
-## ✨ Próximos pasos
-
-Este módulo ya está funcional, pero está preparado para crecer con el sistema:
-
-- Integrar con el módulo de productos reales.
-- Implementar descuentos automáticos según promociones.
-- Exportar reportes de puntos y ventas.
-
----
-
-🧑‍💻 Desarrollado con amor y lógica modular.  
-Si tienes dudas o mejoras, no dudes en escribirme 💬.
-🐙
-
-## Esquema visual de archivos
-
-![Image](https://github.com/user-attachments/assets/750526b7-cb8c-44d5-bb7f-135fe8885023)
