@@ -74,11 +74,11 @@ public class HomeController {
     public String AboutScreen(){
         return "web/about";
     }
-    @GetMapping("/ventas")
+    @GetMapping("/pedidos")
 public String listarVentas(Model model) {
     List<VentaEntity> ventas = ventaRepository.findAll();
     model.addAttribute("ventas", ventas);
-    return "web/ventas";
+    return "web/pedidos";
 }
 
 

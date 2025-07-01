@@ -5,6 +5,8 @@
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <title>Document</title>
       <link rel="stylesheet" href="css/Index.css" />
+      <link rel="stylesheet" href="css/Header.css" />
+      <link rel="stylesheet" href="css/Productos.css" />
       <link
          href="https://fonts.googleapis.com/css2?family=Cascadia+Code:ital,wght@0,200..700;1,200..700&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
          rel="stylesheet"
@@ -19,7 +21,7 @@
             <a href="/about">about</a>
             <a href="/carrito" class="cart"
                >🛒
-               <p th:text="${carritoQuantity}"></p
+               <p th:text="${carritoQuantity < 1 ? '0' : carritoQuantity}"></p
             ></a>
          </nav>
       </header>
@@ -27,18 +29,16 @@
          <!-- Grid de productos -->
          <section class="productos">
             <article th:each="producto : ${productlist}">
-               <ul>
+               <ul class="atributos">
                   <li>
                      <a th:href="@{/productos/{id}(id=${producto.id})}">
                         <img th:src="@{'/images/' + ${producto.imagen}}" alt="Imagen del producto" class="img-fluid" />
                      </a>
                   </li>
+                  <li><span th:text="${producto.categoria.nombre}">Categoría</span></li>
                   <h5 th:text="${producto.nombre}">Nombre del producto</h5>
-                  <li><span th:text="${producto.codigo}">P001</span></li>
                   <li><span th:text="${producto.descripcion}">Descripción</span></li>
                   <li>$ <span th:text="${producto.precio}">0.00</span></li>
-                  <li><span th:text="${producto.stock}">0</span></li>
-                  <li><span th:text="${producto.categoria.nombre}">Categoría</span></li>
                </ul>
 
                <form class="form" th:action="@{/carrito/agregar}" method="post">

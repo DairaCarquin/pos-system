@@ -1,13 +1,63 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
    <head>
       <title>Anular Venta</title>
+      <link rel="stylesheet" type="css" href="css/Index.css" />
+      <link rel="stylesheet" type="css" href="css/Anular.css" />
    </head>
+   <style>
+      form {
+         margin-top: 2rem;
+         box-shadow: 0 0 1px gray;
+         width: fit-content;
+         padding: 2rem;
+
+         p:nth-child(1) {
+            font-weight: bold;
+         }
+         p:nth-child(2) {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            font-weight: bold;
+            margin-bottom: 1rem;
+         }
+      }
+
+      button,
+      a {
+         border: none;
+         background-color: transparent;
+         font-weight: bold;
+         box-shadow: 0 0 1px gray;
+         padding: 0.3rem 1.5rem;
+         cursor: pointer;
+         margin-top: 1rem;
+         text-decoration: none;
+         color: black;
+         font-size: small;
+      }
+      label {
+         font-size: small;
+      }
+      textarea {
+         margin-top: 1rem;
+         min-height: 200px;
+         max-height: 200px;
+         min-width: 200px;
+         max-width: 200px;
+         outline: none;
+      }
+      a {
+         color: red;
+      }
+   </style>
    <body>
-      <h2>Anular Venta</h2>
+      <h2>Formulario de anulación de venta</h2>
+      <hr />
       <form th:action="@{'/ventas/' + ${venta.id} + '/anular'}" method="post">
          <p>¿Estás seguro de que deseas anular esta venta?</p>
-         <p>Total: <span th:text="${venta.total}"></span></p>
+         <p>Total $ <span th:text="${venta.total}"></span></p>
 
          <label>Motivo de anulación:</label><br />
          <textarea name="motivoAnulacion" required></textarea><br /><br />

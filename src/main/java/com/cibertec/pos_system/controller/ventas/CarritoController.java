@@ -1,9 +1,12 @@
 package com.cibertec.pos_system.controller.ventas;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Formatter.BigDecimalLayoutForm;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -64,14 +67,14 @@ public class CarritoController {
             carrito.add(new ItemCarrito(
                 isExit.get().getId(),
                 isExit.get().getNombre(),
-                isExit.get().getPrecio(),
-                isExit.get().getPrecio(),
+                isExit.get().getPrecio().doubleValue(),
+                isExit.get().getPrecio().doubleValue(),
                 1
             ));
         }
 
         double subtotal = carrito.stream().mapToDouble(ItemCarrito::getSubtotal).sum();
-        double igv = subtotal * 0.18;
+        double igv = subtotal >= 200 ? subtotal*0.18 : 0;
         double total = subtotal +igv;
 
         session.setAttribute("subtotal",subtotal);
@@ -94,13 +97,50 @@ public class CarritoController {
             double subtotal = (double) session.getAttribute("subtotal");
             double total = (double) session.getAttribute("total");
             double igv = (double) session.getAttribute("igv");
+
+            double subTotalRedondeado = BigDecimal.valueOf(subtotal).setScale(2,RoundingMode.HALF_UP).doubleValue();
+            double totalRedondeado = BigDecimal.valueOf(total).setScale(2,RoundingMode.HALF_UP).doubleValue();
+            double igvRedondeado = BigDecimal.valueOf(igv).setScale(2,RoundingMode.HALF_UP).doubleValue();
             
             
             model.addAttribute("carrito", carrito);
-            model.addAttribute("subtotal", subtotal);
-            model.addAttribute("total", total);
-            model.addAttribute("igv", igv);
+            model.addAttribute("subtotal", subTotalRedondeado);
+            model.addAttribute("total", totalRedondeado);
+            model.addAttribute("igv", igvRedondeado);
         }
+
+        return "web/carrito";
+    }
+
+    @PostMapping( path = "/carrito/delete")
+    public String CarritoEliminarProducto(@RequestParam int id, HttpSession session, Model model){
+        System.out.println("FRIUUUUUUUUUUUUUUUUUUUUUUUUUUUUU");
+        List<ItemCarrito> carrito = (List<ItemCarrito>) session.getAttribute("carrito");
+
+        if(carrito != null){
+            for(int i=0;i < carrito.size();i++){
+                if(carrito.get(i).getProductoId() == id ){
+                    carrito.remove(i);                    
+                    break;
+                    
+                }
+            }
+
+        double subtotal = carrito.stream().mapToDouble(ItemCarrito::getSubtotal).sum();
+        double igv = subtotal * 0.18;
+        double total = subtotal +igv;
+        session.setAttribute("carrito",carrito);
+
+        session.setAttribute("subtotal",subtotal);
+        session.setAttribute("igv",igv);
+        session.setAttribute("total",total);
+        session.setAttribute("carrito", carrito);
+        model.addAttribute("carrito", carrito);
+
+
+        return "redirect:/carrito";
+        }
+        
 
         return "web/carrito";
     }
@@ -128,9 +168,9 @@ public String finalizarCompra(@RequestParam String metodoPago, HttpSession sessi
     // 3. Crear VentaEntity
     VentaEntity venta = new VentaEntity();
     venta.setFecha(LocalDate.now());
-    venta.setSubtotal(subtotal);
-    venta.setImpuesto(impuesto);
-    venta.setTotal(total);
+    venta.setSubtotal(BigDecimal.valueOf(subtotal));
+    venta.setImpuesto(BigDecimal.valueOf(impuesto));
+    venta.setTotal(BigDecimal.valueOf(total));
     venta.setMetodoPago(metodoPago);
     venta.setEstado("ACTIVA");
     String tipo = "BOLETA";
@@ -181,7 +221,7 @@ public String mostrarFormularioAnulacion(@PathVariable int id, Model model) {
         model.addAttribute("venta", ventaOpt.get());
         return "web/form_anulacion";
     }
-    return "redirect:/ventas"; // Si no existe
+    return "redirect:/pedidos"; // Si no existe
 }
 @PostMapping("/ventas/{id}/anular")
 public String procesarAnulacion(@PathVariable int id, @RequestParam String motivoAnulacion) {
@@ -203,7 +243,7 @@ public String procesarAnulacion(@PathVariable int id, @RequestParam String motiv
             ventaRepository.save(venta);
         }
     }
-    return "redirect:/ventas";
+    return "redirect:/pedidos";
 }
 
 

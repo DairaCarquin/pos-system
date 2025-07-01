@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
    <head>
       <meta charset="UTF-8" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -16,8 +16,10 @@
       <nav>
          <a href="/productos"> 🢘 Seguir comprando</a>
       </nav>
-      <h1>CARRITO DE COMPRAS</h1>
-      <div class="container">
+      <h1 th:if="${ carrito != null && carrito.size >0 }">CARRITO DE COMPRAS</h1>
+      <h2 th:if="${ carrito == null || carrito.size <1 }">Ups, carrito vacio!</h2>
+      <hr style="margin: 1rem 0" />
+      <div class="container" th:if="${ carrito != null && carrito.size >0 }">
          <table border="0">
             <thead>
                <tr>
@@ -29,45 +31,48 @@
                </tr>
             </thead>
 
-            <tbody th:if="${carrito != null && subtotal != null && igv != null && total != null}">
+            <tbody>
                <tr th:each="item : ${carrito}">
                   <td>
-                     <form action="" method="post">
-                        <input type="hidden" name="id" />
-                        <button type="submit">Delete</button>
+                     <form th:action="@{/carrito/delete}" method="post">
+                        <input type="hidden" name="id" th:value="${item.productoId}" />
+                        <input class="buttonDelete" type="submit" value="Delete" />
                      </form>
                   </td>
                   <td th:text="${item.nombre}"></td>
-                  <td th:text="${item.precio}"></td>
+                  <td th:text="@{ ${item.precio} + ' $'}"></td>
                   <td th:text="${item.quantity}"></td>
                   <td th:text="@{ ${item.subtotal} + ' $'}"></td>
                </tr>
             </tbody>
          </table>
-         <article th:if="${carrito != null && subtotal != null && igv != null && total != null}">
-            <h3>
-               Total:
-               <p th:text="${total}"></p>
-            </h3>
-            <h3>
-               IGV:
-               <p th:text="${igv}"></p>
-            </h3>
-            <h3>
-               Subtotal:
+         <article class="zoneCalculadora">
+            <h3 style="display: flex">
+               Subtotal
                <p th:text="${subtotal}"></p>
+               <hr />
+            </h3>
+            <h3 style="display: flex">
+               IGV
+               <p th:text="${igv}"></p>
+               <hr />
+            </h3>
+            <h3 style="display: flex">
+               Total
+               <p th:text="${total}"></p>
+               <hr />
             </h3>
 
             <!-- Formulario con selector de método de pago -->
-            <form action="/carrito/finalizar" method="post">
-               <label for="metodoPago">Método de pago:</label>
-               <select name="metodoPago" id="metodoPago" required>
+            <form class="zonaFinalizar" action="/carrito/finalizar" method="post">
+               <label for="metodoPago">Método de pago</label>
+               <select style="font-size: 0.7rem" name="metodoPago" id="metodoPago" required>
                   <option value="EFECTIVO">Efectivo</option>
                   <option value="TARJETA">Tarjeta</option>
                   <option value="MIXTO">Mixto</option>
                </select>
 
-               <button type="submit">Finalizar Compra</button>
+               <button class="buttonFinalizar" type="submit">Finalizar Compra</button>
             </form>
          </article>
       </div>

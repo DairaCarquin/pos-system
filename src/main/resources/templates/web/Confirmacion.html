@@ -1,13 +1,17 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
    <head>
       <meta charset="UTF-8" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <title>Document</title>
+
+      <link rel="stylesheet" type="css" href="css/Index.css" />
+      <link rel="stylesheet" type="css" href="css/Confirmacion.css" />
    </head>
    <body>
       <h1>Ha comprado de forma exitosa</h1>
-      <p>Método de pago: <span th:text="${venta.metodoPago}"></span></p>
+      <hr />
+      <p>Método de pago <span th:text="${venta.metodoPago}"></span></p>
 
       <a href="/productos">Seguir comprando</a>
    </body>

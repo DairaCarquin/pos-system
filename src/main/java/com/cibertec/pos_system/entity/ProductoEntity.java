@@ -1,5 +1,7 @@
 package com.cibertec.pos_system.entity;
 
+import java.math.BigDecimal;
+
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -16,7 +18,7 @@ public class ProductoEntity {
     private String codigo;
     private String nombre;
     private String descripcion;
-    private double precio;
+    private BigDecimal precio;
     private String imagen;
     private boolean activo;
     private int stock; //  cantidad disponible

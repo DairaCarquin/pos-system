@@ -29,11 +29,11 @@ public class VentaEntity {
 
     private LocalDate fecha;
 
-    private double subtotal;
+    private BigDecimal subtotal;
 
-    private double impuesto;
+    private BigDecimal impuesto;
 
-    private double total;
+    private BigDecimal total;
 
     private String metodoPago; // metodo pago 
     private String estado;
