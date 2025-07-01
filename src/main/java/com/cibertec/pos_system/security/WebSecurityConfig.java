@@ -61,6 +61,11 @@ public class WebSecurityConfig {
                         .requestMatchers("/clientes/nuevo").hasAnyAuthority("ADMIN", "CREATOR")
                         .requestMatchers("/clientes/editar/*").hasAnyAuthority("ADMIN", "EDITOR")
                         .requestMatchers("/clientes/eliminar/*").hasAnyAuthority("ADMIN")
+                        // Agregar rutas para clientesVista
+                        .requestMatchers("/clientesVista/**").hasAnyAuthority("CLIENTES", "ADMIN")
+                        .requestMatchers("/clientesVista/nuevo").hasAnyAuthority("ADMIN", "CREATOR")
+                        .requestMatchers("/clientesVista/editar/*").hasAnyAuthority("ADMIN", "EDITOR")
+                        .requestMatchers("/clientesVista/eliminar/*").hasAnyAuthority("ADMIN")
                         .requestMatchers("/user").hasAnyAuthority("USUARIOS", "ADMIN") // TODO: Determinar cual es 
                         .requestMatchers("/cliente").hasAnyAuthority("CLIENTES", "ADMIN") // TODO: Determinar cual es 
                         .requestMatchers("/rol").hasAnyAuthority("ROLES", "ADMIN")

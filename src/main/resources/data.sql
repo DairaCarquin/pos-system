@@ -49,7 +49,7 @@ INSERT INTO locales (nombre, direccion, telefono, email, horario, activo) VALUES
 ('Chafa fea Callao', 'Av. Sáenz Peña 150, Callao', '987654321', 'callao@chafafea.com', 'L-D 9am-8pm', TRUE),
 ('Chafa fea Piura', 'Av. Grau 300, Piura', '912345678', 'piura@chafafea.com', 'L-D 10am-7pm', TRUE),
 ('Chafa fea Talara', 'Av. Bolognesi 450, Talara, Piura', '935678123', 'talara@chafafea.com', 'L-D 8am-9pm', TRUE),
-('Chafa fea Talara', 'Av. Aviación 2500, San Borja, Lima', '945612378', 'sanborja@chafafea.com', 'L-D 8am-8pm', TRUE),
+('Chafa fea San Borja', 'Av. Aviación 2500, San Borja, Lima', '945612378', 'sanborja@chafafea.com', 'L-D 8am-8pm', TRUE),
 ('Chafa fea Salaverry', 'Av. Salaverry 1200, Jesús María, Lima', '932165498', 'salayverry@chafafea.com', 'L-D 9am-6pm', TRUE),
 ('Chafa fea San Miguel', 'Av. La Marina 2000, San Miguel, Lima', '931234567', 'sanmiguel@chafafea.com', 'L-D 8am-10pm', TRUE),
 ('Chafa fea Miraflores', 'Av. Benavides 1135, Miraflores, Lima', '934567890', 'miraflores@chafafea.com', 'L-D 7am-11pm', TRUE),
