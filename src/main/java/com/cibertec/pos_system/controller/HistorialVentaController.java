@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @Controller
-@RequestMapping("/historial")
+@RequestMapping("/historial-ventas")
 public class HistorialVentaController {
 
     private final CajaVentaService cajaVentaService;

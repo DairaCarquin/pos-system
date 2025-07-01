@@ -33,7 +33,7 @@ public class ClienteController {
 
      @GetMapping("/buscar")
     public ResponseEntity<?> buscarPorDni(@RequestParam String dni) {
-        Optional<ClienteEntity> cliente = clienteService.buscarPorDni(dni);
+        Optional<ClienteEntity> cliente = clienteService.buscarClientePorDni(dni);
         if (cliente.isPresent()) {
             return ResponseEntity.ok(cliente.get());
         } else {

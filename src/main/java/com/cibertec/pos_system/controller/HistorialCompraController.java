@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @Controller
-@RequestMapping("/historial")
+@RequestMapping("/historial-compras")
 public class HistorialCompraController {
 
     private final CompraService compraService;

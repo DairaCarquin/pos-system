@@ -39,16 +39,18 @@ public class ClienteService {
         return clienteRepository.findById(id);
     }
 
+    public Page<ClienteEntity> listarPaginado(Pageable pageable) {
+        return clienteRepository.findAll(pageable);
+    }
+
+    // Method to find single client by exact DNI match
+    public Optional<ClienteEntity> buscarClientePorDni(String dni) {
+        return clienteRepository.findByDni(dni);
+    }
+
+    // Method for paginated DNI search (contains search)
     public Page<ClienteEntity> buscarPorDni(String dni, Pageable pageable) {
         return clienteRepository.findByDniContaining(dni, pageable);
     }
-
-
-    public Page<ClienteEntity> listarPaginado(Pageable pageable) {
-        return clienteRepository.findAll(pageable); // ✅ Esto es correcto
-    }
-
-
-
 }
 
