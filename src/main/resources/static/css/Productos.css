@@ -13,6 +13,12 @@
    display: flex;
    flex-direction: column;
    min-height: 300px;
+   background-color: white;
+   border-radius: 1rem;
+   transition: transform 0.5s ease-out;
+}
+.productos article:hover {
+   transform: translateY(-10px);
 }
 
 .atributos {
@@ -45,4 +51,9 @@
    padding: 0.3rem 1.5rem;
    cursor: pointer;
    margin-bottom: 1rem;
+   transition: all 0.5s ease-out;
+}
+.buttonCart:hover {
+   background-color: #1b1b1b;
+   color: white;
 }

@@ -2,12 +2,14 @@
    padding: 0;
    margin: 0;
    box-sizing: border-box;
-   font-family: 'roboto';
+   font-family: 'Roboto';
 }
 nav {
    min-height: 5dvh;
    display: flex;
+   justify-content: space-between;
    align-items: center;
+   padding: 0 2rem;
 }
 nav a {
    font-weight: bold;
@@ -26,13 +28,18 @@ h1 {
 }
 
 table {
-   margin: 0rem;
-   width: 60%;
+   margin: 2rem auto;
+   width: 80%;
    border-collapse: collapse;
+   background-color: white;
+   box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+   border-radius: 6px;
+   overflow: hidden;
 }
+
 table thead {
-   height: auto;
-   background-color: gray;
+   background-color: #1f2937;
+   color: white;
 }
 
 table thead tr th {
@@ -113,4 +120,19 @@ table tbody tr td form button {
    padding: 0.3rem 1.5rem;
    cursor: pointer;
    margin-top: 1rem;
+}
+table tbody tr td form button,
+.container article form button {
+   border: none;
+   background-color: #eeeeee;
+   font-weight: bold;
+   box-shadow: 0 0 1px #ccc;
+   padding: 0.3rem 1.5rem;
+   cursor: pointer;
+   transition: background-color 0.2s ease-in;
+}
+
+table tbody tr td form button:hover,
+.container article form button:hover {
+   background-color: #dcdcdc;
 }

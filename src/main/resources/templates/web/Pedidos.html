@@ -3,35 +3,19 @@
    <head>
       <meta charset="UTF-8" />
       <title>Ventas</title>
+      <link rel="stylesheet" href="css/Index.css" />
+      <link rel="stylesheet" href="css/Header.css" />
    </head>
    <style>
-      body {
-         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-         background-color: #f9f9f9;
-         color: #333;
-         margin: 40px;
-      }
-
-      h1 {
-         text-align: center;
-         color: #2c3e50;
-         margin-bottom: 30px;
-      }
-
       table {
-         width: 100%;
-         border-collapse: collapse;
-         margin-bottom: 40px;
+         width: auto;
+         margin: 1rem;
          background-color: #fff;
          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-         border-radius: 10px;
-         overflow: hidden;
       }
 
-      th,
-      td {
-         padding: 5px 18px;
-         text-align: left;
+      table th,
+      table td {
          border-bottom: 1px solid #eee;
       }
 
@@ -44,9 +28,8 @@
          background-color: #f1f1f1;
       }
 
-      a {
+      table a {
          display: inline-block;
-         padding: 6px 12px;
          background-color: #e74c3c;
          color: white;
          border-radius: 4px;
@@ -59,7 +42,6 @@
       }
 
       span {
-         padding: 6px 12px;
          background-color: #95a5a6;
          color: white;
          border-radius: 4px;
@@ -68,8 +50,7 @@
 
       /* Subtabla de detalles */
       td table {
-         width: 100%;
-         margin-top: 10px;
+         width: 90%;
          border: 1px solid #ccc;
       }
 
@@ -85,15 +66,32 @@
 
       td table th,
       td table td {
-         padding: 10px;
          border: 1px solid #ddd;
+      }
+      .anular {
+         padding: 0.5rem 1rem;
+
+         margin: 1rem;
       }
    </style>
 
    <body>
-      <h1>Lista de Ventas</h1>
+      <header class="header">
+         <h1>Chafa Fea</h1>
+         <nav>
+            <a href="/">Inicio</a>
+            <a href="/productos">Productos</a>
+            <a href="/about">about</a>
+            <a href="/pedidos">Pedidos</a>
+            <a href="/carrito" class="cart"
+               >🛒
+               <p th:text="${carritoQuantity < 1 ? '0' : carritoQuantity}"></p
+            ></a>
+         </nav>
+      </header>
+      <h2>Lista de Pedidos</h2>
 
-      <table border="1">
+      <table>
          <thead>
             <tr>
                <th>Fecha</th>
@@ -131,8 +129,13 @@
                   </table>
                </td>
                <td>
-                  <a th:href="@{'/ventas/' + ${venta.id} + '/anular'}" th:if="${venta.estado == 'ACTIVA'}">Anular</a>
-                  <span th:if="${venta.estado == 'ANULADA'}">Anulada</span>
+                  <a
+                     class="anular"
+                     th:href="@{'/ventas/' + ${venta.id} + '/anular'}"
+                     th:if="${venta.estado == 'ACTIVA'}"
+                     >Anular</a
+                  >
+                  <span class="anular" th:if="${venta.estado == 'ANULADA'}">Anulada</span>
                </td>
             </tr>
          </tbody>

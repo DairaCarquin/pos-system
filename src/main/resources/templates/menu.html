@@ -4,17 +4,20 @@
       layout:decorate="~{layout}">
 <head>
     <title>Inicio</title>
+    <link rel="stylesheet" th:href="@{/css/menu.css}">
 </head>
 <body>
 <div layout:fragment="contenido">
-    <h2 class="mb-4">Bienvenido al Sistema</h2>
+    <h2 class="titulo-sistema">Bienvenido al Sistema</h2>
     <div class="row">
-        <div class="col-md-4">
-            <div class="card shadow-sm">
+        <!--<div class="col-md-4 mx-auto">-->
+            <div class="d-flex justify-content-center align-items-center">
+
+            <div class="card tarjeta-usuario">
                 <div class="card-body">
-                    <h5 class="card-title">Gestión de Usuarios</h5>
-                    <p class="card-text">Administre los usuarios del sistema.</p>
-                    <a th:href="@{/user}" class="btn btn-primary">Ir a Usuarios</a>
+                    <h5 class="card-title titulo-card">Gestión de Usuarios</h5>
+                    <p class="card-text texto-card">Administre los usuarios del sistema.</p>
+                    <a th:href="@{/user}" class="btn btn-primary buttonCart">Ir a Usuarios</a>
                 </div>
             </div>
         </div>

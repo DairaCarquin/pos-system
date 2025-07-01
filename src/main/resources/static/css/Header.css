@@ -16,6 +16,7 @@
    display: flex;
    gap: 0 2rem;
    margin-right: 2rem;
+   align-items: center;
 }
 .header nav a {
    text-decoration: none;
