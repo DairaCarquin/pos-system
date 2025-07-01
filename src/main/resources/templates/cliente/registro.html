@@ -14,7 +14,7 @@
                 <h5 class="mb-0">Registrar Nuevo Cliente</h5>
             </div>
             <div class="card-body">
-                <form th:action="@{/clientes/guardar}" th:object="${cliente}" method="post">
+                <form th:action="@{/clientesVista/guardar}" th:object="${cliente}" method="post">
 
                     <!-- Oculto -->
                     <input type="hidden" th:field="*{id}" />
@@ -25,6 +25,7 @@
                         <input type="text" th:field="*{dni}" class="form-control"
                                required minlength="8" maxlength="8" pattern="[0-9]{8}" />
                         <div class="text-danger" th:if="${#fields.hasErrors('dni')}" th:errors="*{dni}"></div>
+                        <div class="text-danger" th:if="${errorDni}" th:text="${errorDni}"></div>
                     </div>
 
                     <!-- Nombre -->
@@ -65,16 +66,15 @@
                         <div class="text-danger" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
                     </div>
 
-                    <!-- Activo -->
-                    <div class="form-check mb-3">
-                        <input type="checkbox" th:field="*{activo}" class="form-check-input" id="activoCheck" />
-                        <label class="form-check-label" for="activoCheck">Activo</label>
-                    </div>
-
                     <!-- Botón -->
-                    <button type="submit" class="btn btn-success">
-                        <i class="bi bi-save"></i> Guardar
-                    </button>
+                    <div class="d-flex justify-content-end mt-4">
+                        <a th:if="${cliente.dni != null}" th:href="@{'/historial/cliente/' + ${cliente.dni}}" class="btn btn-info me-2">
+                            <i class="bi bi-clock-history"></i> Ver Historial
+                        </a>
+                        <button type="submit" class="btn btn-success">
+                            <i class="bi bi-save"></i> Guardar
+                        </button>
+                    </div>
                 </form>
             </div>
         </div>

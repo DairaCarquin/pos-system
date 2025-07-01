@@ -205,13 +205,6 @@ public String mostrarFormularioNuevo(Model model) {
 
     @PostMapping("/editar/{id}")
     public String editarCaja(@PathVariable Long id, @ModelAttribute CajaEntity caja, RedirectAttributes redirectAttributes) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String usuarioActual = authentication.getName();
-        UsuarioEntity usuarioSesion = usuarioRepository.getUserByUsername(usuarioActual);
-
-        caja.setUsuarioActualizacion(usuarioSesion);
-        caja.setFechaActualizacion(LocalDateTime.now());
-
         cajaService.actualizar(id, caja);
         redirectAttributes.addFlashAttribute("mensaje", "Caja actualizada correctamente.");
         return "redirect:/caja";
