@@ -9,25 +9,29 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @Controller
-@RequestMapping("/cliente") // ruta para vistas, distinta de /clientes para API
 @RequiredArgsConstructor
 public class ClienteViewController {
 
     private final ClienteService clienteService;
 
-    @GetMapping("/{id}")
-    public String verPerfil(@PathVariable Long id, Model model) {
-        ClienteEntity cliente = clienteService.obtener(id)
-            .orElseThrow(() -> new IllegalArgumentException("Cliente no encontrado con ID: " + id));
+  @GetMapping("/panel-control")
+    public String mostrarPanelDeControl() {
+    // Apuntará al nuevo nombre del archivo HTML
+    return "panel-control"; 
+}
 
-        model.addAttribute("cliente", cliente);
-        return "cliente/perfil"; // Vista HTML a renderizar
+    @GetMapping("/cliente")
+    public String listarClientes(Model model) {
+        List<ClienteEntity> clientes = clienteService.listar();
+        model.addAttribute("clientes", clientes);
+        return "cliente/lista";
     }
 
-    @GetMapping
-    public String listarClientes(Model model) {
-    List<ClienteEntity> clientes = clienteService.listar(); // puede ser vacía
-    model.addAttribute("clientes", clientes);
-    return "cliente/lista";
-}
+    @GetMapping("/cliente/{id}")
+    public String verPerfil(@PathVariable Long id, Model model) {
+        ClienteEntity cliente = clienteService.obtener(id)
+                .orElseThrow(() -> new IllegalArgumentException("Cliente no encontrado con ID: " + id));
+        model.addAttribute("cliente", cliente);
+        return "cliente/perfil";
+    }
 }

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Panel de Control</title>
+</head>
+<body>
+<div layout:fragment="contenido" class="container mt-4">
+
+    <h1 class="mb-4">Panel de Control</h1>
+    <p class="text-muted">Seleccione una de las funciones para gestionar el sistema.</p>
+
+    <div class="row g-4 mt-3">
+
+        <div class="col-md-6 col-lg-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Gestión de Precios</h5>
+                    <p class="card-text">Registrar y actualizar precios de compra y venta por producto. Validar márgenes.</p>
+                    <a th:href="@{/producto}" class="btn btn-primary">Ir a productos</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Descuentos</h5>
+                    <p class="card-text">Crear, activar o eliminar descuentos con reglas específicas por categoría o producto.</p>
+                    <a th:href="@{/descuentos}" class="btn btn-primary">Ver descuentos</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Sistema de Puntos</h5>
+                    <p class="card-text">Gestiona los clientes y consulta los puntos acumulados que se asignan automáticamente.</p>
+                    <a th:href="@{/cliente}" class="btn btn-primary">Ver Puntos de Cliente</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Reportes</h5>
+                    <p class="card-text">Consultar historial de ventas, exportar datos y aplicar filtros por fecha o producto.</p>
+                    <a th:href="@{/reportes/reporte}" class="btn btn-primary">Ir a reportes</a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+</body>
+</html>
