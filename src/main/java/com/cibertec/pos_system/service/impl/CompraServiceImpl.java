@@ -3,8 +3,9 @@ package com.cibertec.pos_system.service.impl;
 import com.cibertec.pos_system.service.CompraService;
 import com.cibertec.pos_system.entity.CompraEntity;
 import com.cibertec.pos_system.repository.CompraRepository;
-import com.cibertec.pos_system.service.CompraService;
-import org.springframework.stereotype.Service; // <-- Este es el que faltaba
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -42,5 +43,25 @@ public class CompraServiceImpl implements CompraService {
     @Override
     public long contarComprasPorCliente(String dni) {
         return compraRepository.contarComprasPorCliente(dni);
+    }
+
+    @Override
+    public Page<CompraEntity> listarComprasPorClientePaginado(String dni, Pageable pageable) {
+        return compraRepository.findByClienteDni(dni, pageable);
+    }
+
+    @Override
+    public Page<CompraEntity> listarComprasPorClienteIdPaginado(Long clienteId, Pageable pageable) {
+        return compraRepository.findByClienteId(clienteId, pageable);
+    }
+
+    @Override
+    public List<CompraEntity> listarTodasLasCompras() {
+        return compraRepository.findAll();
+    }
+
+    @Override
+    public Page<CompraEntity> listarTodasLasComprasPaginadas(Pageable pageable) {
+        return compraRepository.findAll(pageable);
     }
 }
