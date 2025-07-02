@@ -66,16 +66,16 @@ INSERT INTO cajas (codigo, nombre, fecha_creacion, usuario_id, local_id) VALUES
 
 --CLIENTES
 INSERT INTO clientes (dni, nombre, apellido, direccion, telefono, email, activo, tipo, puntos_acumulados) VALUES
-('12345678', 'Juan', 'Pérez', 'Av. Lima 123', '999111222', 'juan.perez@email.com', 1, 'regular', 10),
-('87654321', 'María', 'García', 'Calle Sol 456', '988222333', 'maria.garcia@email.com', 1, 'vip', 50),
-('11223344', 'Carlos', 'Ramírez', 'Jr. Luna 789', '977333444', 'carlos.ramirez@email.com', 1, 'regular', 5),
-('44332211', 'Ana', 'Torres', 'Av. Mar 321', '966444555', 'ana.torres@email.com', 1, 'vip', 80),
-('55667788', 'Luis', 'Soto', 'Calle Río 654', '955555666', 'luis.soto@email.com', 1, 'regular', 0),
-('88776655', 'Elena', 'Mendoza', 'Jr. Sol 987', '944666777', 'elena.mendoza@email.com', 1, 'vip', 120),
-('99887766', 'Pedro', 'Vargas', 'Av. Paz 159', '933777888', 'pedro.vargas@email.com', 1, 'regular', 15),
-('66778899', 'Lucía', 'Flores', 'Calle Luna 753', '922888999', 'lucia.flores@email.com', 1, 'vip', 200),
-('33445566', 'Miguel', 'Castro', 'Jr. Estrella 852', '911999000', 'miguel.castro@email.com', 1, 'regular', 7),
-('66554433', 'Rosa', 'Reyes', 'Av. Sol 951', '900000111', 'rosa.reyes@email.com', 1, 'vip', 60);
+('12345678', 'Juan', 'Pérez', 'Av. Lima 123', '999111222', 'juan.perez@email.com', true, 'regular', 10),
+('87654321', 'María', 'García', 'Calle Sol 456', '988222333', 'maria.garcia@email.com', true, 'vip', 50),
+('11223344', 'Carlos', 'Ramírez', 'Jr. Luna 789', '977333444', 'carlos.ramirez@email.com', true, 'regular', 5),
+('44332211', 'Ana', 'Torres', 'Av. Mar 321', '966444555', 'ana.torres@email.com', true, 'vip', 80),
+('55667788', 'Luis', 'Soto', 'Calle Río 654', '955555666', 'luis.soto@email.com', true, 'regular', 0),
+('88776655', 'Elena', 'Mendoza', 'Jr. Sol 987', '944666777', 'elena.mendoza@email.com', true, 'vip', 120),
+('99887766', 'Pedro', 'Vargas', 'Av. Paz 159', '933777888', 'pedro.vargas@email.com', true, 'regular', 15),
+('66778899', 'Lucía', 'Flores', 'Calle Luna 753', '922888999', 'lucia.flores@email.com', true, 'vip', 200),
+('33445566', 'Miguel', 'Castro', 'Jr. Estrella 852', '911999000', 'miguel.castro@email.com', true, 'regular', 7),
+('66554433', 'Rosa', 'Reyes', 'Av. Sol 951', '900000111', 'rosa.reyes@email.com', true, 'vip', 60);
 
 
 -- PROVEEDORES
