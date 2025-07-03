@@ -23,7 +23,6 @@
                 <td th:text="${mp.id}"></td>
                 <td th:text="${mp.nombre}"></td>
                 <td>
-                    <a th:href="@{'/medioPago/editar/' + ${mp.id}}" class="btn btn-sm btn-warning">Editar</a>
                     <a th:href="@{'/medioPago/eliminar/' + ${mp.id}}"
                        class="btn btn-sm btn-danger"
                        onclick="return confirm('¿Estás seguro de eliminar este medio de pago?');">
