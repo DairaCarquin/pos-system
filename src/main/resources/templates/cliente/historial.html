@@ -5,6 +5,49 @@
 <head>
     <meta charset="UTF-8">
     <title>Historial de Compras</title>
+    <style>
+        /* Fondo azul suave para la página */
+        body {
+            background: linear-gradient(135deg, #e3f0ff 0%, #b3d8ff 100%);
+            min-height: 100vh;
+        }
+        /* Tarjeta con borde azul y sombra */
+        .card {
+            border: 1.5px solid #1976d2;
+            box-shadow: 0 4px 16px rgba(25, 118, 210, 0.10);
+        }
+        /* Encabezado azul intenso */
+        .card-header.bg-dark {
+            background: #1976d2 !important;
+            color: #fff !important;
+        }
+        /* Tabla con encabezado azul y filas resaltadas */
+        .table thead.table-dark th {
+            background: #1976d2 !important;
+            color: #fff;
+        }
+        /* Quitar color de fondo de filas, dejar solo bordes normales */
+        .table-striped > tbody > tr:nth-of-type(odd) {
+            background-color: inherit;
+        }
+        /* Botón volver con azul */
+        .btn-secondary {
+            background: #1976d2;
+            border: none;
+            color: #fff;
+        }
+        .btn-secondary:hover {
+            background: #1565c0;
+        }
+        /* Paginación azul */
+        .pagination .page-item.active .page-link {
+            background: #1976d2;
+            border-color: #1976d2;
+        }
+        .pagination .page-link {
+            color: #1976d2;
+        }
+    </style>
 </head>
 <body>
 <div layout:fragment="contenido">
@@ -38,8 +81,24 @@
                             <td th:text="${compra.id}"></td>
                             <td th:text="${compra.fechaHora != null ? #temporals.format(compra.fechaHora, 'dd/MM/yyyy HH:mm') : 'N/A'}"></td>
                             <td th:text="${compra.total != null ? (#numbers.formatDecimal(compra.total, 1, 'COMMA', 2, 'POINT') + ' S/') : '0.00 S/'}"></td>
-                            <td th:text="${compra.medioPago != null ? compra.medioPago.nombre : 'N/A'}"></td>
-                            <td th:text="${compra.cliente != null ? (compra.cliente.nombre + ' ' + compra.cliente.apellido) : 'Cliente anónimo'}"></td>
+<td>
+    <span th:if="${compra.medioPago != null and compra.medioPago.nombre.toLowerCase() == 'efectivo'}">
+        <i class="bi bi-cash-stack me-1"></i>
+        <span th:text="${compra.medioPago.nombre}"></span>
+    </span>
+    <span th:if="${compra.medioPago != null and compra.medioPago.nombre.toLowerCase() == 'tarjeta'}">
+        <i class="bi bi-credit-card me-1"></i>
+        <span th:text="${compra.medioPago.nombre}"></span>
+    </span>
+    <span th:if="${compra.medioPago != null and compra.medioPago.nombre.toLowerCase() != 'efectivo' and compra.medioPago.nombre.toLowerCase() != 'tarjeta'}">
+        <i class="bi bi-currency-exchange me-1"></i>
+        <span th:text="${compra.medioPago.nombre}"></span>
+    </span>
+    <span th:if="${compra.medioPago == null}">
+        <i class="bi bi-question-circle me-1"></i>
+        N/A
+    </span>
+<td th:text="${compra.cliente != null ? (compra.cliente.nombre + ' ' + compra.cliente.apellido) : 'Cliente anónimo'}"></td>
                         </tr>
                         </tbody>
                     </table>

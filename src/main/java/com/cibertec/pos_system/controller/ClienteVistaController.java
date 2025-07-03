@@ -13,7 +13,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.ui.Model;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
+import com.cibertec.pos_system.repository.CajaVentaRepository;
 import java.util.Optional;
 
 @Controller
@@ -21,14 +21,16 @@ import java.util.Optional;
 public class ClienteVistaController {
 
     private final ClienteRepository clienteRepository;
-    private final ClienteService clienteService;
-    private final CompraRepository compraRepository;
+private final ClienteService clienteService;
+private final CompraRepository compraRepository;
+private final CajaVentaRepository cajaVentaRepository;
 
-    public ClienteVistaController(ClienteService clienteService, CompraRepository compraRepository, ClienteRepository clienteRepository) {
-        this.clienteService = clienteService;
-        this.compraRepository = compraRepository; // <-- y aquí
-        this.clienteRepository = clienteRepository;
-    }
+public ClienteVistaController(ClienteService clienteService, CompraRepository compraRepository, ClienteRepository clienteRepository, CajaVentaRepository cajaVentaRepository) {
+    this.clienteService = clienteService;
+    this.compraRepository = compraRepository;
+    this.clienteRepository = clienteRepository;
+    this.cajaVentaRepository = cajaVentaRepository;
+}
 
     @GetMapping("/nuevo")
     public String nuevoCliente(Model model) {
@@ -115,8 +117,6 @@ public class ClienteVistaController {
 
 
 
-
-
     @GetMapping("/editar/{id}")
     public String editarCliente(@PathVariable Long id, Model model) {
         ClienteEntity cliente = clienteService.obtener(id)
@@ -125,15 +125,15 @@ public class ClienteVistaController {
         return "cliente/nuevo"; // reutilizamos el mismo formulario
     }
     @GetMapping("/eliminar/{id}")
-    public String eliminarCliente(@PathVariable("id") Long id, RedirectAttributes redirect) {
-        if (compraRepository.existsByClienteId(id)) {
-            redirect.addFlashAttribute("mensajeError", "No se puede eliminar el cliente porque tiene historial de compras.");
-        } else {
-            clienteService.eliminar(id);
-            redirect.addFlashAttribute("mensaje", "Cliente eliminado correctamente.");
-        }
-        return "redirect:/clientesVista/listado";
+public String eliminarCliente(@PathVariable("id") Long id, RedirectAttributes redirect) {
+    if (cajaVentaRepository.existsByClienteId(id)) {
+        redirect.addFlashAttribute("mensajeError", "NO se puede eliminar cliente porque tiene historial asociado");
+    } else {
+        clienteService.eliminar(id);
+        redirect.addFlashAttribute("mensaje", "Cliente eliminado correctamente.");
     }
+    return "redirect:/clientesVista/listado";
+}
 
 
     @GetMapping
