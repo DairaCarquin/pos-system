@@ -25,5 +25,5 @@ List<Object[]> findVentasEfectivoPorSesion(@Param("cajaSesionId") Long cajaSesio
 
 List<CajaVentaEntity> findByCliente_Dni(String dni);
 List<CajaVentaEntity> findByCliente_Id(Long id);
-
+boolean existsByClienteId(Long clienteId);
 }
