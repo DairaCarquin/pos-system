@@ -113,7 +113,6 @@ public class OrdenCompraService {
             throw new IllegalStateException("Solo se puede procesar una orden pendiente");
         }
         orden.setEstado("en_proceso");
-        // Podrías guardar el tiempo de entrega si lo agregas a la entidad
         ordenCompraRepo.save(orden);
     }
 
