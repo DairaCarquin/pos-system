@@ -1,0 +1,210 @@
+@import url('https://fonts.googleapis.com/css2?family=Cascadia+Code:ital,wght@0,200..700;1,200..700&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+
+* {
+   padding: 0;
+   margin: 0;
+   box-sizing: border-box;
+   font-family: 'roboto';
+}
+.header {
+   display: flex;
+   min-height: 10dvh;
+   margin-bottom: 1rem;
+   justify-content: space-between;
+   align-items: center;
+   box-shadow: 0 0 1px black;
+
+   h1 {
+      margin-left: 1rem;
+      cursor: default;
+   }
+
+   nav {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-right: 1rem;
+
+      a {
+         text-decoration: none;
+         font-weight: 500;
+         font-size: 0.9rem;
+         color: black;
+         transition: color 0.3s ease-out;
+      }
+      a:hover {
+         color: blue;
+      }
+      a:nth-child(4) {
+         display: flex;
+         align-items: center;
+         gap: 0.2rem;
+      }
+   }
+}
+.container {
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+   justify-content: center;
+}
+
+.container-home {
+   width: 80%;
+   margin: 0 auto;
+   padding: 2rem 1rem;
+   font-family: 'Roboto', sans-serif;
+   color: #333;
+}
+
+/* Hero */
+.hero {
+   background-color: #f3f4f6;
+   padding: 2rem;
+   text-align: center;
+   border-radius: 1rem;
+   margin-bottom: 2rem;
+}
+.hero h2 {
+   font-size: 2rem;
+   margin-bottom: 0.5rem;
+}
+.hero p {
+   font-size: 1.1rem;
+   margin-bottom: 1rem;
+}
+.hero .btn-principal {
+   background-color: #007bff;
+   color: white;
+   padding: 0.75rem 1.5rem;
+   border: none;
+   border-radius: 0.5rem;
+   text-decoration: none;
+   transition: background 0.3s ease;
+}
+.hero .btn-principal:hover {
+   background-color: #0056b3;
+}
+
+/* Beneficios */
+.beneficios {
+   background-color: #e7f0fe;
+   padding: 1.5rem;
+   border-radius: 1rem;
+   margin-bottom: 2rem;
+}
+.beneficios h3 {
+   font-size: 1.5rem;
+   margin-bottom: 1rem;
+}
+.beneficios ul {
+   list-style: none;
+   padding: 0;
+}
+.beneficios li {
+   margin-bottom: 0.5rem;
+   font-size: 1rem;
+}
+
+/* Testimonios */
+.testimonios {
+   background-color: #fef9c3;
+   padding: 1.5rem;
+   border-radius: 1rem;
+   margin-bottom: 2rem;
+}
+.testimonios h3 {
+   margin-bottom: 1rem;
+}
+.testimonios blockquote {
+   margin: 0 0 1rem;
+   padding-left: 1rem;
+   border-left: 4px solid #facc15;
+   font-style: italic;
+   color: #444;
+}
+
+/* Preguntas Frecuentes (FAQ) */
+.faq {
+   background-color: #f3f4f6;
+   padding: 1.5rem;
+   border-radius: 1rem;
+   margin-bottom: 2rem;
+}
+.faq h3 {
+   margin-bottom: 1rem;
+}
+.faq details {
+   margin-bottom: 1rem;
+   cursor: pointer;
+}
+.faq summary {
+   font-weight: bold;
+   margin-bottom: 0.3rem;
+}
+.faq p {
+   margin-left: 1rem;
+}
+
+/* Redes Sociales */
+.redes {
+   text-align: center;
+   padding: 1rem;
+}
+.redes h3 {
+   margin-bottom: 0.5rem;
+}
+.redes a {
+   color: #007bff;
+   text-decoration: none;
+   margin: 0 0.5rem;
+}
+.redes a:hover {
+   text-decoration: underline;
+}
+.footer {
+   background-color: #1f2937;
+   color: white;
+   padding: 2rem 1rem;
+   font-family: 'Roboto', sans-serif;
+}
+
+.footer-container {
+   display: grid;
+   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+   gap: 2rem;
+   max-width: 1200px;
+   margin: 0 auto;
+}
+
+.footer-section h4 {
+   margin-bottom: 0.5rem;
+   font-size: 1.2rem;
+   border-bottom: 1px solid #4b5563;
+   padding-bottom: 0.3rem;
+}
+
+.footer-section ul {
+   list-style: none;
+   padding: 0;
+}
+
+.footer-section ul li {
+   margin: 0.3rem 0;
+}
+
+.footer-section a {
+   color: #93c5fd;
+   text-decoration: none;
+}
+
+.footer-section a:hover {
+   text-decoration: underline;
+}
+
+.footer-copy {
+   text-align: center;
+   margin-top: 2rem;
+   font-size: 0.9rem;
+   color: #d1d5db;
+}
