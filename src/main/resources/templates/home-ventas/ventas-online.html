@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="stylesheet" th:href="@{/home-ventas/css/ventas-online.css}" />
+
+      <title>Document</title>
+   </head>
+   <body>
+      <h1>Estamos en ventas online</h1>
+      <h2>Listado de Ventas Web</h2>
+      <table>
+         <thead>
+            <tr>
+               <th>ID</th>
+               <th>Fecha</th>
+               <th>Subtotal</th>
+               <th>IGV</th>
+               <th>Total</th>
+               <th>Método de Pago</th>
+               <th>Estado</th>
+               <th>Accion</th>
+            </tr>
+         </thead>
+         <tbody>
+            <tr th:each="venta : ${ventas}">
+               <td th:text="${venta.id}"></td>
+               <td th:text="${#temporals.format(venta.fecha, 'dd/MM/yyyy HH:mm')}"></td>
+               <td th:text="${venta.subtotal}"></td>
+               <td th:text="${venta.impuestos}"></td>
+               <td th:text="${venta.total}"></td>
+               <td th:text="${venta.metodoPago}"></td>
+               <td th:text="${venta.estado}"></td>
+               <td>
+                  <a th:href="@{'/ventas-online/detalle/' + ${venta.id}}">
+                     <button>Ver Detalles</button>
+                  </a>
+               </td>
+            </tr>
+         </tbody>
+      </table>
+   </body>
+</html>

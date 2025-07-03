@@ -113,6 +113,13 @@
       .btn-volver:hover {
         background-color: #5a6268;
       }
+
+      .disabled-button {
+        background-color: #ccc !important;
+        color: #666 !important;
+        cursor: not-allowed !important;
+        pointer-events: none;
+      }
     </style>
   </head>
   <body>
@@ -162,7 +169,10 @@
             <button
               type="button"
               class="btn btn-success"
-              onclick="confirmarRecepcion()"
+              th:disabled="${orden.estado != 'pendiente'}"
+              th:onclick="${orden.estado == 'pendiente'} ? 'confirmarRecepcion()' : null"
+              th:title="${orden.estado != 'pendiente'} ? 'Solo se puede marcar como recibida si está pendiente' : ''"
+              th:classappend="${orden.estado != 'pendiente'} ? ' disabled-button' : ''"
             >
               Marcar como Recibida
             </button>
@@ -176,7 +186,10 @@
             <button
               type="button"
               class="btn btn-danger"
-              onclick="confirmarCancelacion()"
+              th:disabled="${orden.estado != 'pendiente'}"
+              th:onclick="${orden.estado == 'pendiente'} ? 'confirmarCancelacion()' : null"
+              th:title="${orden.estado != 'pendiente'} ? 'Solo se puede cancelar si está pendiente' : ''"
+              th:classappend="${orden.estado != 'pendiente'} ? ' disabled-button' : ''"
             >
               Cancelar Orden
             </button>
@@ -214,6 +227,24 @@
           }).then((result) => {
             if (result.isConfirmed) {
               document.getElementById("form-cancelar").submit();
+            }
+          });
+        }
+      </script>
+      <script>
+        function confirmarRecepcion() {
+          Swal.fire({
+            title: "¿Recibiste el pedido solicitado?",
+            text: "Esta acción marcará la orden como recibida y no podrá revertirse.",
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonColor: "#28a745",
+            cancelButtonColor: "#6c757d",
+            confirmButtonText: "Sí, recibido",
+            cancelButtonText: "Cancelar",
+          }).then((result) => {
+            if (result.isConfirmed) {
+              document.getElementById("form-recibir").submit();
             }
           });
         }

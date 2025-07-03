@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Document</title>
+      <link rel="stylesheet" th:href="@{/home-ventas/css/index.css}" />
+      <link rel="stylesheet" th:href="@{/home-ventas/css/about.css}" />
+   </head>
+   <body>
+      <header class="header">
+         <h1>Chafa Fea</h1>
+         <nav>
+            <a href="/">Inicio</a>
+            <a href="/home/productos">Productos</a>
+            <a href="/home/about">about</a>
+            <a href="/home/carrito" class="cart"
+               >🛒
+               <p th:text="${carritoQuantity < 1 ? '0' : carritoQuantity}"></p
+            ></a>
+         </nav>
+      </header>
+      <main class="container">
+         <section class="about-container">
+            <h2>Sobre Chafa Fea</h2>
+            <p>
+               En <strong>Chafa Fea</strong>, creemos que todos merecen productos de calidad a precios accesibles.
+               Nacimos con el propósito de ofrecer una experiencia de compra simple, rápida y segura.
+            </p>
+
+            <h3>Nuestra Misión</h3>
+            <p>
+               Brindar productos únicos, útiles y asequibles para el día a día, apoyando al mismo tiempo a emprendedores
+               y proveedores locales.
+            </p>
+
+            <h3>¿Qué ofrecemos?</h3>
+            <ul>
+               <li>🛍️ Variedad de productos seleccionados</li>
+               <li>🚚 Envíos rápidos y seguimiento en tiempo real</li>
+               <li>💬 Atención personalizada por WhatsApp</li>
+               <li>🔒 Pagos seguros y protegidos</li>
+            </ul>
+
+            <h3>Contáctanos</h3>
+            <p>Si tienes preguntas, sugerencias o necesitas ayuda, no dudes en escribirnos a:</p>
+            <p><strong>Email:</strong> contacto@chafafea.com</p>
+            <p><strong>WhatsApp:</strong> +51 987 654 321</p>
+         </section>
+      </main>
+      <footer class="footer">
+         <div class="footer-container">
+            <div class="footer-section">
+               <h4>Chafa Fea</h4>
+               <p>Tu tienda online de confianza con productos únicos.</p>
+            </div>
+            <div class="footer-section">
+               <h4>Enlaces útiles</h4>
+               <ul>
+                  <li><a href="/home/productos">Productos</a></li>
+                  <li><a href="/home/about">Sobre nosotros</a></li>
+                  <li><a href="/home/carrito">Carrito</a></li>
+               </ul>
+            </div>
+            <div class="footer-section">
+               <h4>Contáctanos</h4>
+               <p>Email: contacto@chafafea.com</p>
+               <p>WhatsApp: +51 987 654 321</p>
+            </div>
+            <div class="footer-section">
+               <h4>Síguenos</h4>
+               <a href="#">Facebook</a> | <a href="#">Instagram</a>
+            </div>
+         </div>
+         <div class="footer-copy">
+            <p>&copy; 2025 Chafa Fea. Todos los derechos reservados.</p>
+         </div>
+      </footer>
+   </body>
+</html>

@@ -9,6 +9,9 @@ import com.cibertec.pos_system.repository.ProductoRepository;
 import com.cibertec.pos_system.service.DescuentoService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -35,17 +38,19 @@ public class ProductoService {
         this.precioDescuentoRepository = precioDescuentoRepository;
         this.descuentoService = descuentoService;
     }
+    
     public List<ProductoEntity> listar() {
         return productoRepository.findAll();
     }
     public List<ProductoEntity> listarTodos() {
         return listar();
     }
-    public List<ProductoEntity> obtenerProductosPorProveedor(Long proveedorId) {
-        List<ProductoEntity> productos = productoRepository.findByProveedorId(proveedorId);
-        log.info("Productos encontrados para proveedor ID {}: {}", proveedorId, productos.size());
-        return productos;
+    
+    public Page<ProductoEntity> obtenerPaginadoPorProveedor(Long proveedorId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return productoRepository.findByProveedorId(proveedorId, pageable);
     }
+
     public List<CategoriaEntity> listarCategorias() {
         return categoriaRepository.findAll();
     }
@@ -58,17 +63,23 @@ public class ProductoService {
     public ProductoEntity crear(ProductoEntity producto) {
         return productoRepository.save(producto);
     }
-    public ProductoEntity actualizar(Long id, ProductoEntity producto) {
-        producto.setId(id);
-        return productoRepository.save(producto);
+
+    public ProductoEntity actualizar(Long id, ProductoEntity nuevoProducto) {
+        productoRepository.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("Producto no encontrado"));
+
+        nuevoProducto.setId(id);
+        return productoRepository.save(nuevoProducto);
     }
+
     public void eliminar(Long id) {
         productoRepository.deleteById(id);
     }
+    
     public Optional<ProductoEntity> obtener(Long id) {
         return productoRepository.findById(id);
     }
-    public List<ProductoEntity> listarSoloConDescuento() {
+  public List<ProductoEntity> listarSoloConDescuento() {
     sincronizarDescuentosVigentes(); // asegura que estén actualizados natm
     List<PrecioDescuentoEntity> lista = precioDescuentoRepository.findAll()
         .stream()
@@ -77,7 +88,7 @@ public class ProductoService {
     List<ProductoEntity> resultado = new ArrayList<>();
     for (PrecioDescuentoEntity pd : lista) {
         ProductoEntity producto = pd.getProducto();
-        producto.setPrecioFinal(pd.getPrecioFinal());
+        producto.setPrecio(pd.getPrecioFinal());
         producto.setMontoDescuento(pd.getValorDescuento());
         producto.setDescuentoAplicado(pd.getDescuento());
         resultado.add(producto);
@@ -125,4 +136,18 @@ public class ProductoService {
         }
     }
 }
+
+    public List<ProductoEntity> listarPorProveedor(Long proveedorId) {
+        return productoRepository.findByProveedorId(proveedorId, Pageable.unpaged()).getContent();
+    }
+    
+    public List<ProductoEntity> listarPorCategoria(Long categoriaId) {
+        return productoRepository.findByCategoriaId(categoriaId);
+    }
 }
+      
+
+      
+    
+
+
