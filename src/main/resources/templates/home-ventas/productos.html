@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Document</title>
+      <link rel="stylesheet" th:href="@{/home-ventas/css/productos.css}" />
+      <link rel="stylesheet" th:href="@{/home-ventas/css/index.css}" />
+   </head>
+   <body>
+      <header class="header">
+         <h1>Chafa Fea</h1>
+         <nav>
+            <a href="/">Inicio</a>
+            <a href="/home/productos">Productos</a>
+            <a href="/home/about">about</a>
+            <a href="/home/carrito" class="cart"
+               >🛒
+               <p th:text="${carritoQuantity < 1 ? '0' : carritoQuantity}"></p
+            ></a>
+         </nav>
+      </header>
+
+      <main class="container">
+         <section class="sectionProducto">
+            <ul th:each="producto : ${productos}">
+               <a th:href="@{/home/productos/{id}(id=${producto.id})}">
+                  <img th:src="@{'/home-ventas/img/' + ${producto.imagen}}" alt="imagen de ${producto.nombre}" />
+               </a>
+               <li th:text=" @{${producto.codigo} +' - ' + ${producto.categoria.nombre} } "></li>
+               <li th:text="${producto.nombre}"></li>
+               <li th:text="${producto.descripcion}"></li>
+               <li th:text="@{ '$ ' + ${producto.precio} }"></li>
+               <li th:text="@{ 'Cantidad Disponible: ' + ${producto.stockActual}}"></li>
+            </ul>
+         </section>
+      </main>
+      <footer class="footer">
+         <div class="footer-container">
+            <div class="footer-section">
+               <h4>Chafa Fea</h4>
+               <p>Tu tienda online de confianza con productos únicos.</p>
+            </div>
+            <div class="footer-section">
+               <h4>Enlaces útiles</h4>
+               <ul>
+                  <li><a href="/home/productos">Productos</a></li>
+                  <li><a href="/home/about">Sobre nosotros</a></li>
+                  <li><a href="/home/carrito">Carrito</a></li>
+               </ul>
+            </div>
+            <div class="footer-section">
+               <h4>Contáctanos</h4>
+               <p>Email: contacto@chafafea.com</p>
+               <p>WhatsApp: +51 987 654 321</p>
+            </div>
+            <div class="footer-section">
+               <h4>Síguenos</h4>
+               <a href="#">Facebook</a> | <a href="#">Instagram</a>
+            </div>
+         </div>
+         <div class="footer-copy">
+            <p>&copy; 2025 Chafa Fea. Todos los derechos reservados.</p>
+         </div>
+      </footer>
+   </body>
+</html>

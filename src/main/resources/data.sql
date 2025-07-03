@@ -97,68 +97,68 @@ INSERT INTO categorias (nombre, descripcion, activo) VALUES
 -- PRODUCTOS
 -- Abarrotes (categoria_id = 1)
 INSERT INTO productos (codigo, nombre, descripcion, precio, imagen, activo, stock_actual, categoria_id, proveedor_id) VALUES
-('ABR001', 'Arroz', 'Arroz extra', 3.50, NULL, true, 100, 1, 1),
-('ABR002', 'Azúcar', 'Azúcar rubia', 2.80, NULL, true, 80, 1, 1),
-('ABR003', 'Fideos', 'Fideos largos', 2.20, NULL, true, 60, 1, 1),
-('ABR004', 'Lentejas', 'Lentejas verdes', 4.00, NULL, true, 50, 1, 1),
-('ABR005', 'Aceite', 'Aceite vegetal', 8.50, NULL, true, 40, 1, 1),
-('ABR006', 'Sal', 'Sal fina', 1.00, NULL, true, 70, 1, 1),
-('ABR007', 'Harina', 'Harina sin preparar', 3.00, NULL, true, 100, 1, 1),
-('ABR008', 'Avena', 'Avena en hojuelas', 2.50, NULL, true, 100, 1, 1),
-('ABR009', 'Maíz', 'Maíz mote', 2.80, NULL, true, 100, 1, 1),
-('ABR010', 'Frejol', 'Frejol canario', 5.00, NULL, true, 100, 1, 1);
+('ABR001', 'Arroz', 'Arroz extra', 3.50, 'arroz.jpg', true, 100, 1, 1),
+('ABR002', 'Azúcar', 'Azúcar rubia', 2.80, 'Azucar.webp', true, 80, 1, 1),
+('ABR003', 'Fideos', 'Fideos largos', 2.20, 'Fideos.webp', true, 60, 1, 1),
+('ABR004', 'Lentejas', 'Lentejas verdes', 4.00, 'Lentejas.webp', true, 50, 1, 1),
+('ABR005', 'Aceite', 'Aceite vegetal', 8.50, 'Aceite.webp', true, 40, 1, 1),
+('ABR006', 'Sal', 'Sal fina', 1.00, 'sal.jpg', true, 70, 1, 1),
+('ABR007', 'Harina', 'Harina sin preparar', 3.00, 'harina.png', true, 100, 1, 1),
+('ABR008', 'Avena', 'Avena en hojuelas', 2.50, 'avena.jpg', true, 100, 1, 1),
+('ABR009', 'Maíz', 'Maíz mote', 2.80, 'maiz.jpg', true, 100, 1, 1),
+('ABR010', 'Frejol', 'Frejol canario', 5.00, 'frijol.jpg', true, 100, 1, 1);
 
 -- Lácteos (categoria_id = 2)
 INSERT INTO productos (codigo, nombre, descripcion, precio, imagen, activo, stock_actual, categoria_id, proveedor_id) VALUES
-('LAC001', 'Leche Entera', 'Leche fresca', 4.20, NULL, true, 60, 2, 1),
-('LAC002', 'Yogurt', 'Yogurt natural', 2.50, NULL, true, 50, 2, 1),
-('LAC003', 'Queso Fresco', 'Queso de vaca', 8.00, NULL, true, 40, 2, 1),
-('LAC004', 'Mantequilla', 'Mantequilla sin sal', 6.50, NULL, true, 30, 2, 1),
-('LAC005', 'Leche Evaporada', 'Leche en lata', 3.00, NULL, true, 70, 2, 1),
-('LAC006', 'Queso Edam', 'Queso bola', 12.00, NULL, true, 20, 2, 1),
-('LAC007', 'Queso Parmesano', 'Queso rallado', 10.00, NULL, true, 15, 2, 1),
-('LAC008', 'Leche Deslactosada', 'Leche sin lactosa', 4.80, NULL, true, 25, 2, 1),
-('LAC009', 'Yogurt Griego', 'Yogurt espeso', 3.50, NULL, true, 18, 2, 1),
-('LAC010', 'Queso Mozzarella', 'Queso para pizza', 9.00, NULL, true, 22, 2, 1);
+('LAC001', 'Leche Entera', 'Leche fresca', 4.20, 'leche.jpg', true, 60, 2, 1),
+('LAC002', 'Yogurt', 'Yogurt natural', 2.50, 'yogurt.jpg', true, 50, 2, 1),
+('LAC003', 'Queso Fresco', 'Queso de vaca', 8.00, 'queso fresco.png', true, 40, 2, 1),
+('LAC004', 'Mantequilla', 'Mantequilla sin sal', 6.50, 'mantequilla.jpg', true, 30, 2, 1),
+('LAC005', 'Leche Evaporada', 'Leche en lata', 3.00, 'leche evaporada.jpg', true, 70, 2, 1),
+('LAC006', 'Queso Edam', 'Queso bola', 12.00, 'queso edam.jpg', true, 20, 2, 1),
+('LAC007', 'Queso Parmesano', 'Queso rallado', 10.00, 'queso parmesano.jpg', true, 15, 2, 1),
+('LAC008', 'Leche Deslactosada', 'Leche sin lactosa', 4.80, 'leche deslactosada.jpg', true, 25, 2, 1),
+('LAC009', 'Yogurt Griego', 'Yogurt espeso', 3.50, 'yogurt griego.jpg', true, 18, 2, 1),
+('LAC010', 'Queso Mozzarella', 'Queso para pizza', 9.00, 'queso mozzarella.jpg', true, 22, 2, 1);
 
 -- Bebidas (categoria_id = 3)
 INSERT INTO productos (codigo, nombre, descripcion, precio, imagen, activo, stock_actual, categoria_id, proveedor_id) VALUES
-('BEB001', 'Agua Mineral', 'Agua sin gas', 1.50, NULL, true, 100, 3, 1),
-('BEB002', 'Gaseosa Cola', 'Bebida gaseosa', 3.00, NULL, true, 80, 3, 1),
-('BEB003', 'Jugo de Naranja', 'Jugo natural', 2.80, NULL, true, 60, 3, 1),
-('BEB004', 'Cerveza', 'Cerveza rubia', 5.00, NULL, true, 50, 3, 1),
-('BEB005', 'Vino Tinto', 'Vino de mesa', 15.00, NULL, true, 20, 3, 1),
-('BEB006', 'Energizante', 'Bebida energética', 4.00, NULL, true, 30, 3, 1),
-('BEB007', 'Té Helado', 'Té frío', 2.20, NULL, true, 25, 3, 1),
-('BEB008', 'Café', 'Café instantáneo', 3.50, NULL, true, 40, 3, 1),
-('BEB009', 'Jugo de Piña', 'Jugo natural', 2.80, NULL, true, 35, 3, 1),
-('BEB010', 'Agua con Gas', 'Agua gasificada', 2.00, NULL, true, 28, 3, 1);
+('BEB001', 'Agua Mineral', 'Agua sin gas', 1.50, 'agua mineral.jpg', true, 100, 3, 1),
+('BEB002', 'Gaseosa Cola', 'Bebida gaseosa', 3.00, 'gaseosa cola.jpg', true, 80, 3, 1),
+('BEB003', 'Jugo de Naranja', 'Jugo natural', 2.80, 'jugo de naranja.jpg', true, 60, 3, 1),
+('BEB004', 'Cerveza', 'Cerveza rubia', 5.00, 'cerveza.jpg', true, 50, 3, 1),
+('BEB005', 'Vino Tinto', 'Vino de mesa', 15.00, 'vino tinto.jpg', true, 20, 3, 1),
+('BEB006', 'Energizante', 'Bebida energética', 4.00, 'energizante.jpg', true, 30, 3, 1),
+('BEB007', 'Té Helado', 'Té frío', 2.20, 'te helado.jpg', true, 25, 3, 1),
+('BEB008', 'Café', 'Café instantáneo', 3.50, 'cafe.jpg', true, 40, 3, 1),
+('BEB009', 'Jugo de Piña', 'Jugo natural', 2.80, 'juego de piña.jpg', true, 35, 3, 1),
+('BEB010', 'Agua con Gas', 'Agua gasificada', 2.00, 'agua con gas.jpg', true, 28, 3, 1);
 
 -- Limpieza (categoria_id = 4)
 INSERT INTO productos (codigo, nombre, descripcion, precio, imagen, activo, stock_actual, categoria_id, proveedor_id) VALUES
-('LIM001', 'Detergente', 'Detergente en polvo', 6.00, NULL, true, 40, 4, 1),
-('LIM002', 'Jabón', 'Jabón de lavar', 2.50, NULL, true, 35, 4, 1),
-('LIM003', 'Lejía', 'Lejía líquida', 3.00, NULL, true, 30, 4, 1),
-('LIM004', 'Esponja', 'Esponja multiuso', 1.20, NULL, true, 50, 4, 1),
-('LIM005', 'Limpiavidrios', 'Spray limpiavidrios', 5.00, NULL, true, 20, 4, 1),
-('LIM006', 'Desinfectante', 'Desinfectante líquido', 4.50, NULL, true, 25, 4, 1),
-('LIM007', 'Trapeador', 'Trapeador absorbente', 8.00, NULL, true, 15, 4, 1),
-('LIM008', 'Escoba', 'Escoba de paja', 7.00, NULL, true, 18, 4, 1),
-('LIM009', 'Guantes', 'Guantes de limpieza', 3.50, NULL, true, 22, 4, 1),
-('LIM010', 'Paño', 'Paño de cocina', 2.00, NULL, true, 27, 4, 1);
+('LIM001', 'Detergente', 'Detergente en polvo', 6.00, 'detergente.jpg', true, 40, 4, 1),
+('LIM002', 'Jabón', 'Jabón de lavar', 2.50, 'jabon.jpg', true, 35, 4, 1),
+('LIM003', 'Lejía', 'Lejía líquida', 3.00, 'lejia.jpg', true, 30, 4, 1),
+('LIM004', 'Esponja', 'Esponja multiuso', 1.20, 'esponja.jpg', true, 50, 4, 1),
+('LIM005', 'Limpiavidrios', 'Spray limpiavidrios', 5.00, 'limpia vidrios.jpg', true, 20, 4, 1),
+('LIM006', 'Desinfectante', 'Desinfectante líquido', 4.50, 'desinfectante.jpg', true, 25, 4, 1),
+('LIM007', 'Trapeador', 'Trapeador absorbente', 8.00, 'trapeador.jpg', true, 15, 4, 1),
+('LIM008', 'Escoba', 'Escoba de paja', 7.00, 'escoba.jpg', true, 18, 4, 1),
+('LIM009', 'Guantes', 'Guantes de limpieza', 3.50, 'guantes.jpg', true, 22, 4, 1),
+('LIM010', 'Paño', 'Paño de cocina', 2.00, 'paño.jpg', true, 27, 4, 1);
 
 -- Panadería (categoria_id = 5)
 INSERT INTO productos (codigo, nombre, descripcion, precio, imagen, activo, stock_actual, categoria_id, proveedor_id) VALUES
-('PAN001', 'Pan Francés', 'Pan tradicional', 0.30, NULL, true, 200, 5, 1),
-('PAN002', 'Pan Integral', 'Pan con fibra', 0.50, NULL, true, 150, 5, 1),
-('PAN003', 'Pan de Molde', 'Pan para sandwich', 3.00, NULL, true, 60, 5, 1),
-('PAN004', 'Croissant', 'Pan hojaldrado', 1.20, NULL, true, 40, 5, 1),
-('PAN005', 'Baguette', 'Pan largo', 2.00, NULL, true, 30, 5, 1),
-('PAN006', 'Pan Dulce', 'Pan con pasas', 1.00, NULL, true, 50, 5, 1),
-('PAN007', 'Rosca', 'Rosca de pan', 1.50, NULL, true, 25, 5, 1),
-('PAN008', 'Pan Ciabatta', 'Pan italiano', 2.50, NULL, true, 20, 5, 1),
-('PAN009', 'Pan Brioche', 'Pan suave', 2.00, NULL, true, 18, 5, 1),
-('PAN010', 'Pan de Yema', 'Pan dulce tradicional', 1.80, NULL, true, 22, 5, 1);
+('PAN001', 'Pan Francés', 'Pan tradicional', 0.30, 'pan frances.jpg', true, 200, 5, 1),
+('PAN002', 'Pan Integral', 'Pan con fibra', 0.50, 'pan integral.jpg', true, 150, 5, 1),
+('PAN003', 'Pan de Molde', 'Pan para sandwich', 3.00, 'pan de molde.jpg', true, 60, 5, 1),
+('PAN004', 'Croissant', 'Pan hojaldrado', 1.20, 'croissant.jpg', true, 40, 5, 1),
+('PAN005', 'Baguette', 'Pan largo', 2.00, 'baguette.jpg', true, 30, 5, 1),
+('PAN006', 'Pan Dulce', 'Pan con pasas', 1.00, 'pan dulce.jpg', true, 50, 5, 1),
+('PAN007', 'Rosca', 'Rosca de pan', 1.50, 'rosca.jpg', true, 25, 5, 1),
+('PAN008', 'Pan Ciabatta', 'Pan italiano', 2.50, 'pan ciabatta.jpg', true, 20, 5, 1),
+('PAN009', 'Pan Brioche', 'Pan suave', 2.00, 'pan brioche.jpg', true, 18, 5, 1),
+('PAN010', 'Pan de Yema', 'Pan dulce tradicional', 1.80, 'pan de yema.jpg', true, 22, 5, 1);
 
 
 -- DESCUENTOS

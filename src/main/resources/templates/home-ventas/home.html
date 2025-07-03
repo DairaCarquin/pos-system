@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="es">
+   <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Document</title>
+      <link rel="stylesheet" th:href="@{/home-ventas/css/index.css}" />
+
+      <link
+         href="https://fonts.googleapis.com/css2?family=Cascadia+Code:ital,wght@0,200..700;1,200..700&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
+         rel="stylesheet"
+      />
+   </head>
+   <style></style>
+   <body>
+      <header class="header">
+         <h1>Chafa Fea</h1>
+         <nav>
+            <a href="/">Inicio</a>
+            <a href="/home/productos">Productos</a>
+            <a href="/home/about">about</a>
+            <a href="/home/carrito" class="cart"
+               >🛒
+               <p th:text="${carritoQuantity < 1 ? '0' : carritoQuantity}"></p
+            ></a>
+         </nav>
+      </header>
+      <main class="container">
+         <div class="container-home">
+            <!-- Sección Hero -->
+            <section class="hero">
+               <h2>Bienvenido a Chafa Fea</h2>
+               <p>Explora nuestra colección de productos únicos a precios increíbles.</p>
+               <a href="/home/productos" class="btn-principal">Ver productos</a>
+            </section>
+
+            <!-- Beneficios -->
+            <section class="beneficios">
+               <h3>¿Por qué comprar con nosotros?</h3>
+               <ul>
+                  <li>✅ Productos de calidad</li>
+                  <li>🚚 Envíos rápidos y seguros</li>
+                  <li>💳 Múltiples métodos de pago</li>
+                  <li>📦 Empaque garantizado</li>
+                  <li>📱 Atención al cliente 24/7</li>
+               </ul>
+            </section>
+
+            <!-- Testimonios -->
+            <section class="testimonios">
+               <h3>Lo que dicen nuestros clientes</h3>
+               <blockquote>
+                  <p>"Excelente atención y los productos llegaron rápido. 10/10." - <strong>Ana</strong></p>
+               </blockquote>
+               <blockquote>
+                  <p>"Buena calidad por el precio, totalmente recomendado." - <strong>José</strong></p>
+               </blockquote>
+            </section>
+
+            <!-- Preguntas Frecuentes -->
+            <section class="faq">
+               <h3>Preguntas frecuentes</h3>
+               <details>
+                  <summary>¿Cuánto demora el envío?</summary>
+                  <p>En Lima de 1 a 2 días hábiles. Provincia entre 2 a 5 días.</p>
+               </details>
+               <details>
+                  <summary>¿Qué métodos de pago aceptan?</summary>
+                  <p>Tarjeta de débito/crédito, Yape, Plin y pago contra entrega.</p>
+               </details>
+               <details>
+                  <summary>¿Puedo devolver un producto?</summary>
+                  <p>Sí, tienes hasta 7 días después de recibirlo. Aplican condiciones.</p>
+               </details>
+            </section>
+
+            <!-- Redes Sociales -->
+            <section class="redes">
+               <h3>Síguenos en redes sociales</h3>
+               <p>
+                  <a href="https://www.facebook.com" target="_blank">Facebook</a> |
+                  <a href="https://www.instagram.com" target="_blank">Instagram</a> |
+                  <a href="https://www.tiktok.com" target="_blank">TikTok</a>
+               </p>
+            </section>
+         </div>
+      </main>
+      <footer class="footer">
+         <div class="footer-container">
+            <div class="footer-section">
+               <h4>Chafa Fea</h4>
+               <p>Tu tienda online de confianza con productos únicos.</p>
+            </div>
+            <div class="footer-section">
+               <h4>Enlaces útiles</h4>
+               <ul>
+                  <li><a href="/home/productos">Productos</a></li>
+                  <li><a href="/home/about">Sobre nosotros</a></li>
+                  <li><a href="/home/carrito">Carrito</a></li>
+               </ul>
+            </div>
+            <div class="footer-section">
+               <h4>Contáctanos</h4>
+               <p>Email: contacto@chafafea.com</p>
+               <p>WhatsApp: +51 987 654 321</p>
+            </div>
+            <div class="footer-section">
+               <h4>Síguenos</h4>
+               <a href="#">Facebook</a> | <a href="#">Instagram</a>
+            </div>
+         </div>
+         <div class="footer-copy">
+            <p>&copy; 2025 Chafa Fea. Todos los derechos reservados.</p>
+         </div>
+      </footer>
+   </body>
+</html>

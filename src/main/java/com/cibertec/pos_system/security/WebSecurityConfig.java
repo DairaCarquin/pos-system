@@ -2,6 +2,7 @@ package com.cibertec.pos_system.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -52,7 +53,18 @@ public class WebSecurityConfig {
     protected SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.authorizeHttpRequests(
                 auth -> auth
-
+                .requestMatchers("/", "/css/**", "/js/**", "/img/**", "/images/**", "/webjars/**", "/home-ventas/img/**","/home-ventas/css/**").permitAll()
+                        .requestMatchers("/").permitAll()
+                        .requestMatchers("/home/productos").permitAll()
+                        .requestMatchers("/home/productos/{id}").permitAll()
+                        .requestMatchers("/home/about").permitAll()
+                        .requestMatchers("/home/carrito").permitAll()
+                        .requestMatchers(HttpMethod.POST,"/carrito/agregar").permitAll()
+                        .requestMatchers(HttpMethod.POST,"carrito/eliminar/{id}").permitAll()
+                        .requestMatchers("/ventas-online/list").permitAll()
+                        .requestMatchers("/ventas-online/detalle/{id}").permitAll()
+                        .requestMatchers(HttpMethod.POST,"/ventas-online/anular/{id}").permitAll()
+                        .requestMatchers(HttpMethod.POST,"/ventas-online/ventas-web/confirmar").permitAll()
                         .requestMatchers("/users").hasAnyAuthority("USER","CREATOR","EDITOR","ADMIN")
                         .requestMatchers("/users/nueva").hasAnyAuthority("ADMIN","CREATOR")
                         .requestMatchers("/users/editar/*").hasAnyAuthority("ADMIN","EDITOR")
