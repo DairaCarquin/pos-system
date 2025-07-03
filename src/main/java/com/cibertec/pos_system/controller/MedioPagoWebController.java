@@ -33,19 +33,6 @@ public class MedioPagoWebController {
         return "redirect:/medioPago";
     }
 
-    @GetMapping("/editar/{id}")
-    public String mostrarFormularioEditar(@PathVariable Long id, Model model) {
-        MedioPagoEntity medioPago = medioPagoService.obtener(id).orElseThrow(() -> new RuntimeException("No encontrado"));
-        model.addAttribute("medioPago", medioPago);
-        model.addAttribute("accion", "/medioPago/editar/" + id);
-        return "medioPago/formulario";
-    }
-
-    @PostMapping("/editar/{id}")
-    public String actualizar(@PathVariable Long id, @ModelAttribute MedioPagoEntity medioPago) {
-        medioPagoService.actualizar(id, medioPago);
-        return "redirect:/medioPago";
-    }
 
     @GetMapping("/eliminar/{id}")
     public String eliminar(@PathVariable Long id) {
