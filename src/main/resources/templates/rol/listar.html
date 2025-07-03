@@ -11,7 +11,7 @@
     <div class="card">
         <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
             <h5 class="mb-0">Listado de Roles</h5>
-            <div sec:authorize="hasAnyAuthority('ROLES')">
+            <div sec:authorize="hasAnyAuthority('ADMIN','ROLES')">
                 <a href="/rol/nuevo" class="btn btn-light">
                     <i class="bi bi-person-badge-plus"></i> Nuevo Rol
                 </a>
@@ -23,18 +23,18 @@
                 <tr>
                     <th>ID</th>
                     <th>Nombre</th>
-                    <th sec:authorize="hasAnyAuthority('ROLES')" class="text-center">Acciones</th>
+                    <th sec:authorize="hasAnyAuthority('ADMIN','ROLES')" class="text-center">Acciones</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr th:each="rol : ${listaRoles}">
                     <td th:text="${rol.id}"></td>
                     <td th:text="${rol.nombre}"></td>
-                    <td sec:authorize="hasAnyAuthority('ROLES')" class="text-center">
+                    <td sec:authorize="hasAnyAuthority('ADMIN','ROLES')" class="text-center">
                         <a th:href="@{/rol/editar/{id}(id=${rol.id})}" class="btn btn-warning btn-sm me-2">
                             <i class="bi bi-pencil"></i> Editar
                         </a>
-                        <a sec:authorize="hasAuthority('ROLES')" th:href="@{/rol/eliminar/{id}(id=${rol.id})}"
+                        <a sec:authorize="hasAnyAuthority('ADMIN','ROLES')" th:href="@{/rol/eliminar/{id}(id=${rol.id})}"
                            class="btn btn-danger btn-sm" onclick="return confirm('¿Eliminar este rol?')">
                             <i class="bi bi-trash"></i> Eliminar
                         </a>

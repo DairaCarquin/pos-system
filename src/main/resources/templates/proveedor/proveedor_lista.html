@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="es"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <meta charset="UTF-8">
+    <title>Lista de Proveedores</title>
+    <style>
+        body {
+            font-family: "Segoe UI", sans-serif;
+            background-color: #f8f9fa;
+            color: #343a40;
+        }
+
+        .titulo-seccion {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            border-left: 5px solid #5b605e;
+            padding-left: 10px;
+            color: #343a40;
+        }
+
+        .btn-success {
+            background-color: #5b605e;
+            border: none;
+            display: inline-flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .btn-success:hover {
+            background-color: #202120;
+        }
+
+        .style-button {
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 0;
+        }
+
+        .table-proveedores {
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .table-proveedores thead {
+            background-color: #343a40;
+            color: white;
+        }
+
+        .table-proveedores tbody tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .table-proveedores td, .table-proveedores th {
+            vertical-align: middle;
+            text-align: center;
+            font-size: 12px;
+        }
+
+        .btn-sm.btn-primary {
+            background-color: #777d86;
+            border: none;
+        }
+
+        .btn-sm.btn-primary:hover {
+            background-color: #0b5ed7;
+        }
+
+        .btn-sm.btn-warning {
+            background-color: #ffc107;
+            border: none;
+            color: #212529;
+        }
+
+        .btn-sm.btn-warning:hover {
+            background-color: #e0a800;
+        }
+
+        .btn-sm.btn-danger {
+            background-color: #dc3545;
+            border: none;
+        }
+
+        .btn-sm.btn-danger:hover {
+            background-color: #c82333;
+        }
+
+        .estado {
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 11px;
+            text-transform: uppercase;
+            display: inline-block;
+            width: 100px;
+        }
+
+        .estado-activado {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .estado-desactivado {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+    </style>
+</head>
+<body>
+<div layout:fragment="contenido">
+    <h1 class="titulo-seccion">Proveedores</h1>
+
+    <a class="btn btn-success mb-3" th:href="@{/vista/proveedores/crear}">
+        <i class="bi bi-plus-circle"></i>
+        <h1 class="style-button">Nuevo Proveedor</h1>
+    </a>
+
+    <div class="table-responsive table-proveedores">
+        <table class="table table-bordered table-striped mb-0">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>RUC</th>
+                <th>Razón Social</th>
+                <th>Dirección</th>
+                <th>Teléfono</th>
+                <th>Email</th>
+                <th>Contacto</th>
+                <th>Activo</th>
+                <th>Acciones</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="prov : ${proveedores}">
+                <td th:text="${prov.id}"></td>
+                <td th:text="${prov.ruc}"></td>
+                <td th:text="${prov.razonSocial}"></td>
+                <td th:text="${prov.direccion}"></td>
+                <td th:text="${prov.telefono}"></td>
+                <td th:text="${prov.email}"></td>
+                <td th:text="${prov.contacto}"></td>
+                <td>
+                    <span class="estado"
+                        th:classappend="${prov.activo} ? ' estado-activado' : ' estado-desactivado'">
+                        <span th:text="${prov.activo ? 'Activado' : 'Desactivado'}"></span>
+                    </span>
+                </td>
+                <td>
+                    <a class="btn btn-sm btn-warning" 
+                    th:href="@{'/vista/proveedores/editar/' + ${prov.id}}" 
+                    title="Editar proveedor">
+                        <i class="bi bi-pencil-fill"></i>
+                    </a>
+
+                    <th:block th:if="${prov.activo}">
+                        <a th:href="@{'/vista/proveedores/desactivar/' + ${prov.id}}"
+                        class="btn btn-sm btn-danger"
+                        title="Desactivar proveedor"
+                        onclick="return confirm('¿Está seguro que desea desactivar este proveedor?')">
+                            <i class="bi bi-trash-fill"></i>
+                        </a>
+                    </th:block>
+
+                    <th:block th:if="${prov.activo}">
+                        <a class="btn btn-sm btn-primary"
+                        th:href="@{'/vista/proveedores/' + ${prov.id} + '/productos'}"
+                        title="Asociar productos al proveedor">
+                            <i class="bi bi-box-seam"></i>
+                        </a>
+                    </th:block>
+
+                    <th:block th:if="${!prov.activo}">
+                        <a class="btn btn-sm btn-danger disabled"
+                        title="Proveedor inactivo - no se puede eliminar"
+                        style="pointer-events: none; opacity: 0.5; cursor: not-allowed;">
+                            <i class="bi bi-trash-fill"></i>
+                        </a>
+                    </th:block>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

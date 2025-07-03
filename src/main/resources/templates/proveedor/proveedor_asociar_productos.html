@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="es"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <meta charset="UTF-8">
+    <title>Asociar Productos</title>
+    <style>
+        body {
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f4;
+            color: #000;
+            font-size: 12px;
+        }
+
+        .form-container {
+            max-width: 800px;
+            margin: 30px auto;
+            background: #fff;
+            padding: 25px 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+        }
+
+        h2 {
+            font-size: 16px;
+            text-align: center;
+            margin-bottom: 25px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        label {
+            font-weight: 600;
+            display: block;
+            margin-bottom: 6px;
+            margin-top: 12px;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 6px 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 12px;
+            box-sizing: border-box;
+        }
+
+        button[type="submit"] {
+            background-color: #004080;
+            color: #fff;
+            padding: 8px 18px;
+            font-size: 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 20px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #002e60;
+        }
+
+        .btn-volver {
+            display: inline-block;
+            background-color: #6c757d;
+            color: #fff;
+            padding: 8px 16px;
+            font-size: 12px;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: background-color 0.3s;
+            margin-bottom: 20px;
+        }
+
+        .btn-volver:hover {
+            background-color: #5a6268;
+        }
+
+        .volver-wrapper {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+<div layout:fragment="contenido">
+
+    <div class="volver-wrapper">
+        <a th:href="@{/vista/proveedores/lista}" class="btn-volver">← Volver a la lista</a>
+    </div>
+
+    <div class="form-container">
+        <h2>Asociar Productos al Proveedor</h2>
+        <form th:action="@{'/vista/proveedores/' + ${producto.proveedor.id} + '/productos/guardar'}" 
+              th:object="${producto}" method="post">
+
+            <input type="hidden" th:field="*{proveedor.id}" />
+
+            <label for="codigo">Código:</label>
+            <input type="text" th:field="*{codigo}" id="codigo" required />
+
+            <label for="nombre">Nombre:</label>
+            <input type="text" th:field="*{nombre}" id="nombre" required />
+
+            <label for="descripcion">Descripción:</label>
+            <input type="text" th:field="*{descripcion}" id="descripcion" />
+
+            <label for="precio">Precio:</label>
+            <input type="number" step="0.01" th:field="*{precio}" id="precio" required />
+
+            <label for="imagen">Imagen (nombre archivo):</label>
+            <input type="text" th:field="*{imagen}" id="imagen" required />
+
+            <label for="stockActual">Stock:</label>
+            <input type="number" th:field="*{stockActual}" id="stockActual" required />
+
+            <label for="categoria">Categoría:</label>
+            <select th:field="*{categoria}" id="categoria" required>
+                <option th:each="cat : ${categorias}" th:value="${cat.id}" th:text="${cat.nombre}"></option>
+            </select>
+
+            <button type="submit">Guardar Producto</button>
+        </form>
+    </div>
+</div>
+</body>
+</html>
