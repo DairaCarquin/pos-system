@@ -7,9 +7,12 @@ import com.cibertec.pos_system.service.CategoriaService;
 import com.cibertec.pos_system.service.ProductoService;
 import com.cibertec.pos_system.service.ProveedorService;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -62,7 +65,7 @@ public class ProveedorController {
         producto.setProveedor(proveedor);
 
         model.addAttribute("producto", producto);
-        model.addAttribute("categorias", categoriaService.listar()); // Asegúrate que este método existe
+        model.addAttribute("categorias", categoriaService.listar());
 
         return "proveedor/proveedor_asociar_productos";
     }
@@ -85,9 +88,38 @@ public class ProveedorController {
     }
 
     @GetMapping("/lista")
-    public String listarProveedores(Model model) {
+    public String listarProveedores(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "2") int size,
+            Model model) {
+
+        Page<ProveedorEntity> proveedoresPage = proveedorService.listarPaginado(page, size);
+        model.addAttribute("proveedoresPage", proveedoresPage);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", proveedoresPage.getTotalPages());
+        model.addAttribute("size", size);
+
         model.addAttribute("proveedores", proveedorService.listar());
+
         return "proveedor/proveedor_lista";
+    }
+
+    @GetMapping("/productos-por-proveedor-ajax")
+    public String obtenerProductosPorProveedorAjax(
+            @RequestParam("proveedorId") Long proveedorId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size,
+            Model model) {
+
+        Page<ProductoEntity> productosPage = productoService.obtenerPaginadoPorProveedor(proveedorId, page, size);
+
+        model.addAttribute("productosPage", productosPage);
+        model.addAttribute("proveedorSeleccionado", proveedorId);
+        model.addAttribute("currentPageProd", page);
+        model.addAttribute("totalPagesProd", productosPage.getTotalPages());
+        model.addAttribute("sizeProd", size);
+
+        return "fragments/tabla_productos_por_proveedor :: tabla";
     }
 
     @GetMapping("/editar/{id}")
@@ -127,9 +159,15 @@ public class ProveedorController {
         return "redirect:/vista/proveedores/lista";
     }
 
-    @GetMapping("/simulador")
-    public String verSimulador() {
-        return "simulador_proveedor"; // sin .html, porque Thymeleaf lo resuelve
+    @GetMapping("/compras/proveedores")
+    @ResponseBody
+    public List<Map<String, String>> listarProveedores() {
+        return proveedorService.listar().stream().map(p -> {
+            Map<String, String> dto = new HashMap<>();
+            dto.put("ruc", p.getRuc());
+            dto.put("razonSocial", p.getRazonSocial());
+            return dto;
+        }).toList();
     }
 
 }
