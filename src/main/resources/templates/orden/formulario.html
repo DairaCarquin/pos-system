@@ -109,12 +109,18 @@
   </head>
   <body>
     <div layout:fragment="contenido">
-      <div style="max-width: 800px; margin: 15px auto;">
+      <div style="max-width: 800px; margin: 15px auto">
         <a href="/compras/ordenes" class="btn-volver">← Volver</a>
       </div>
       <div class="form-container">
         <h1>Crear Orden de Compra</h1>
-        <form th:action="@{/compras/orden}" method="post">
+        <form th:action="@{/compras/orden}" method="post" th:object="${orden}">
+          <input
+            type="hidden"
+            th:name="${_csrf.parameterName}"
+            th:value="${_csrf.token}"
+          />
+
           <label for="ruc">Proveedor RUC:</label>
           <input type="text" name="ruc" id="ruc" required />
 
@@ -139,7 +145,7 @@
                     <input type="hidden" name="detalles[${index}].producto.id" value="${producto.id}">
                     <label>Producto: ${producto.nombre}</label>
                     <label>Cantidad:
-                      <input type="number" name="detalles[${index}].cantidad" min="1" required />
+                      <input type="number" name="detalles[${index}].cantidad" min="1" />
                     </label>
                   </div>
                 `;

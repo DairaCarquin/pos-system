@@ -2,6 +2,7 @@ package com.cibertec.pos_system.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.ToString;
 
 import java.math.BigDecimal;
 
@@ -24,9 +25,11 @@ public class ProductoEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "categoria_id", nullable = false)
+    @ToString.Exclude
     private CategoriaEntity categoria;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "proveedor_id", nullable = false)
+    @ToString.Exclude
     private ProveedorEntity proveedor;
 }

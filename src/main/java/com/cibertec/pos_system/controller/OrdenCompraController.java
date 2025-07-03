@@ -47,7 +47,6 @@ public class OrdenCompraController {
 
     @PostMapping("/orden")
     public String guardarOrden(
-        @ModelAttribute OrdenCompraEntity orden,
         @RequestParam String ruc,
         HttpServletRequest request) {
 
@@ -62,17 +61,39 @@ public class OrdenCompraController {
         while (true) {
             String productoIdStr = request.getParameter("detalles[" + i + "].producto.id");
             String cantidadStr = request.getParameter("detalles[" + i + "].cantidad");
-            if (productoIdStr == null || cantidadStr == null) break;
+            if (productoIdStr == null) break;
+
+            if (cantidadStr == null || cantidadStr.isBlank()) {
+                i++;
+                continue; // Saltar si no se ingresó cantidad
+            }
+
+            int cantidad;
+            try {
+                cantidad = Integer.parseInt(cantidadStr);
+            } catch (NumberFormatException e) {
+                i++;
+                continue; // Saltar si no es un número válido
+            }
+
+            if (cantidad <= 0) {
+                i++;
+                continue; // Saltar si es cero o negativo
+            }
 
             OrdenCompraDetalleEntity detalle = new OrdenCompraDetalleEntity();
             ProductoEntity producto = new ProductoEntity();
             producto.setId(Long.parseLong(productoIdStr));
             detalle.setProducto(producto);
-            detalle.setCantidad(Integer.parseInt(cantidadStr));
+            detalle.setCantidad(cantidad);
             detalles.add(detalle);
             i++;
         }
 
+        if (detalles.isEmpty()) {
+            throw new IllegalArgumentException("Debe agregar al menos un producto a la orden.");
+        }
+            
         ordenCompraService.crearOrden(proveedor.getId(), usuarioId, detalles);
         return "redirect:/compras/ordenes";
     }
@@ -168,4 +189,5 @@ public class OrdenCompraController {
         ordenCompraService.cancelarOrden(id);
         return "redirect:/compras/ordenes";
     }
+     
 }

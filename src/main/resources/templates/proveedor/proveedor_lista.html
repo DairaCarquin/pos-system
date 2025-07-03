@@ -4,122 +4,191 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout}">
 <head>
-  <meta charset="UTF-8">
-  <title>Lista de Proveedores</title>
-  <style>
-    body {
-      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #f5f5f5;
-      color: #000;
-      font-size: 13px;
-    }
+    <meta charset="UTF-8">
+    <title>Lista de Proveedores</title>
+    <style>
+        body {
+            font-family: "Segoe UI", sans-serif;
+            background-color: #f8f9fa;
+            color: #343a40;
+        }
 
-    .lista-container {
-      max-width: 900px;
-      margin: 30px auto;
-      background: #fff;
-      padding: 25px 30px;
-      border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
-    }
+        .titulo-seccion {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            border-left: 5px solid #5b605e;
+            padding-left: 10px;
+            color: #343a40;
+        }
 
-    h2 {
-      font-size: 16px;
-      text-align: center;
-      margin-bottom: 25px;
-      font-weight: 600;
-      color: #333;
-    }
+        .btn-success {
+            background-color: #5b605e;
+            border: none;
+            display: inline-flex;
+            gap: 10px;
+            align-items: center;
+        }
 
-    .btn-nuevo {
-      display: inline-block;
-      background-color: #004080;
-      color: #fff;
-      padding: 8px 16px;
-      font-size: 12px;
-      border-radius: 6px;
-      text-decoration: none;
-      margin-bottom: 15px;
-    }
+        .btn-success:hover {
+            background-color: #202120;
+        }
 
-    .btn-nuevo:hover {
-      background-color: #002e60;
-    }
+        .style-button {
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 0;
+        }
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 13px;
-    }
+        .table-proveedores {
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+        }
 
-    th, td {
-      border: 1px solid #ddd;
-      padding: 10px;
-      text-align: left;
-    }
+        .table-proveedores thead {
+            background-color: #343a40;
+            color: white;
+        }
 
-    th {
-      background-color: #f0f0f0;
-      font-weight: 600;
-    }
+        .table-proveedores tbody tr:hover {
+            background-color: #f1f1f1;
+        }
 
-    .acciones a {
-      font-size: 12px;
-      text-decoration: none;
-      margin-right: 10px;
-      color: #007bff;
-    }
+        .table-proveedores td, .table-proveedores th {
+            vertical-align: middle;
+            text-align: center;
+            font-size: 12px;
+        }
 
-    .acciones a:hover {
-      text-decoration: underline;
-    }
+        .btn-sm.btn-primary {
+            background-color: #777d86;
+            border: none;
+        }
 
-    .acciones .eliminar {
-      color: #dc3545;
-    }
+        .btn-sm.btn-primary:hover {
+            background-color: #0b5ed7;
+        }
 
-    .acciones .eliminar:hover {
-      color: #a71d2a;
-    }
-  </style>
+        .btn-sm.btn-warning {
+            background-color: #ffc107;
+            border: none;
+            color: #212529;
+        }
+
+        .btn-sm.btn-warning:hover {
+            background-color: #e0a800;
+        }
+
+        .btn-sm.btn-danger {
+            background-color: #dc3545;
+            border: none;
+        }
+
+        .btn-sm.btn-danger:hover {
+            background-color: #c82333;
+        }
+
+        .estado {
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 11px;
+            text-transform: uppercase;
+            display: inline-block;
+            width: 100px;
+        }
+
+        .estado-activado {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .estado-desactivado {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+    </style>
 </head>
 <body>
 <div layout:fragment="contenido">
-  <div class="lista-container">
-    <h2>Lista de Proveedores</h2>
+    <h1 class="titulo-seccion">Proveedores</h1>
 
-    <a href="/vista/proveedores/crear" class="btn-nuevo">+ Nuevo Proveedor</a>
+    <a class="btn btn-success mb-3" th:href="@{/vista/proveedores/crear}">
+        <i class="bi bi-plus-circle"></i>
+        <h1 class="style-button">Nuevo Proveedor</h1>
+    </a>
 
-    <table>
-      <thead>
-      <tr>
-        <th>ID</th>
-        <th>RUC</th>
-        <th>Razón Social</th>
-        <th>Teléfono</th>
-        <th>Email</th>
-        <th>Acciones</th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr th:each="prov : ${proveedores}">
-        <td th:text="${prov.id}"></td>
-        <td th:text="${prov.ruc}"></td>
-        <td th:text="${prov.razonSocial}"></td>
-        <td th:text="${prov.telefono}"></td>
-        <td th:text="${prov.email}"></td>
-        <td class="acciones">
-          <a th:href="@{'/vista/proveedores/editar/' + ${prov.id}}">Editar</a>
-          <a th:href="@{'/vista/proveedores/eliminar/' + ${prov.id}}"
-             class="eliminar"
-             onclick="return confirm('¿Está seguro que desea eliminar este proveedor?')">
-            Eliminar
-          </a>
-        </td>
-      </tr>
-      </tbody>
-    </table>
-  </div>
+    <div class="table-responsive table-proveedores">
+        <table class="table table-bordered table-striped mb-0">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>RUC</th>
+                <th>Razón Social</th>
+                <th>Dirección</th>
+                <th>Teléfono</th>
+                <th>Email</th>
+                <th>Contacto</th>
+                <th>Activo</th>
+                <th>Acciones</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="prov : ${proveedores}">
+                <td th:text="${prov.id}"></td>
+                <td th:text="${prov.ruc}"></td>
+                <td th:text="${prov.razonSocial}"></td>
+                <td th:text="${prov.direccion}"></td>
+                <td th:text="${prov.telefono}"></td>
+                <td th:text="${prov.email}"></td>
+                <td th:text="${prov.contacto}"></td>
+                <td>
+                    <span class="estado"
+                        th:classappend="${prov.activo} ? ' estado-activado' : ' estado-desactivado'">
+                        <span th:text="${prov.activo ? 'Activado' : 'Desactivado'}"></span>
+                    </span>
+                </td>
+                <td>
+                    <a class="btn btn-sm btn-warning" 
+                    th:href="@{'/vista/proveedores/editar/' + ${prov.id}}" 
+                    title="Editar proveedor">
+                        <i class="bi bi-pencil-fill"></i>
+                    </a>
+
+                    <th:block th:if="${prov.activo}">
+                        <a th:href="@{'/vista/proveedores/desactivar/' + ${prov.id}}"
+                        class="btn btn-sm btn-danger"
+                        title="Desactivar proveedor"
+                        onclick="return confirm('¿Está seguro que desea desactivar este proveedor?')">
+                            <i class="bi bi-trash-fill"></i>
+                        </a>
+                    </th:block>
+
+                    <th:block th:if="${prov.activo}">
+                        <a class="btn btn-sm btn-primary"
+                        th:href="@{'/vista/proveedores/' + ${prov.id} + '/productos'}"
+                        title="Asociar productos al proveedor">
+                            <i class="bi bi-box-seam"></i>
+                        </a>
+                    </th:block>
+
+                    <th:block th:if="${!prov.activo}">
+                        <a class="btn btn-sm btn-danger disabled"
+                        title="Proveedor inactivo - no se puede eliminar"
+                        style="pointer-events: none; opacity: 0.5; cursor: not-allowed;">
+                            <i class="bi bi-trash-fill"></i>
+                        </a>
+                    </th:block>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
 </div>
 </body>
 </html>

@@ -90,24 +90,29 @@
   <div class="form-container">
     <h2>Registrar Nuevo Proveedor</h2>
 
+    <div th:if="${error}" style="color: red; margin-bottom: 10px; text-align: center;">
+      <strong th:text="${error}"></strong>
+    </div>
+
     <form th:action="@{/vista/proveedores/guardar}" th:object="${proveedor}" method="post">
+
       <label>RUC:</label>
-      <input type="text" th:field="*{ruc}" required />
+      <input type="text" th:field="*{ruc}" required pattern="(10|20)\d{9}" title="Debe empezar con 10 o 20 y tener 11 dígitos" maxlength="11"/>
 
       <label>Razón Social:</label>
-      <input type="text" th:field="*{razonSocial}" required />
+      <input type="text" th:field="*{razonSocial}" maxlength="150" title="Mínimo 3 caracteres, solo letras, números y espacios"/>
 
       <label>Dirección:</label>
-      <input type="text" th:field="*{direccion}" />
+      <input type="text" th:field="*{direccion}" maxlength="100" />
 
       <label>Teléfono:</label>
-      <input type="text" th:field="*{telefono}" />
+      <input type="text" th:field="*{telefono}" required pattern="\d{7,9}" title="Debe tener entre 7 y 9 dígitos" maxlength="9"/>
 
       <label>Email:</label>
-      <input type="email" th:field="*{email}" />
+      <input type="email" th:field="*{email}" required maxlength="100"/>
 
       <label>Contacto:</label>
-      <input type="text" th:field="*{contacto}" />
+      <input type="text" th:field="*{contacto}" required pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\s]{2,}" title="Solo letras y espacios, mínimo 2 caracteres"/>
 
       <button type="submit" class="btn-guardar">Guardar</button>
     </form>

@@ -59,7 +59,7 @@ public class WebSecurityConfig {
                         .requestMatchers("/local").hasAnyAuthority("LOCALES")
                         .requestMatchers("/shopping").hasAnyAuthority("COMPRAS")
                         .requestMatchers("/medioPago").hasAnyAuthority("MEDIOS_DE_PAGO")
-                        .requestMatchers("/proveedor").hasAnyAuthority("PROVEEDORES")
+                        .requestMatchers("/proveedores").hasAnyAuthority("PROVEEDORES")
                         .requestMatchers("/cliente").hasAnyAuthority("CLIENTES")
                         .requestMatchers("/caja").hasAnyAuthority("CAJA")
                         .anyRequest().authenticated()) // lo demás necesita que el usuario esté logueado

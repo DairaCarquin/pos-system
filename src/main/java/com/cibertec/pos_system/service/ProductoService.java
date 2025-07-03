@@ -63,18 +63,31 @@ public class ProductoService {
     public ProductoEntity crear(ProductoEntity producto) {
         return productoRepository.save(producto);
     }
-    public ProductoEntity actualizar(Long id, ProductoEntity producto) {
-        producto.setId(id);
-        return productoRepository.save(producto);
+
+    public ProductoEntity actualizar(Long id, ProductoEntity nuevoProducto) {
+        productoRepository.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("Producto no encontrado"));
+
+        nuevoProducto.setId(id);
+        return productoRepository.save(nuevoProducto);
     }
+
     public void eliminar(Long id) {
         productoRepository.deleteById(id);
     }
+    
     public Optional<ProductoEntity> obtener(Long id) {
         return productoRepository.findById(id);
     }
   
+    public List<ProductoEntity> listarPorProveedor(Long proveedorId) {
+        return productoRepository.findByProveedorId(proveedorId);
     }
+    
+    public List<ProductoEntity> listarPorCategoria(Long categoriaId) {
+        return productoRepository.findByCategoriaId(categoriaId);
+    }
+}
       
     
 
