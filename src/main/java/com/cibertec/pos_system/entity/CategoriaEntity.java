@@ -6,12 +6,11 @@ import lombok.ToString;
 
 import java.util.ArrayList;
 import java.util.List;
-import lombok.ToString;
 
 @Entity
 @Table(name = "categorias")
 @Data
-@ToString(exclude = "productos")
+@ToString
 public class CategoriaEntity {
 
     @Id
@@ -25,4 +24,5 @@ public class CategoriaEntity {
     @OneToMany(mappedBy = "categoria", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
     private List<ProductoEntity> productos = new ArrayList<>();
+
 }

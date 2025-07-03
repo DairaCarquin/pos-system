@@ -1,14 +1,15 @@
 package com.cibertec.pos_system.entity;
+
+import java.math.BigDecimal;
+
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.ToString;
-
-import java.math.BigDecimal;
-@Entity
 @Table(name = "productos")
 @Data
-@ToString(exclude = {"categoria", "proveedor"})
-public class ProductoEntity {
+@ToString
+@Entity
+public class ProductoEntity {   
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -19,18 +20,22 @@ public class ProductoEntity {
     private String imagen;
     private boolean activo;
     private int stockActual;
-    @ManyToOne(fetch = FetchType.LAZY)
+
+   @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "categoria_id", nullable = false)
     @ToString.Exclude
     private CategoriaEntity categoria;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "proveedor_id", nullable = false)
     @ToString.Exclude
     private ProveedorEntity proveedor;
+
     @Transient
-    private BigDecimal precioFinal;//natm
+    @ToString.Exclude
+    private DescuentoEntity descuentoAplicado;
+
     @Transient
-private DescuentoEntity descuentoAplicado;//natm
-    @Transient
-private BigDecimal montoDescuento;//natm
+    @ToString.Exclude
+    private BigDecimal montoDescuento;
 }

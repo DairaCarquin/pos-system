@@ -83,7 +83,7 @@ public class ProductoService {
     List<ProductoEntity> resultado = new ArrayList<>();
     for (PrecioDescuentoEntity pd : lista) {
         ProductoEntity producto = pd.getProducto();
-        producto.setPrecioFinal(pd.getPrecioFinal());
+        producto.setPrecio(pd.getPrecioFinal());
         producto.setMontoDescuento(pd.getValorDescuento());
         producto.setDescuentoAplicado(pd.getDescuento());
         resultado.add(producto);
