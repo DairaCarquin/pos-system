@@ -29,4 +29,7 @@ public class OrdenCompraEntity {
 
     @OneToMany(mappedBy = "ordenCompra", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrdenCompraDetalleEntity> detalles;
+
+    private String tiempoEntrega;
+
 }

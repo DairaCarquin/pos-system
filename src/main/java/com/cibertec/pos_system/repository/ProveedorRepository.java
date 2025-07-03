@@ -8,4 +8,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ProveedorRepository extends JpaRepository<ProveedorEntity, Long> {
     Optional<ProveedorEntity> findByRuc(String ruc);
+    Optional<ProveedorEntity> findByRucAndRazonSocial(String ruc, String razonSocial);
 }

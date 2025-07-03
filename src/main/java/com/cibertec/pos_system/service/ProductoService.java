@@ -58,17 +58,23 @@ public class ProductoService {
     public ProductoEntity crear(ProductoEntity producto) {
         return productoRepository.save(producto);
     }
-    public ProductoEntity actualizar(Long id, ProductoEntity producto) {
-        producto.setId(id);
-        return productoRepository.save(producto);
+
+    public ProductoEntity actualizar(Long id, ProductoEntity nuevoProducto) {
+        productoRepository.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("Producto no encontrado"));
+
+        nuevoProducto.setId(id);
+        return productoRepository.save(nuevoProducto);
     }
+
     public void eliminar(Long id) {
         productoRepository.deleteById(id);
     }
+    
     public Optional<ProductoEntity> obtener(Long id) {
         return productoRepository.findById(id);
     }
-    public List<ProductoEntity> listarSoloConDescuento() {
+  public List<ProductoEntity> listarSoloConDescuento() {
     sincronizarDescuentosVigentes(); // asegura que estén actualizados natm
     List<PrecioDescuentoEntity> lista = precioDescuentoRepository.findAll()
         .stream()
@@ -77,7 +83,7 @@ public class ProductoService {
     List<ProductoEntity> resultado = new ArrayList<>();
     for (PrecioDescuentoEntity pd : lista) {
         ProductoEntity producto = pd.getProducto();
-        producto.setPrecioFinal(pd.getPrecioFinal());
+        producto.setPrecio(pd.getPrecioFinal());
         producto.setMontoDescuento(pd.getValorDescuento());
         producto.setDescuentoAplicado(pd.getDescuento());
         resultado.add(producto);
@@ -125,4 +131,18 @@ public class ProductoService {
         }
     }
 }
+
+    public List<ProductoEntity> listarPorProveedor(Long proveedorId) {
+        return productoRepository.findByProveedorId(proveedorId);
+    }
+    
+    public List<ProductoEntity> listarPorCategoria(Long categoriaId) {
+        return productoRepository.findByCategoriaId(categoriaId);
+    }
 }
+      
+
+      
+    
+
+

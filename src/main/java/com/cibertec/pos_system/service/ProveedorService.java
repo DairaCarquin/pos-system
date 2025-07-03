@@ -25,9 +25,15 @@ public class ProveedorService {
     }
 
     public ProveedorEntity actualizar(Long id, ProveedorEntity proveedor) {
+        ProveedorEntity existente = proveedorRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Proveedor no encontrado"));
+
+        proveedor.setActivo(existente.isActivo());
         proveedor.setId(id);
+
         return proveedorRepository.save(proveedor);
     }
+
 
     public void eliminar(Long id) {
         proveedorRepository.deleteById(id);
@@ -40,4 +46,20 @@ public class ProveedorService {
      public ProveedorEntity obtenerProveedorPorRuc(String ruc) {
         return proveedorRepository.findByRuc(ruc).orElseThrow(() -> new RuntimeException("Proveedor no encontrado con RUC: " + ruc));
     }
+
+    public void cambiarEstado(Long id, boolean activo) {
+        proveedorRepository.findById(id).ifPresent(prov -> {
+            prov.setActivo(activo);
+            proveedorRepository.save(prov);
+        });
+    }
+
+    public boolean buscarRuc(String ruc) {
+        return proveedorRepository.findByRuc(ruc).isPresent();
+    }
+
+    public boolean buscarRazonSocial(String ruc, String razonSocial) {
+        return proveedorRepository.findByRucAndRazonSocial(ruc, razonSocial).isPresent();
+    }
+
 }

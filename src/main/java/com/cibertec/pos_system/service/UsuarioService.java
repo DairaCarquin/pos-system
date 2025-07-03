@@ -41,6 +41,11 @@ public class UsuarioService implements UsuarioServiceInterface {
     }
     @Override
     public UsuarioEntity crearUser(UsuarioEntity user) {
+
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(); // Utilizamos BCryptPasswordEncoder para encriptar el password
+        String encodedPassword = encoder.encode(user.getPassword()); // Encriptamos passworrd
+        user.setPassword(encodedPassword); // actualizamos el password encriptado
+
         return usuarioRepository.save(user);
     }
 
