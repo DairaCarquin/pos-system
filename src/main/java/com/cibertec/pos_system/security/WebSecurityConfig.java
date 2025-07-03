@@ -52,17 +52,33 @@ public class WebSecurityConfig {
     protected SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.authorizeHttpRequests(
                 auth -> auth
-                        .requestMatchers("/user").hasAnyAuthority("USUARIOS") // solo si tiene permiso "USUARIOS"
-                        .requestMatchers("/rol").hasAnyAuthority("ROLES")
-                        .requestMatchers("/producto").hasAnyAuthority("PRODUCTOS")
-                        .requestMatchers("/categoria").hasAnyAuthority("CATEGORIAS")
-                        .requestMatchers("/local").hasAnyAuthority("LOCALES")
-                        .requestMatchers("/shopping").hasAnyAuthority("COMPRAS")
-                        .requestMatchers("/medioPago").hasAnyAuthority("MEDIOS_DE_PAGO")
-                        .requestMatchers("/proveedores").hasAnyAuthority("PROVEEDORES")
-                        .requestMatchers("/cliente").hasAnyAuthority("CLIENTES")
-                        .requestMatchers("/caja").hasAnyAuthority("CAJA")
+
+                        .requestMatchers("/users").hasAnyAuthority("USER","CREATOR","EDITOR","ADMIN")
+                        .requestMatchers("/users/nueva").hasAnyAuthority("ADMIN","CREATOR")
+                        .requestMatchers("/users/editar/*").hasAnyAuthority("ADMIN","EDITOR")
+                        .requestMatchers("/users/eliminar/*").hasAnyAuthority("ADMIN")
+                        .requestMatchers("/clientes").hasAnyAuthority("USER", "CREATOR", "EDITOR", "ADMIN")
+                        .requestMatchers("/clientes/nuevo").hasAnyAuthority("ADMIN", "CREATOR")
+                        .requestMatchers("/clientes/editar/*").hasAnyAuthority("ADMIN", "EDITOR")
+                        .requestMatchers("/clientes/eliminar/*").hasAnyAuthority("ADMIN")
+                        // Agregar rutas para clientesVista
+                        .requestMatchers("/clientesVista/**").hasAnyAuthority("CLIENTES", "ADMIN")
+                        .requestMatchers("/clientesVista/nuevo").hasAnyAuthority("ADMIN", "CREATOR")
+                        .requestMatchers("/clientesVista/editar/*").hasAnyAuthority("ADMIN", "EDITOR")
+                        .requestMatchers("/clientesVista/eliminar/*").hasAnyAuthority("ADMIN")
+                        .requestMatchers("/user").hasAnyAuthority("USUARIOS", "ADMIN") // TODO: Determinar cual es 
+                        .requestMatchers("/cliente").hasAnyAuthority("CLIENTES", "ADMIN") // TODO: Determinar cual es 
+                        .requestMatchers("/rol").hasAnyAuthority("ROLES", "ADMIN")
+                        .requestMatchers("/producto").hasAnyAuthority("PRODUCTOS", "ADMIN")
+                        .requestMatchers("/categoria").hasAnyAuthority("CATEGORIAS", "ADMIN")
+                        .requestMatchers("/local").hasAnyAuthority("LOCALES", "ADMIN")
+                        .requestMatchers("/shopping").hasAnyAuthority("COMPRAS", "ADMIN")
+                        .requestMatchers("/medioPago").hasAnyAuthority("MEDIOS_DE_PAGO", "ADMIN")
+                        .requestMatchers("/proveedores").hasAnyAuthority("PROVEEDORES", "ADMIN")
+                       
+                        .requestMatchers("/caja").hasAnyAuthority("CAJA", "ADMIN")
                         .anyRequest().authenticated()) // lo demás necesita que el usuario esté logueado
+
                 .formLogin(form -> form
                         .loginPage("/login")  // ruta donde está el formulario de login
                         .defaultSuccessUrl("/menu", true) // si entra bien, va al menú principal

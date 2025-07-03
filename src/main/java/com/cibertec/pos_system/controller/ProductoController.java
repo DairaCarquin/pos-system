@@ -41,4 +41,6 @@ public class ProductoController {
     public void eliminar(@PathVariable Long id) {
         productoService.eliminar(id);
     }
+
+   
 }

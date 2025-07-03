@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
@@ -29,11 +30,20 @@ public class PrecioDescuentoEntity {
     private DescuentoEntity descuento;
 
     @Column(name = "precio_final", nullable = false)
-    private Double precioFinal;
+    private BigDecimal precioFinal;
 
     @Column(name = "fecha_aplicacion", nullable = false)
     private LocalDate fechaAplicacion;
 
     @Column(nullable = false)
     private boolean vigente;
+
+    @Column(name = "fecha_inicio", nullable = false)
+    private LocalDate fechaInicio;
+
+    @Column(name = "fecha_fin", nullable = false)
+    private LocalDate fechaFin;
+
+    @Column(name = "valor_descuento", nullable = false)
+    private BigDecimal valorDescuento;  
 }

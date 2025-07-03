@@ -12,19 +12,20 @@ import org.springframework.security.core.userdetails.UserDetails;
 import com.cibertec.pos_system.entity.RolEntity;
 import com.cibertec.pos_system.entity.UsuarioEntity;
 
-import lombok.AllArgsConstructor;
-
-@AllArgsConstructor
 public class MyUserDetails implements UserDetails {
 
-    private UsuarioEntity user;
+    private final UsuarioEntity user;
+
+    public MyUserDetails(UsuarioEntity user) {
+        this.user = user;
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Set<RolEntity> roles = user.getRoles();
         List<SimpleGrantedAuthority> authorities = new ArrayList<>();
 
-        for(RolEntity role:roles){
+        for (RolEntity role : roles) {
             authorities.add(new SimpleGrantedAuthority(role.getNombre()));
         }
         return authorities;
@@ -57,6 +58,6 @@ public class MyUserDetails implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return true; // o simplemente true si no manejas estado
     }
 }

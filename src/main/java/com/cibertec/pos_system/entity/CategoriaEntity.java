@@ -6,10 +6,12 @@ import lombok.ToString;
 
 import java.util.ArrayList;
 import java.util.List;
+import lombok.ToString;
 
 @Entity
 @Table(name = "categorias")
 @Data
+@ToString(exclude = "productos")
 public class CategoriaEntity {
 
     @Id

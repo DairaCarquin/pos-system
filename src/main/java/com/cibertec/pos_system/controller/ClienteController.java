@@ -4,6 +4,7 @@ import com.cibertec.pos_system.entity.ClienteEntity;
 import com.cibertec.pos_system.service.ClienteService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 import java.util.Optional;
@@ -30,7 +31,7 @@ public class ClienteController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-     @GetMapping("/buscar")
+    @GetMapping("/buscar")
     public ResponseEntity<?> buscarPorDni(@RequestParam String dni) {
         Optional<ClienteEntity> cliente = clienteService.buscarPorDni(dni);
         if (cliente.isPresent()) {

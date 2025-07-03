@@ -56,10 +56,19 @@ public class CajaSesionService {
         return repository.buscarPorCualquierCampo(q.toLowerCase());
     }
 
+   public Optional<CajaSesionEntity> obtenerConVentas(Long id) {
+    CajaSesionEntity sesion = repository.findByIdWithVentas(id);
+    return Optional.ofNullable(sesion);
+}
+
     @Transactional
 public CajaSesionEntity actualizarUsuarioCierre(Long sesionId, UsuarioEntity usuarioCierre) {
     CajaSesionEntity sesion = repository.findById(sesionId).orElseThrow();
     sesion.setUsuarioCierre(usuarioCierre);
     return repository.save(sesion);
+}
+
+public CajaSesionEntity buscarSesionActivaPorUsuario(Long usuarioId) {
+    return repository.findByUsuarioAperturaIdAndEstado(usuarioId, "ABIERTA");
 }
 }

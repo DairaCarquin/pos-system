@@ -29,8 +29,11 @@
                 <td th:text="${cliente.puntosAcumulados}">0</td>
                 <td>
                     <!-- Aquí es donde agregamos el enlace -->
-                    <a th:href="@{/cliente/{id}(id=${cliente.id})}" class="btn btn-primary btn-sm">
+                    <a th:href="@{/clienteVista/{id}(id=${cliente.id})}" class="btn btn-primary btn-sm">
                         Ver perfil
+                    </a>
+                    <a th:href="@{'/historial/cliente/' + ${cliente.dni}}" class="btn btn-info btn-sm">
+                        <i class="bi bi-clock-history"></i> Historial
                     </a>
                 </td>
             </tr>

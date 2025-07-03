@@ -18,4 +18,8 @@ public interface CajaRepository extends JpaRepository<CajaEntity, Long> {
            "OR CAST(c.fechaCreacion AS string) LIKE %:q% " +
            "OR LOWER(u.username) LIKE %:q%")
     List<CajaEntity> buscarPorCualquierCampo(@Param("q") String q);
+
+    // Nuevo método para obtener el código máximo por local y prefijo
+    @Query("SELECT MAX(c.codigo) FROM CajaEntity c WHERE c.local.id = :localId AND c.codigo LIKE CONCAT(:prefijo, '%')")
+    String findMaxCodigoByLocalAndPrefijo(@Param("localId") Long localId, @Param("prefijo") String prefijo);
 }

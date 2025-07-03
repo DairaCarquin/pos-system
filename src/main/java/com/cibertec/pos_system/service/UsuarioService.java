@@ -7,6 +7,8 @@ import com.cibertec.pos_system.service.impl.UsuarioServiceInterface;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -28,7 +30,15 @@ public class UsuarioService implements UsuarioServiceInterface {
     public UsuarioEntity obtenerPorId(Long id) {
         return usuarioRepository.findById(id).orElse(null);// si no encuentra devolvemos nulos
     }
+    @Override
+    public UserDetails obtenerPorUsuario(String username) throws UsernameNotFoundException {
+        UsuarioEntity user = usuarioRepository.getUserByUsername(username);
 
+        if(user == null){
+            throw new UsernameNotFoundException("Usuario no encontrado");
+        }
+        return new MyUserDetails(user);
+    }
     @Override
     public UsuarioEntity crearUser(UsuarioEntity user) {
         return usuarioRepository.save(user);
@@ -76,4 +86,10 @@ public class UsuarioService implements UsuarioServiceInterface {
     public UsuarioEntity obtenerPorUsername(String username) {
         return usuarioRepository.findByUsername(username);
     }
+
+    // Agrega este método al final de tu UsuarioService
+    public boolean esCajero(UsuarioEntity usuario) {
+    return usuario.getRoles().stream()
+            .anyMatch(rol -> "CASHIER".equals(rol.getNombre()));
+}
 }
