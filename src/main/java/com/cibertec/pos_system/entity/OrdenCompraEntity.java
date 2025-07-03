@@ -24,7 +24,7 @@ public class OrdenCompraEntity {
     private UsuarioEntity usuario;
 
     private LocalDateTime fechaCreacion;
-    private String estado; // pendiente, recibido, cancelado
+    private String estado;
     private BigDecimal total;
 
     @OneToMany(mappedBy = "ordenCompra", cascade = CascadeType.ALL, orphanRemoval = true)

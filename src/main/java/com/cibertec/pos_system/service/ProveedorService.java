@@ -2,6 +2,10 @@ package com.cibertec.pos_system.service;
 
 import com.cibertec.pos_system.entity.ProveedorEntity;
 import com.cibertec.pos_system.repository.ProveedorRepository;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,6 +22,11 @@ public class ProveedorService {
 
     public List<ProveedorEntity> listar() {
         return proveedorRepository.findAll();
+    }
+
+    public Page<ProveedorEntity> listarPaginado(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return proveedorRepository.findAll(pageable);
     }
 
     public ProveedorEntity guardar(ProveedorEntity proveedor) {
