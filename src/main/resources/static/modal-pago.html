@@ -9,10 +9,12 @@
         <div class="modal-body">
           <div class="mb-3">
             <label class="form-label">Método de pago</label>
-            <select class="form-select" id="metodoPago" required onchange="toggleEfectivo()">
+         <select class="form-select" id="metodoPago" required onchange="toggleEfectivo()">
   <option value="">Seleccione...</option>
-  <option value="1">Efectivo</option>
-  <option value="2">Tarjeta</option>
+  <option th:each="medio : ${mediosPago}" 
+          th:value="${medio.id}" 
+          th:text="${medio.nombre}">
+  </option>
 </select>
           </div>
           <!-- Campos adicionales para efectivo -->
