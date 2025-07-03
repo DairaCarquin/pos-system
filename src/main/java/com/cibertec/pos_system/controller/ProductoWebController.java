@@ -67,4 +67,9 @@ public class ProductoWebController {
         productoService.eliminar(id);
         return "redirect:/producto/lista";
     }
+
+    @GetMapping
+    public String redirectToLista() {
+        return "redirect:/producto/lista";
+    }
 } 
