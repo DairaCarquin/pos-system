@@ -8,6 +8,16 @@
 <body>
 <!-- Fragmento que se mostrará en la parte "contenido" del layout -->
 <div layout:fragment="contenido">
+
+  <div th:if="${error}" class="alert alert-danger" role="alert">
+    <span th:text="${error}"></span>
+  </div>
+
+  <!-- Mensaje de éxito -->
+  <div th:if="${success}" class="alert alert-success" role="alert">
+    <span th:text="${success}"></span>
+  </div>
+
   <div class="container mt-4">
     <div class="card">
       <div class="card-header bg-primary text-white">
