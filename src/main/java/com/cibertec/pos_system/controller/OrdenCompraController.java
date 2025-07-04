@@ -1,5 +1,6 @@
 package com.cibertec.pos_system.controller;
 
+import com.cibertec.pos_system.dto.PaginatedResponse;
 import com.cibertec.pos_system.dto.ProductoDTO;
 import com.cibertec.pos_system.entity.OrdenCompraDetalleEntity;
 import com.cibertec.pos_system.entity.OrdenCompraEntity;
@@ -14,6 +15,7 @@ import com.cibertec.pos_system.service.ProveedorService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.data.domain.Page;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
@@ -34,8 +36,16 @@ public class OrdenCompraController {
     private final UsuarioRepository usuarioRepository;
 
     @GetMapping("/ordenes")
-    public String listar(Model model) {
-        model.addAttribute("ordenes", ordenCompraService.listarOrdenes());
+    public String listarOrdenes(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size,
+            Model model) {
+
+        Page<OrdenCompraEntity> ordenesPage = ordenCompraService.listarOrdenesPaginado(page, size);
+        model.addAttribute("ordenesPage", ordenesPage);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", ordenesPage.getTotalPages());
+        model.addAttribute("size", size);
         return "orden/listado";
     }
 
@@ -65,7 +75,7 @@ public class OrdenCompraController {
 
             if (cantidadStr == null || cantidadStr.isBlank()) {
                 i++;
-                continue; // Saltar si no se ingresó cantidad
+                continue; 
             }
 
             int cantidad;
@@ -73,12 +83,12 @@ public class OrdenCompraController {
                 cantidad = Integer.parseInt(cantidadStr);
             } catch (NumberFormatException e) {
                 i++;
-                continue; // Saltar si no es un número válido
+                continue;
             }
 
             if (cantidad <= 0) {
                 i++;
-                continue; // Saltar si es cero o negativo
+                continue;
             }
 
             OrdenCompraDetalleEntity detalle = new OrdenCompraDetalleEntity();
@@ -113,15 +123,16 @@ public class OrdenCompraController {
 
     @GetMapping("/productos")
     @ResponseBody
-    public List<ProductoDTO> obtenerProductosPorProveedor(@RequestParam String ruc) {
+    public PaginatedResponse<ProductoDTO> obtenerProductosPorProveedor(
+            @RequestParam String ruc,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
         ProveedorEntity proveedor = proveedorService.obtenerProveedorPorRuc(ruc);
-        if (proveedor == null) {
-            throw new IllegalArgumentException("Proveedor no encontrado para el RUC: " + ruc);
-        }
+        if (proveedor == null) throw new IllegalArgumentException("Proveedor no encontrado");
 
-        List<ProductoEntity> productos = productoService.obtenerProductosPorProveedor(proveedor.getId());
-
-        return productos.stream().map(p -> {
+        Page<ProductoEntity> productosPage = productoService.obtenerPaginadoPorProveedor(proveedor.getId(), page, size);
+        List<ProductoDTO> data = productosPage.getContent().stream().map(p -> {
             ProductoDTO dto = new ProductoDTO();
             dto.setId(p.getId());
             dto.setNombre(p.getNombre());
@@ -129,6 +140,8 @@ public class OrdenCompraController {
             dto.setStockActual(p.getStockActual());
             return dto;
         }).toList();
+
+        return new PaginatedResponse<>(data, productosPage.getTotalElements());
     }
 
     @GetMapping("/orden/{id}")

@@ -1,6 +1,10 @@
 package com.cibertec.pos_system.service;
 
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -78,12 +82,17 @@ public class OrdenCompraService {
         return ordenCompraRepo.findAll();
     }
 
+    public Page<OrdenCompraEntity> listarOrdenesPaginado(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return ordenCompraRepo.findAll(pageable);
+    }
+
     public OrdenCompraEntity obtenerPorId(Long id) {
         return ordenCompraRepo.findById(id).orElseThrow();
     }
     
     @Transactional
-    public void actualizarOrden(Long id, Long proveedorId, Long usuarioId, List<OrdenCompraDetalleEntity> detalles) {
+    public void actualizarOrden(Long id, Long proveedorId, Long usuarioId, List<OrdenCompraDetalleEntity> nuevosDetalles) {
         OrdenCompraEntity orden = obtenerPorId(id);
 
         ProveedorEntity proveedor = proveedorRepo.findById(proveedorId).orElseThrow();
@@ -91,14 +100,19 @@ public class OrdenCompraService {
 
         orden.setProveedor(proveedor);
         orden.setUsuario(usuario);
-        orden.setDetalles(detalles);
+
+        orden.getDetalles().clear();
 
         BigDecimal total = BigDecimal.ZERO;
-        for (OrdenCompraDetalleEntity item : detalles) {
+
+        for (OrdenCompraDetalleEntity item : nuevosDetalles) {
             ProductoEntity prod = productoRepo.findById(item.getProducto().getId()).orElseThrow();
             item.setProducto(prod);
             item.setOrdenCompra(orden);
             item.setPrecioUnitario(prod.getPrecio());
+
+            orden.getDetalles().add(item);
+
             total = total.add(prod.getPrecio().multiply(BigDecimal.valueOf(item.getCantidad())));
         }
 
