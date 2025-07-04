@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Document</title>
+   </head>
+   <body>
+      <style>
+         body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f7f9fc;
+            margin: 20px;
+            color: #333;
+         }
+
+         form {
+            max-width: 1100px;
+            margin: auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+         }
+
+         h2 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+         }
+
+         table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            margin-bottom: 20px;
+         }
+
+         table th,
+         table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+         }
+
+         table th {
+            background-color: #f1f3f5;
+            color: #444;
+         }
+
+         input[type='number'],
+         select {
+            width: 100%;
+            padding: 6px 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+         }
+
+         button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-right: 10px;
+         }
+
+         button:hover {
+            background-color: #0056b3;
+         }
+
+         a {
+            text-decoration: none;
+         }
+
+         a button {
+            background-color: #6c757d;
+         }
+
+         a button:hover {
+            background-color: #495057;
+         }
+
+         p {
+            font-weight: bold;
+            margin: 8px 0;
+         }
+
+         label {
+            display: block;
+            margin: 10px 0 5px;
+            font-weight: bold;
+         }
+
+         select#metodoPago {
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            background-color: #fff;
+         }
+
+         img {
+            border-radius: 4px;
+            margin-bottom: 8px;
+         }
+
+         div[style*='border: 1px solid'] {
+            background-color: #fefefe;
+            border-radius: 6px;
+         }
+
+         .mensaje-error {
+            font-size: 0.85rem;
+            color: red;
+            display: inline-block;
+            margin-left: 8px;
+         }
+      </style>
+      <form th:action="@{/ventas-online/guardar}" method="post" onsubmit="return prepararFormulario()">
+         <div style="display: flex; gap: 2rem">
+            <!-- LISTA DE PRODUCTOS -->
+            <div style="flex: 1">
+               <h2>Productos Disponibles</h2>
+               <div
+                  th:each="producto : ${productos}"
+                  style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px"
+               >
+                  <img th:src="@{'/home-ventas/img/' + ${producto.imagen}}" th:alt="${producto.nombre}" width="80" />
+                  <p><strong th:text="${producto.nombre}"></strong></p>
+                  <p th:text="'Precio: S/ ' + ${producto.precio}"></p>
+                  <p th:if="${producto.stockActual > 0}" th:text="'Stock: ' + ${producto.stockActual}"></p>
+                  <p th:if="${producto.stockActual == 0}" style="color: red">Sin stock</p>
+                  <button
+                     type="button"
+                     th:disabled="${producto.stockActual == 0}"
+                     th:attr="data-id=${producto.id},
+                                data-nombre=${producto.nombre},
+                                data-precio=${producto.precio},
+                                data-stock=${producto.stockActual}"
+                     onclick="agregarProducto(this)"
+                  >
+                     Agregar
+                  </button>
+               </div>
+            </div>
+
+            <!-- CARRITO DE VENTA -->
+            <div style="flex: 1">
+               <h2>Productos Agregados</h2>
+               <table border="1" id="tablaProductos">
+                  <thead>
+                     <tr>
+                        <th>Producto</th>
+                        <th>Precio</th>
+                        <th>Cantidad</th>
+                        <th>Subtotal</th>
+                        <th>Acciones</th>
+                     </tr>
+                  </thead>
+                  <tbody></tbody>
+               </table>
+
+               <!-- TOTALES -->
+               <p>Subtotal: <span id="subtotal">0.00</span></p>
+               <p>IGV (18%): <span id="igv">0.00</span></p>
+               <p>Total: <span id="total">0.00</span></p>
+               <!-- MÉTODO DE PAGO -->
+               <label for="metodoPago"><strong>Método de Pago:</strong></label>
+               <select id="metodoPago" name="metodoPago" required style="margin-bottom: 1rem">
+                  <option value="">-- Seleccionar --</option>
+                  <option value="EFECTIVO">Efectivo</option>
+                  <option value="TARJETA">Tarjeta</option>
+                  <option value="MIXTO">Mixto</option>
+               </select>
+               <br />
+
+               <!-- BOTÓN DE PROCESAR -->
+               <button type="submit" style="margin-top: 1rem">Procesar Venta</button>
+               <a href="/ventas-online/list" style="margin-top: 1rem">Cancelar</a>
+            </div>
+         </div>
+
+         <!-- Campos ocultos para enviar la venta -->
+         <div id="camposOcultos"></div>
+      </form>
+
+      <script>
+         const carrito = [];
+
+         function agregarProducto(btn) {
+            const id = btn.getAttribute('data-id');
+            const nombre = btn.getAttribute('data-nombre');
+            const precio = parseFloat(btn.getAttribute('data-precio'));
+            const stock = parseInt(btn.getAttribute('data-stock'));
+
+            const existente = carrito.find((p) => p.id === id);
+            if (existente) {
+               if (existente.cantidad < existente.stock) {
+                  existente.cantidad++;
+               } else {
+                  alert('No hay más stock disponible');
+               }
+            } else {
+               carrito.push({ id, nombre, precio, cantidad: 1, stock });
+            }
+
+            renderTabla();
+            calcularTotales();
+         }
+
+         function renderTabla() {
+            const tbody = document.querySelector('#tablaProductos tbody');
+            tbody.innerHTML = '';
+            carrito.forEach((p, index) => {
+               const subtotal = (p.precio * p.cantidad).toFixed(2);
+               tbody.innerHTML += `
+            <tr>
+               <td>${p.nombre}</td>
+               <td>S/ ${p.precio.toFixed(2)}</td>
+               <td>
+                  <input type="number" min="1" max="${p.stock}" value="${p.cantidad}"
+                         onchange="actualizarCantidad(${index}, this, ${p.stock})" />
+               </td>
+               <td>S/ ${subtotal}</td>
+               <td>
+                  <button type="button" onclick="eliminarProducto(${index})">Eliminar</button>
+                  <span id="mensaje-${index}" class="mensaje-error" style="color:red; margin-left: 8px; display: none;">
+                     Stock insuficiente
+                  </span>
+               </td>
+            </tr>
+         `;
+            });
+         }
+
+         function actualizarCantidad(index, inputElement, stockDisponible) {
+            const cantidad = parseInt(inputElement.value);
+
+            if (cantidad >= 1 && cantidad <= stockDisponible) {
+               carrito[index].cantidad = cantidad;
+            } else {
+               carrito[index].cantidad = stockDisponible;
+               inputElement.value = stockDisponible;
+
+               const mensaje = document.getElementById(`mensaje-${index}`);
+               mensaje.style.display = 'inline';
+
+               setTimeout(() => {
+                  mensaje.style.display = 'none';
+               }, 2000);
+            }
+
+            calcularTotales();
+         }
+
+         function eliminarProducto(index) {
+            carrito.splice(index, 1);
+            renderTabla();
+            calcularTotales();
+         }
+
+         function calcularTotales() {
+            let subtotal = 0;
+            carrito.forEach((p) => (subtotal += p.precio * p.cantidad));
+            const igv = subtotal * 0.18;
+            const total = subtotal + igv;
+
+            document.getElementById('subtotal').innerText = subtotal.toFixed(2);
+            document.getElementById('igv').innerText = igv.toFixed(2);
+            document.getElementById('total').innerText = total.toFixed(2);
+         }
+
+         function prepararFormulario() {
+            const camposDiv = document.getElementById('camposOcultos');
+            camposDiv.innerHTML = '';
+
+            carrito.forEach((p, i) => {
+               camposDiv.innerHTML += `
+               <input type="hidden" name="detalles[${i}].producto.id" value="${p.id}" />
+               <input type="hidden" name="detalles[${i}].cantidad" value="${p.cantidad}" />
+               <input type="hidden" name="detalles[${i}].precioUnitario" value="${p.precio.toFixed(2)}" />
+               <input type="hidden" name="detalles[${i}].subtotal" value="${(p.precio * p.cantidad).toFixed(2)}" />
+            `;
+            });
+
+            return true;
+         }
+      </script>
+   </body>
+</html>

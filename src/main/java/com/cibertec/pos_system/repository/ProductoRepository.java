@@ -9,5 +9,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface ProductoRepository extends JpaRepository<ProductoEntity, Long> {
     List<ProductoEntity> findByProveedorId(Long proveedorId);
     List<ProductoEntity> findByCategoriaId(Long categoriaId);
+    List<ProductoEntity> findByNombreContainingIgnoreCase(String nombre);
 
 }

@@ -125,4 +125,7 @@ public class ProductoService {
         }
     }
 }
+public List<ProductoEntity> buscarPorNombre(String nombre) {
+    return productoRepository.findByNombreContainingIgnoreCase(nombre);
+}
 }

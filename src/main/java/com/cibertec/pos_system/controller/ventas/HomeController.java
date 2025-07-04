@@ -9,6 +9,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.cibertec.pos_system.entity.ProductoEntity;
 import com.cibertec.pos_system.service.ProductoService;
@@ -34,13 +35,18 @@ public class HomeController {
     // 
     // Pagina productos
     @GetMapping (path = "home/productos")
-    public String homeProductos(Model model,HttpSession session){
-        Integer cantidad = (Integer) session.getAttribute("carritoQuantity"); // obtenemos la cantidad del carrito en sesion
-        model.addAttribute("carritoQuantity", cantidad != null ? cantidad : 0); // mandamos la cantidad a la vista
+    public String homeProductos(@RequestParam(name = "nombre", required = false) String nombre,Model model,HttpSession session){
+        List<ProductoEntity> productos;
 
-        List<ProductoEntity> productos = serviceProducto.listar(); // listamos todos los productos
-        model.addAttribute("productos", productos); // mandamos lso productos a al vista
-        return "home-ventas/productos"; // vista : productos.html
+    if (nombre != null && !nombre.trim().isEmpty()) {
+        productos = serviceProducto.buscarPorNombre(nombre.trim());
+    } else {
+        productos = serviceProducto.listar();
+    }
+
+    model.addAttribute("productos", productos);
+    model.addAttribute("carritoQuantity", session.getAttribute("carritoQuantity") != null ? session.getAttribute("carritoQuantity") : 0);
+    return "home-ventas/productos"; // vista donde estás tu HTML
     }
     // 
     // 

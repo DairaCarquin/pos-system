@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
    <head>
       <meta charset="UTF-8" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -14,27 +14,48 @@
             <a href="/">Inicio</a>
             <a href="/home/productos">Productos</a>
             <a href="/home/about">about</a>
-            <a href="/home/carrito" class="cart"
-               >🛒
-               <p th:text="${carritoQuantity < 1 ? '0' : carritoQuantity}"></p
-            ></a>
+            <a href="/home/carrito" class="cart">
+               🛒
+               <p th:text="${carritoQuantity < 1 ? '0' : carritoQuantity}"></p>
+            </a>
          </nav>
       </header>
 
       <main class="container">
+         <form th:action="@{/home/productos}" method="get" style="text-align: center; margin-bottom: 2rem">
+            <input
+               type="text"
+               name="nombre"
+               placeholder="Buscar producto por nombre"
+               style="padding: 0.5rem; width: 250px"
+            />
+            <button type="submit" style="padding: 0.5rem">Buscar</button>
+         </form>
+
          <section class="sectionProducto">
             <ul th:each="producto : ${productos}">
                <a th:href="@{/home/productos/{id}(id=${producto.id})}">
-                  <img th:src="@{'/home-ventas/img/' + ${producto.imagen}}" alt="imagen de ${producto.nombre}" />
+                  <img
+                     th:src="@{'/home-ventas/img/' + ${producto.imagen}}"
+                     th:alt="'imagen de ' + ${producto.nombre}"
+                  />
                </a>
-               <li th:text=" @{${producto.codigo} +' - ' + ${producto.categoria.nombre} } "></li>
+               <li th:text="${producto.codigo + ' - ' + producto.categoria.nombre}"></li>
                <li th:text="${producto.nombre}"></li>
                <li th:text="${producto.descripcion}"></li>
-               <li th:text="@{ '$ ' + ${producto.precio} }"></li>
-               <li th:text="@{ 'Cantidad Disponible: ' + ${producto.stockActual}}"></li>
+               <li th:text="'$ ' + ${producto.precio}"></li>
+
+               <!-- Solo se muestra si hay stock -->
+               <li th:if="${producto.stockActual > 0}" th:text="'Cantidad Disponible: ' + ${producto.stockActual}"></li>
+
+               <!-- Si no hay stock -->
+               <li th:if="${producto.stockActual == 0}" style="color: red; font-weight: bold">
+                  Producto sin stock disponible
+               </li>
             </ul>
          </section>
       </main>
+
       <footer class="footer">
          <div class="footer-container">
             <div class="footer-section">

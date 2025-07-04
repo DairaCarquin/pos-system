@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+   <head>
+      <meta charset="UTF-8" />
+      <title>Editar Venta</title>
+   </head>
+   <style>
+      body {
+         font-family: Arial, sans-serif;
+         margin: 20px;
+         background-color: #f8f9fa;
+         color: #333;
+      }
+
+      h1 {
+         text-align: center;
+         color: #2c3e50;
+      }
+
+      form {
+         max-width: 800px;
+         margin: auto;
+         background: #fff;
+         padding: 20px;
+         border: 1px solid #ddd;
+         border-radius: 8px;
+         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      table {
+         width: 100%;
+         border-collapse: collapse;
+         margin-top: 20px;
+         margin-bottom: 20px;
+      }
+
+      table th,
+      table td {
+         border: 1px solid #ccc;
+         padding: 10px;
+         text-align: center;
+      }
+
+      table th {
+         background-color: #e9ecef;
+         color: #495057;
+      }
+
+      input[type='number'],
+      select {
+         width: 100%;
+         padding: 5px;
+         border: 1px solid #ccc;
+         border-radius: 4px;
+         box-sizing: border-box;
+      }
+
+      label {
+         display: inline-block;
+         margin-top: 10px;
+         font-weight: bold;
+      }
+
+      input[readonly] {
+         background-color: #f1f1f1;
+      }
+
+      button {
+         padding: 10px 20px;
+         background-color: #007bff;
+         color: white;
+         border: none;
+         border-radius: 4px;
+         cursor: pointer;
+         transition: background-color 0.3s;
+         margin-right: 10px;
+      }
+
+      button:hover {
+         background-color: #0056b3;
+      }
+
+      a button {
+         background-color: #6c757d;
+      }
+
+      a button:hover {
+         background-color: #5a6268;
+      }
+   </style>
+   <body>
+      <h1>Editar Venta Web</h1>
+
+      <form th:action="@{/ventas-online/actualizar}" th:object="${venta}" method="post">
+         <input type="hidden" th:field="*{id}" />
+
+         <table>
+            <thead>
+               <tr>
+                  <th>Producto</th>
+                  <th>Precio Unitario</th>
+                  <th>Cantidad</th>
+                  <th>Subtotal</th>
+               </tr>
+            </thead>
+            <tbody>
+               <tr th:each="detalle, i : *{detalles}">
+                  <td>
+                     <input
+                        type="hidden"
+                        th:name="detalles[__${i.index}__].producto.id"
+                        th:value="${detalle.producto.id}"
+                     />
+                     <span th:text="${detalle.producto.nombre}">Nombre</span>
+                  </td>
+                  <td>
+                     <input
+                        type="number"
+                        th:name="detalles[__${i.index}__].precioUnitario"
+                        th:value="${detalle.precioUnitario}"
+                        readonly
+                     />
+                  </td>
+                  <td>
+                     <select th:name="detalles[__${i.index}__].cantidad" class="input-cantidad">
+                        <option
+                           th:each="n : ${#numbers.sequence(1, detalle.producto.stockActual)}"
+                           th:value="${n}"
+                           th:text="${n}"
+                           th:selected="${n == detalle.cantidad}"
+                        ></option>
+                     </select>
+                  </td>
+                  <td>
+                     <input type="number" th:id="'subtotal-' + ${i.index}" class="subtotal-input" readonly />
+                  </td>
+               </tr>
+            </tbody>
+         </table>
+
+         <label>Subtotal:</label>
+         <input type="number" th:field="*{subtotal}" id="subtotal" readonly /><br />
+
+         <label>IGV (18%):</label>
+         <input type="number" th:field="*{impuestos}" id="igv" readonly /><br />
+
+         <label>Total:</label>
+         <input type="number" th:field="*{total}" id="total" readonly /><br />
+
+         <br />
+         <button type="submit">Guardar Cambios</button>
+         <a th:href="@{/ventas-online/list}"><button type="button">Cancelar</button></a>
+      </form>
+
+      <script>
+         function recalcularTotales() {
+            const rows = document.querySelectorAll('tbody tr');
+            let subtotal = 0;
+
+            rows.forEach((row, index) => {
+               const precio = parseFloat(row.children[1].querySelector('input').value) || 0;
+
+               const cantidadSelect = row.children[2].querySelector('select');
+               const cantidad = parseInt(cantidadSelect.value) || 0;
+
+               const sub = precio * cantidad;
+               subtotal += sub;
+
+               const subtotalInput = document.getElementById('subtotal-' + index);
+               subtotalInput.value = sub.toFixed(2);
+            });
+
+            document.getElementById('subtotal').value = subtotal.toFixed(2);
+            const igv = subtotal * 0.18;
+            document.getElementById('igv').value = igv.toFixed(2);
+            document.getElementById('total').value = (subtotal + igv).toFixed(2);
+         }
+
+         // Ejecutar al cargar
+         window.addEventListener('load', recalcularTotales);
+
+         // Recalcular cada vez que cambia una cantidad
+         document.addEventListener('change', function (e) {
+            if (e.target.classList.contains('input-cantidad')) {
+               recalcularTotales();
+            }
+         });
+      </script>
+   </body>
+</html>
