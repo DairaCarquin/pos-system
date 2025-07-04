@@ -9,6 +9,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ProductoRepository extends JpaRepository<ProductoEntity, Long> {
+    List<ProductoEntity> findByNombreContainingIgnoreCase(String nombre);
+
     Page<ProductoEntity> findByProveedorId(Long proveedorId, Pageable pageable);
     List<ProductoEntity> findByCategoriaId(Long categoriaId);
 }

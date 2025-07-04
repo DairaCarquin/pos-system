@@ -6,6 +6,11 @@
    box-sizing: border-box;
    font-family: 'roboto';
 }
+body {
+   min-height: 100dvh;
+   display: flex;
+   flex-direction: column;
+}
 .header {
    display: flex;
    min-height: 10dvh;
@@ -47,6 +52,7 @@
    flex-direction: column;
    align-items: center;
    justify-content: center;
+   margin-bottom: 1rem;
 }
 
 .container-home {
@@ -207,4 +213,8 @@
    margin-top: 2rem;
    font-size: 0.9rem;
    color: #d1d5db;
+}
+
+.footer {
+   margin-top: auto;
 }
