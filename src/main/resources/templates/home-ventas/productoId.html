@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
    <head>
       <meta charset="UTF-8" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <link rel="stylesheet" th:href="@{/home-ventas/css/index.css}" />
       <link rel="stylesheet" th:href="@{/home-ventas/css/productoId.css}" />
-      <title>Document</title>
+      <title>Detalle Producto</title>
    </head>
    <body>
       <header class="header">
@@ -14,12 +14,13 @@
             <a href="/">Inicio</a>
             <a href="/home/productos">Productos</a>
             <a href="/home/about">about</a>
-            <a href="/home/carrito" class="cart"
-               >🛒
-               <p th:text="${carritoQuantity < 1 ? '0' : carritoQuantity}"></p
-            ></a>
+            <a href="/home/carrito" class="cart">
+               🛒
+               <p th:text="${carritoQuantity < 1 ? '0' : carritoQuantity}"></p>
+            </a>
          </nav>
       </header>
+
       <main class="container">
          <article class="sectionProducto">
             <ul>
@@ -32,18 +33,25 @@
                   <strong th:text="${producto.codigo} + ' - ' + ${producto.categoria.nombre}"></strong>
                </li>
                <nav>
-                  <li th:text=" @{${producto.codigo} +' - ' + ${producto.categoria.nombre} } "></li>
                   <li th:text="${producto.nombre}"></li>
                   <li th:text="${producto.descripcion}"></li>
                   <li th:text="@{ '$ ' + ${producto.precio} }"></li>
-                  <li th:text="@{ 'Cantidad Disponible: ' + ${producto.stockActual}}"></li>
+                  <li
+                     th:if="${producto.stockActual > 0}"
+                     th:text="@{ 'Cantidad Disponible: ' + ${producto.stockActual}}"
+                  ></li>
 
-                  <li>
+                  <!-- Si no hay stock -->
+                  <li th:if="${producto.stockActual == 0}" style="color: red; font-weight: bold">
+                     Producto sin stock disponible.
+                  </li>
+
+                  <!-- Si hay stock -->
+                  <li th:if="${producto.stockActual > 0}">
                      <form method="post" action="/carrito/agregar">
-                        <!-- CSRF token obligatorio para que no te mande al login -->
                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-
                         <input type="hidden" name="id" th:value="${producto.id}" />
+
                         <label for="cantidad">Cantidad:</label>
                         <select name="cantidad" id="cantidad">
                            <option
@@ -52,6 +60,7 @@
                               th:text="${i}"
                            ></option>
                         </select>
+
                         <button type="submit">Agregar al carrito</button>
                      </form>
                   </li>
@@ -59,6 +68,7 @@
             </ul>
          </article>
       </main>
+
       <footer class="footer">
          <div class="footer-container">
             <div class="footer-section">

@@ -136,6 +136,9 @@ public class ProductoService {
         }
     }
 }
+public List<ProductoEntity> buscarPorNombre(String nombre) {
+    return productoRepository.findByNombreContainingIgnoreCase(nombre);
+}
 
     public List<ProductoEntity> listarPorProveedor(Long proveedorId) {
         return productoRepository.findByProveedorId(proveedorId, Pageable.unpaged()).getContent();
@@ -143,6 +146,8 @@ public class ProductoService {
     
     public List<ProductoEntity> listarPorCategoria(Long categoriaId) {
         return productoRepository.findByCategoriaId(categoriaId);
+
+        
     }
 }
       

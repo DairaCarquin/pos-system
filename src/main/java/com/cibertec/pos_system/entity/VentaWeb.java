@@ -11,6 +11,7 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -47,8 +48,9 @@ public class VentaWeb {
     private MetodoPago metodoPago;
 
     private String estado;
+    private String motivoAnulacion;
 
-    @OneToMany(mappedBy = "ventaWeb", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "ventaWeb", cascade = CascadeType.ALL,fetch = FetchType.EAGER)
     private List<VentaDetalleWeb> detalles = new ArrayList<>();
 }
 
