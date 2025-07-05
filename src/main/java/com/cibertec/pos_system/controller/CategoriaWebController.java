@@ -45,6 +45,12 @@ public class CategoriaWebController {
         return "redirect:/categoria";
     }
 
+    @PostMapping("/actualizar")
+    public String actualizarCategoria(@ModelAttribute("categoria") CategoriaEntity categoria) {
+        categoriaService.actualizar(categoria.getId(), categoria);
+        return "redirect:/categoria";
+    }
+
     @GetMapping("/editar/{id}")
     public String mostrarFormularioEditarCategoria(@PathVariable Long id, Model model) {
         CategoriaEntity categoria = categoriaService.obtener(id)
