@@ -3,6 +3,7 @@ package com.cibertec.pos_system.controller;
 import com.cibertec.pos_system.entity.CategoriaEntity;
 import com.cibertec.pos_system.service.CategoriaService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -15,8 +16,16 @@ public class CategoriaWebController {
     private CategoriaService categoriaService;
 
     @GetMapping
-    public String listarCategorias(Model model) {
-        model.addAttribute("categorias", categoriaService.listar());
+    public String listarCategorias(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            Model model) {
+        Page<CategoriaEntity> categoriasPage = categoriaService.listarPaginado(page, size);
+        model.addAttribute("categorias", categoriasPage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", categoriasPage.getTotalPages());
+        model.addAttribute("totalElements", categoriasPage.getTotalElements());
+        model.addAttribute("size", size);
         return "categoria/lista";
     }
 

@@ -3,9 +3,11 @@ import com.cibertec.pos_system.entity.CategoriaEntity;
 import com.cibertec.pos_system.entity.DescuentoEntity;
 import com.cibertec.pos_system.entity.ProductoEntity;
 import com.cibertec.pos_system.entity.PrecioDescuentoEntity;
+import com.cibertec.pos_system.entity.ProveedorEntity;
 import com.cibertec.pos_system.repository.CategoriaRepository;
 import com.cibertec.pos_system.repository.PrecioDescuentoRepository;
 import com.cibertec.pos_system.repository.ProductoRepository;
+import com.cibertec.pos_system.repository.ProveedorRepository;
 import com.cibertec.pos_system.service.DescuentoService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,16 +28,19 @@ public class ProductoService {
     private final ProductoRepository productoRepository;
     private final CategoriaRepository categoriaRepository;
     private final PrecioDescuentoRepository precioDescuentoRepository;
+    private final ProveedorRepository proveedorRepository;
     private final DescuentoService descuentoService;
     public ProductoService(
             ProductoRepository productoRepository,
             CategoriaRepository categoriaRepository,
             PrecioDescuentoRepository precioDescuentoRepository,
+            ProveedorRepository proveedorRepository,
             DescuentoService descuentoService
     ) {
         this.productoRepository = productoRepository;
         this.categoriaRepository = categoriaRepository;
         this.precioDescuentoRepository = precioDescuentoRepository;
+        this.proveedorRepository = proveedorRepository;
         this.descuentoService = descuentoService;
     }
     
@@ -68,7 +73,22 @@ public class ProductoService {
         productoRepository.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("Producto no encontrado"));
 
+        // Preserve the ID
         nuevoProducto.setId(id);
+        
+        // Ensure relationships are properly loaded
+        if (nuevoProducto.getCategoria() != null && nuevoProducto.getCategoria().getId() != null) {
+            CategoriaEntity categoria = categoriaRepository.findById(nuevoProducto.getCategoria().getId())
+                .orElseThrow(() -> new IllegalArgumentException("Categoría no encontrada"));
+            nuevoProducto.setCategoria(categoria);
+        }
+        
+        if (nuevoProducto.getProveedor() != null && nuevoProducto.getProveedor().getId() != null) {
+            ProveedorEntity proveedor = proveedorRepository.findById(nuevoProducto.getProveedor().getId())
+                .orElseThrow(() -> new IllegalArgumentException("Proveedor no encontrado"));
+            nuevoProducto.setProveedor(proveedor);
+        }
+        
         return productoRepository.save(nuevoProducto);
     }
 
@@ -146,8 +166,11 @@ public List<ProductoEntity> buscarPorNombre(String nombre) {
     
     public List<ProductoEntity> listarPorCategoria(Long categoriaId) {
         return productoRepository.findByCategoriaId(categoriaId);
-
-        
+    }
+    
+    public Page<ProductoEntity> listarPaginado(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return productoRepository.findAll(pageable);
     }
 }
       
