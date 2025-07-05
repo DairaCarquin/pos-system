@@ -9,34 +9,94 @@
 
 <body>
 <div layout:fragment="contenido">
-    <h2 class="mb-4">Lista de Categorías</h2>
+    <div class="container mt-4">
+        <h2 class="mb-4">Lista de Categorías</h2>
 
-    <a th:href="@{/categoria/nuevo}" class="btn btn-success mb-3">
-        <i class="bi bi-plus-circle"></i> Nueva Categoría
-    </a>
+        <a th:href="@{/categoria/nuevo}" class="btn btn-success mb-3">
+            <i class="bi bi-plus-circle"></i> Nueva Categoría
+        </a>
 
-    <table class="table table-bordered table-striped">
-        <thead>
-        <tr>
-            <th>Nombre</th>
-            <th>Descripción</th>
-            <th>Activo</th>
-            <th>Acciones</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="cat : ${categorias}">
-            <td th:text="${cat.nombre}">Nombre</td>
-            <td th:text="${cat.descripcion}">Descripción</td>
-            <td th:text="${cat.activo ? 'Sí' : 'No'}">Activo</td>
-            <td>
-                <a th:href="@{'/categoria/editar/' + ${cat.id}}" class="btn btn-primary btn-sm">Editar</a>
-                <a th:href="@{'/categoria/eliminar/' + ${cat.id}}" class="btn btn-danger btn-sm"
-                   onclick="return confirm('¿Eliminar esta categoría?')">Eliminar</a>
-            </td>
-        </tr>
-        </tbody>
-    </table>
+        <table class="table table-bordered table-striped">
+            <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Descripción</th>
+                <th>Activo</th>
+                <th>Acciones</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="cat : ${categorias}">
+                <td th:text="${cat.nombre}">Nombre</td>
+                <td th:text="${cat.descripcion}">Descripción</td>
+                <td th:text="${cat.activo ? 'Sí' : 'No'}">Activo</td>
+                <td>
+                    <a th:href="@{'/categoria/editar/' + ${cat.id}}" class="btn btn-primary btn-sm">Editar</a>
+                    <a th:href="@{'/categoria/eliminar/' + ${cat.id}}" class="btn btn-danger btn-sm"
+                       onclick="return confirm('¿Eliminar esta categoría?')">Eliminar</a>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(categorias)}">
+                <td colspan="4" class="text-center text-muted">No hay categorías registradas.</td>
+            </tr>
+            </tbody>
+        </table>
+        
+        <!-- Page size selector - always visible -->
+        <div class="d-flex justify-content-end mt-3">
+            <div class="d-flex align-items-center">
+                <label for="pageSize" class="me-2">Elementos por página:</label>
+                <select id="pageSize" class="form-select form-select-sm" style="width: auto;" 
+                        onchange="changePageSize(this.value)">
+                    <option value="5" th:selected="${size == 5}">5</option>
+                    <option value="10" th:selected="${size == 10}">10</option>
+                    <option value="20" th:selected="${size == 20}">20</option>
+                    <option value="50" th:selected="${size == 50}">50</option>
+                </select>
+            </div>
+        </div>
+        
+        <!-- Pagination Controls -->
+        <div th:if="${totalPages > 1}" class="d-flex justify-content-between align-items-center mt-4"
+             th:data-current-page="${currentPage}" th:data-total-elements="${totalElements}">
+            <div class="text-muted">
+                Mostrando <span th:text="${#lists.size(categorias)}">0</span> de <span th:text="${totalElements}">0</span> categorías
+            </div>
+            
+            <nav aria-label="Navegación de páginas">
+                <ul class="pagination mb-0">
+                    <!-- Previous button -->
+                    <li class="page-item" th:classappend="${currentPage == 0 ? 'disabled' : ''}">
+                        <a class="page-link" th:href="@{/categoria(page=${currentPage - 1}, size=${size})}" 
+                           th:if="${currentPage > 0}">Anterior</a>
+                        <span class="page-link" th:if="${currentPage == 0}">Anterior</span>
+                    </li>
+                    
+                    <!-- Page numbers -->
+                    <li class="page-item" th:each="pageNum : ${#numbers.sequence(0, totalPages - 1)}"
+                        th:classappend="${pageNum == currentPage ? 'active' : ''}">
+                        <a class="page-link" th:href="@{/categoria(page=${pageNum}, size=${size})}" 
+                           th:text="${pageNum + 1}">1</a>
+                    </li>
+                    
+                    <!-- Next button -->
+                    <li class="page-item" th:classappend="${currentPage == totalPages - 1 ? 'disabled' : ''}">
+                        <a class="page-link" th:href="@{/categoria(page=${currentPage + 1}, size=${size})}" 
+                           th:if="${currentPage < totalPages - 1}">Siguiente</a>
+                        <span class="page-link" th:if="${currentPage == totalPages - 1}">Siguiente</span>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+        
+        <!-- Item count display when no pagination -->
+        <div th:if="${totalPages <= 1}" class="d-flex justify-content-between align-items-center mt-4"
+             th:data-current-page="${currentPage}" th:data-total-elements="${totalElements}">
+            <div class="text-muted">
+                Mostrando <span th:text="${#lists.size(categorias)}">0</span> de <span th:text="${totalElements}">0</span> categorías
+            </div>
+        </div>
+    </div>
 </div>
 </body>
 </html>

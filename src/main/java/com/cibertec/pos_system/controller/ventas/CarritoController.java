@@ -32,7 +32,8 @@ class CarritoController {
     {
         @SuppressWarnings("unchecked")
         List<ItemCarrito> carrito = (List<ItemCarrito>) session.getAttribute("carrito"); // obtenemos la sesion de carrito al ingresar
-
+        Integer cantidad = (Integer) session.getAttribute("carritoQuantity"); // obtenemos la cantidad del carrito en sesion
+        model.addAttribute("carritoQuantity", cantidad != null ? cantidad : 0); // mandamos la cantidad a la vista
 
         BigDecimal subtotal = (BigDecimal) session.getAttribute("redondearSubtotal"); // obtenemos subtotal de la sesion
         BigDecimal igv = (BigDecimal) session.getAttribute("redondearIgv"); // igv de la sesion

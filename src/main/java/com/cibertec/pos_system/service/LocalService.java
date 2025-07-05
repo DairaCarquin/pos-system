@@ -3,8 +3,10 @@ package com.cibertec.pos_system.service;
 import com.cibertec.pos_system.entity.LocalEntity;
 import com.cibertec.pos_system.repository.LocalRepository;
 import com.cibertec.pos_system.service.impl.LocalServiceInterface;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,6 +21,11 @@ public class LocalService implements LocalServiceInterface {
     @Override
     public List<LocalEntity> listar() {
         return localRepository.findAll();
+    }
+
+    public Page<LocalEntity> listarPaginado(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return localRepository.findAll(pageable);
     }
 
     @Override

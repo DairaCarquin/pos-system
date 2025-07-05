@@ -122,8 +122,23 @@
                th:if="${venta.estado != 'ANULADO'}"
                th:action="@{/ventas-online/anular/{id}(id=${venta.id})}"
                method="post"
+               onsubmit="return validarMotivo()"
             >
                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+               <label for="motivo" style="display: block; margin-bottom: 5px"
+                  ><strong>Motivo de Anulación:</strong></label
+               >
+               <textarea
+                  name="motivoAnulacion"
+                  id="motivo"
+                  rows="3"
+                  style="width: 100%; margin-bottom: 10px"
+               ></textarea>
+               <!-- AQUI VA EL MENSAJE DE ERROR -->
+               <p id="errorMsg" style="color: red; font-weight: bold; display: none">
+                  ⚠️ El motivo debe tener al menos 10 caracteres.
+               </p>
                <button
                   type="submit"
                   style="background-color: red; color: white; padding: 10px; border: none; border-radius: 5px"
@@ -131,9 +146,27 @@
                   ❌ Anular Venta
                </button>
             </form>
+            <script>
+               function validarMotivo() {
+                  const motivo = document.getElementById('motivo').value.trim();
+                  const errorMsg = document.getElementById('errorMsg');
+
+                  if (motivo.length < 10) {
+                     errorMsg.style.display = 'block';
+                     return false; // no envía el formulario
+                  }
+
+                  errorMsg.style.display = 'none';
+                  return true; // envía el formulario
+               }
+            </script>
 
             <p th:if="${venta.estado == 'ANULADO'}" style="color: red; font-weight: bold; margin-top: 10px">
                Esta venta ha sido anulada.
+            </p>
+
+            <p th:if="${venta.motivoAnulacion != null}">
+               <strong>Motivo de Anulación:</strong> <span th:text="${venta.motivoAnulacion}">-</span>
             </p>
          </section>
       </main>
