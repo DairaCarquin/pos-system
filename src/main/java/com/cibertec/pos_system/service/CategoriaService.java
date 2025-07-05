@@ -2,6 +2,9 @@ package com.cibertec.pos_system.service;
 
 import com.cibertec.pos_system.entity.CategoriaEntity;
 import com.cibertec.pos_system.repository.CategoriaRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,6 +21,11 @@ public class CategoriaService {
 
     public List<CategoriaEntity> listar() {
         return categoriaRepository.findAll();
+    }
+
+    public Page<CategoriaEntity> listarPaginado(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return categoriaRepository.findAll(pageable);
     }
 
     public CategoriaEntity crear(CategoriaEntity categoria) {

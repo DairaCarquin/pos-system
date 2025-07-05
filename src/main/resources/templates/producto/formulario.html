@@ -3,61 +3,88 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout}">
 <head>
-    <title>Nuevo Producto</title>
+    <title th:text="${producto.id != null ? 'Editar Producto' : 'Nuevo Producto'}">Producto</title>
 </head>
 <body>
 <div layout:fragment="contenido">
     <div class="container mt-4">
-        <h2>Registrar Producto</h2>
+        <h2 class="mb-4" th:text="${producto.id != null ? 'Editar Producto' : 'Registrar Producto'}">Producto</h2>
 
-        <form th:action="@{/producto/guardar}" th:object="${producto}" method="post" enctype="multipart/form-data">
+        <form th:action="${producto.id != null ? '/producto/actualizar' : '/producto/guardar'}" 
+              th:object="${producto}" method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+
+            <!-- Hidden field for product ID when editing -->
+            <input type="hidden" th:field="*{id}" th:if="${producto.id != null}">
 
             <div class="mb-3">
-                <label class="form-label">Código</label>
-                <input type="text" class="form-control" th:field="*{codigo}" required>
+                <label for="codigo" class="form-label">Código</label>
+                <input type="text" id="codigo" class="form-control" th:field="*{codigo}" required>
+                <div class="invalid-feedback">Código requerido.</div>
             </div>
 
             <div class="mb-3">
-                <label class="form-label">Nombre</label>
-                <input type="text" class="form-control" th:field="*{nombre}" required>
+                <label for="nombre" class="form-label">Nombre</label>
+                <input type="text" id="nombre" class="form-control" th:field="*{nombre}" required>
+                <div class="invalid-feedback">Nombre requerido.</div>
             </div>
 
             <div class="mb-3">
-                <label class="form-label">Descripción</label>
-                <textarea class="form-control" th:field="*{descripcion}" required></textarea>
+                <label for="descripcion" class="form-label">Descripción</label>
+                <textarea id="descripcion" class="form-control" th:field="*{descripcion}" rows="3" required></textarea>
+                <div class="invalid-feedback">Descripción requerida.</div>
             </div>
 
             <div class="mb-3">
-                <label class="form-label">Precio</label>
-                <input type="number" step="0.01" class="form-control" th:field="*{precio}" required>
+                <label for="precio" class="form-label">Precio</label>
+                <input type="number" id="precio" step="0.01" class="form-control" th:field="*{precio}" required>
+                <div class="invalid-feedback">Precio requerido.</div>
             </div>
 
             <div class="mb-3">
-                <label class="form-label">Imagen</label>
-                <input type="file" name="imagenFile" class="form-control">
+                <label for="imagenFile" class="form-label">Imagen</label>
+                <input type="file" id="imagenFile" name="imagenFile" class="form-control" 
+                       accept="image/*" onchange="validateImageFile(this)">
+                <div class="invalid-feedback">Por favor seleccione una imagen válida (JPG, PNG, GIF, WEBP).</div>
+                <small class="form-text text-muted">Formatos permitidos: JPG, PNG, GIF, WEBP. Tamaño máximo: 5MB</small>
+                
+                <!-- Current image preview when editing -->
+                <div th:if="${producto.id != null and producto.imagen != null and producto.imagen != ''}" class="mt-2">
+                    <label class="form-label">Imagen actual:</label>
+                    <div class="d-flex align-items-center">
+                        <img th:src="@{'/home-ventas/img/' + ${producto.imagen}}" 
+                             th:alt="'Imagen de ' + ${producto.nombre}"
+                             class="img-thumbnail me-3" style="max-width: 150px; max-height: 150px;">
+                        <small class="text-muted">Seleccione una nueva imagen para reemplazar la actual</small>
+                    </div>
+                </div>
             </div>
 
             <div class="mb-3">
-                <label class="form-label">Stock Actual</label>
-                <input type="number" class="form-control" th:field="*{stockActual}" required>
+                <label for="stockActual" class="form-label">Stock Actual</label>
+                <input type="number" id="stockActual" class="form-control" th:field="*{stockActual}" required>
+                <div class="invalid-feedback">Stock requerido.</div>
             </div>
 
             <div class="mb-3">
-                <label class="form-label">Categoría</label>
-                <select class="form-select" th:field="*{categoria}" required>
+                <label for="categoria" class="form-label">Categoría</label>
+                <select id="categoria" class="form-select" th:field="*{categoria}" required>
+                    <option value="">Seleccione una categoría</option>
                     <option th:each="cat : ${listaCategorias}"
                             th:value="${cat.id}"
                             th:text="${cat.nombre}">Categoría</option>
                 </select>
+                <div class="invalid-feedback">Categoría requerida.</div>
             </div>
 
             <div class="mb-3">
-                <label class="form-label">Proveedor</label>
-                <select class="form-select" th:field="*{proveedor}" required>
+                <label for="proveedor" class="form-label">Proveedor</label>
+                <select id="proveedor" class="form-select" th:field="*{proveedor}" required>
+                    <option value="">Seleccione un proveedor</option>
                     <option th:each="prov : ${listaProveedores}"
                             th:value="${prov.id}"
                             th:text="${prov.razonSocial}">Proveedor</option>
                 </select>
+                <div class="invalid-feedback">Proveedor requerido.</div>
             </div>
 
             <div class="form-check mb-3">
@@ -65,11 +92,85 @@
                 <label class="form-check-label" for="activo">Activo</label>
             </div>
 
-            <button type="submit" class="btn btn-primary">Guardar</button>
+            <button type="submit" class="btn btn-primary" th:text="${producto.id != null ? 'Actualizar' : 'Guardar'}">Guardar</button>
             <a th:href="@{/producto/lista}" class="btn btn-secondary">Cancelar</a>
 
         </form>
     </div>
 </div>
+
+<script>
+    (() => {
+        'use strict';
+        const forms = document.querySelectorAll('.needs-validation');
+        Array.from(forms).forEach(form => {
+            form.addEventListener('submit', event => {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    })();
+
+    function validateImageFile(input) {
+        const file = input.files[0];
+        const maxSize = 5 * 1024 * 1024; // 5MB
+        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+        
+        // Remove existing preview
+        const existingPreview = document.getElementById('imagePreview');
+        if (existingPreview) {
+            existingPreview.remove();
+        }
+        
+        if (file) {
+            // Check file size
+            if (file.size > maxSize) {
+                input.setCustomValidity('El archivo es demasiado grande. Tamaño máximo: 5MB');
+                input.classList.add('is-invalid');
+                return false;
+            }
+            
+            // Check file type
+            if (!allowedTypes.includes(file.type)) {
+                input.setCustomValidity('Tipo de archivo no permitido. Solo se permiten imágenes.');
+                input.classList.add('is-invalid');
+                return false;
+            }
+            
+            // File is valid
+            input.setCustomValidity('');
+            input.classList.remove('is-invalid');
+            input.classList.add('is-valid');
+            
+            // Create preview
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const previewDiv = document.createElement('div');
+                previewDiv.id = 'imagePreview';
+                previewDiv.className = 'mt-2';
+                previewDiv.innerHTML = `
+                    <label class="form-label">Vista previa:</label>
+                    <div class="d-flex align-items-center">
+                        <img src="${e.target.result}" alt="Vista previa" 
+                             class="img-thumbnail me-3" style="max-width: 150px; max-height: 150px;">
+                        <small class="text-muted">${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)</small>
+                    </div>
+                `;
+                input.parentNode.appendChild(previewDiv);
+            };
+            reader.readAsDataURL(file);
+            
+            return true;
+        }
+        
+        // No file selected
+        input.setCustomValidity('');
+        input.classList.remove('is-invalid', 'is-valid');
+        return true;
+    }
+</script>
 </body>
 </html>
